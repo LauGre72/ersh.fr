@@ -16,19 +16,7 @@ function Home() {
           title="Émargement"
           desc="Aide à la création de feuille d’emargement ESS"
           explain="Saisisser les informations de l’élève et des participants, puis générez automatiquement votre feuille d’émargement au format PDF"
-        />		
-        <AppTile
-          href="https://gevasco.ersh.fr"
-          title="GEVA-sco"
-          desc="Aide à la rédaction du GEVA-sco"
-          explain="Aide à la rédaction de chapitre du formulaires GEVA-sco à partir de note de saisie."
-        />
-		<AppTile
-          href="https://lpi.ersh.fr"
-          title="LPI"
-          desc="Aide à la rédaction du PLI"
-          explain="Aide à la rédaction du questionnaire LPI pour générer GEVA-sco à partir de note de saisie."
-        />		
+        />			
 		<AppTile
           href="https://kanban.ersh.fr"
           title="Kanban"

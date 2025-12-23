@@ -6,9 +6,7 @@ export default function Header() {
         <nav className="hidden md:flex gap-4 text-sm">
           <a className="hover:underline" href="https://bordereau.ersh.fr">Bordereau</a>
           <a className="hover:underline" href="https://emargement.ersh.fr">Émargement</a>		  
-          <a className="hover:underline" href="https://gevasco.ersh.fr">GEVA-sco</a>
-		  <a className="hover:underline" href="https://lpi.ersh.fr">LPI</a>
-		  <a className="hover:underline" href="https://kanban.ersh.fr">Kanban</a>
+		      <a className="hover:underline" href="https://kanban.ersh.fr">Kanban</a>
         </nav>
       </div>
     </header>
