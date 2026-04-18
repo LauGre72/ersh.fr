@@ -137,17 +137,21 @@ export default function BordereauForm() {
   });
 
   return (
-    <PDFGenerator docType="bordereau">
+    <PDFGenerator
+      docType="bordereau"
+      draftData={formData}
+      onLoadDraft={(data) => setFormData(prev => ({ ...prev, ...data }))}
+    >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 pb-6 border-b-2 border-blue-200">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+          <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white shadow-md">
+            <h2 className="text-3xl font-bold text-white">
               📋 Bordereau de dépôt MDPH
             </h2>
-            <p className="text-gray-600 mt-2">Complétez tous les champs pour générer votre bordereau</p>
+            <p className="mt-2 text-white/90">Complétez tous les champs pour générer votre bordereau</p>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="space-y-6 max-w-4xl">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="w-full space-y-6">
             {/* Identité */}
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

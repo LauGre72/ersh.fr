@@ -70,17 +70,21 @@ export default function EssFeuillePresenceForm() {
   };
 
   return (
-    <PDFGenerator docType="essFeuillePresence">
+    <PDFGenerator
+      docType="essFeuillePresence"
+      draftData={formData}
+      onLoadDraft={(data) => setFormData(prev => ({ ...prev, ...data }))}
+    >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 pb-6 border-b-2 border-teal-200">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
+          <div className="mb-8 rounded-lg bg-gradient-to-r from-teal-600 to-teal-800 p-6 text-white shadow-md">
+            <h2 className="text-3xl font-bold text-white">
               📝 Feuille de Présence ESS
             </h2>
-            <p className="text-gray-600 mt-2">Nouveau format pour les réunions de l'Équipe de Suivi de Scolarisation</p>
+            <p className="mt-2 text-white/90">Nouveau format pour les réunions de l'Équipe de Suivi de Scolarisation</p>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6 max-w-4xl">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
             <FormSection title="👤 Élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput

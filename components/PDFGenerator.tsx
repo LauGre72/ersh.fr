@@ -1,24 +1,70 @@
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { submitPDF, getPDFStatus, downloadPDF } from "./api";
 
 interface PDFGeneratorProps {
   docType: string;
+  draftData?: Record<string, any>;
+  onLoadDraft?: (data: Record<string, any>) => void;
   children: (onSubmit: (data: any) => void) => React.ReactNode;
 }
 
-export default function PDFGenerator({ docType, children }: PDFGeneratorProps) {
+export default function PDFGenerator({ docType, draftData, onLoadDraft, children }: PDFGeneratorProps) {
   const [user, setUser] = useState<any>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting" | "pending" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [filename, setFilename] = useState<string>("document.pdf");
+  const [draftMessage, setDraftMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => setUser(u));
     return () => unsub();
   }, []);
+
+  const handleSaveDraft = () => {
+    if (!draftData) return;
+
+    const savedAt = new Date().toISOString();
+    const json = JSON.stringify({ docType, savedAt, data: draftData }, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const date = savedAt.slice(0, 10);
+
+    link.href = url;
+    link.download = `ersh-${docType}-${date}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setDraftMessage("Fichier JSON de sauvegarde cree.");
+  };
+
+  const handleLoadDraftClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleLoadDraftFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !onLoadDraft) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+      const data = parsed?.data;
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error("Invalid draft");
+      }
+      if (parsed?.docType && parsed.docType !== docType) {
+        throw new Error("Wrong document type");
+      }
+      onLoadDraft(data);
+      setDraftMessage("Fichier JSON recharge.");
+    } catch {
+      setDraftMessage("Le fichier JSON est illisible ou ne correspond pas a ce formulaire.");
+    }
+  };
 
   const handleSubmit = async (formData: any) => {
     if (!user) return;
@@ -74,7 +120,36 @@ export default function PDFGenerator({ docType, children }: PDFGeneratorProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
+    <div className="w-full max-w-6xl mx-auto p-6 lg:p-8 bg-white rounded-xl shadow-lg">
+      {draftData && onLoadDraft && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="text-sm font-medium text-gray-700">Sauvegarde JSON du formulaire</div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Sauvegarder en JSON
+            </button>
+            <button
+              type="button"
+              onClick={handleLoadDraftClick}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Recharger un JSON
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleLoadDraftFile}
+              className="hidden"
+            />
+          </div>
+          {draftMessage && <div className="basis-full text-sm text-gray-600">{draftMessage}</div>}
+        </div>
+      )}
       {children(handleSubmit)}
       
       {/* Status Messages */}

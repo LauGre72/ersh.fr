@@ -25,11 +25,17 @@ export default function EssPointSituationForm() {
   };
 
   return (
-    <PDFGenerator docType="essPointSituation">
+    <PDFGenerator
+      docType="essPointSituation"
+      draftData={formData}
+      onLoadDraft={(data) => setFormData(prev => ({ ...prev, ...data }))}
+    >
       {(onSubmit) => (
         <div>
-          <h2 className="text-xl font-bold mb-4">Points de Situation ESS</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
+          <div className="mb-8 rounded-lg bg-gradient-to-r from-amber-600 to-amber-800 p-6 text-white shadow-md">
+            <h2 className="text-3xl font-bold text-white">Points de Situation ESS</h2>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
             {/* Champs de base similaires */}
             <div className="grid grid-cols-2 gap-4">
               <div>

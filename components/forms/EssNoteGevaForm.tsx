@@ -42,11 +42,17 @@ export default function EssNoteGevaForm() {
   };
 
   return (
-    <PDFGenerator docType="essNoteGeva">
+    <PDFGenerator
+      docType="essNoteGeva"
+      draftData={formData}
+      onLoadDraft={(data) => setFormData(prev => ({ ...prev, ...data }))}
+    >
       {(onSubmit) => (
         <div>
-          <h2 className="text-xl font-bold mb-4">Note Complémentaire GEVA-SCo</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
+          <div className="mb-8 rounded-lg bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-md">
+            <h2 className="text-3xl font-bold text-white">Note Complémentaire GEVA-SCo</h2>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
             {/* Champs similaires à EssFeuillePresence */}
             <div className="grid grid-cols-2 gap-4">
               <div>
