@@ -45,6 +45,13 @@ export interface PDFJob {
   owner: string;
 }
 
+export interface UserProfile {
+  full_name: string;
+  email: string;
+  sign: string;
+  news: boolean;
+}
+
 export async function submitPDF(data: any, token: string): Promise<{ job_id: string }> {
   const response = await fetch(apiUrl("/pdf/submit"), {
     method: "POST",
@@ -82,4 +89,32 @@ export async function downloadPDF(jobId: string, token: string): Promise<Blob> {
     throw new Error(await getErrorMessage(response, "Erreur lors du telechargement"));
   }
   return response.blob();
+}
+
+export async function getProfile(token: string): Promise<UserProfile> {
+  const response = await fetch(apiUrl("/get-profile"), {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Erreur lors du chargement du profil"));
+  }
+  return response.json();
+}
+
+export async function saveProfile(profile: UserProfile, token: string): Promise<UserProfile> {
+  const response = await fetch(apiUrl("/save-profile"), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(profile),
+  });
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Erreur lors de l'enregistrement du profil"));
+  }
+  await response.json().catch(() => null);
+  return profile;
 }
