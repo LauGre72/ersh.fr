@@ -74,7 +74,7 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
     link.download = buildDraftFilename(docType, draftData, filename);
     link.click();
     URL.revokeObjectURL(url);
-    setDraftMessage("Fichier JSON de sauvegarde cree.");
+    setDraftMessage("Dossier de travail sauvegarde.");
   };
 
   const handleLoadDraftClick = () => {
@@ -96,9 +96,9 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
         throw new Error("Wrong document type");
       }
       onLoadDraft(data);
-      setDraftMessage("Fichier JSON recharge.");
+      setDraftMessage("Dossier de travail recharge.");
     } catch {
-      setDraftMessage("Le fichier JSON est illisible ou ne correspond pas a ce formulaire.");
+      setDraftMessage("Le fichier selectionne est illisible ou ne correspond pas a ce document.");
     }
   };
 
@@ -159,21 +159,21 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
     <div className="w-full max-w-6xl mx-auto p-6 lg:p-8 bg-white rounded-xl shadow-lg">
       {draftData && onLoadDraft && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
-          <div className="text-sm font-medium text-gray-700">Sauvegarde JSON du formulaire</div>
+          <div className="text-sm font-semibold text-gray-800">Dossier de travail</div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              className="rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2"
             >
-              Sauvegarder en JSON
+              Enregistrer le dossier
             </button>
             <button
               type="button"
               onClick={handleLoadDraftClick}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-400 bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2"
             >
-              Recharger un JSON
+              Ouvrir un dossier
             </button>
             <input
               ref={fileInputRef}
