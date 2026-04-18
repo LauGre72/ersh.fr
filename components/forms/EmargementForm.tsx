@@ -45,143 +45,194 @@ export default function EmargementForm() {
     }));
   };
 
+  const moveParticipant = (from: number, direction: "up" | "down") => {
+    const to = direction === "up" ? from - 1 : from + 1;
+    if (to < 0 || to >= formData.participants.length) return;
+    const participants = [...formData.participants];
+    [participants[from], participants[to]] = [participants[to], participants[from]];
+    setFormData(prev => ({ ...prev, participants }));
+  };
+
   return (
     <PDFGenerator docType="feuillePresence">
       {(onSubmit) => (
         <div>
-          <h2 className="text-xl font-bold mb-4">Feuille d'Émargement ESS</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Type de demande</label>
-                <input
-                  type="text"
-                  value={formData.typedemande}
-                  onChange={(e) => updateField("typedemande", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+          <div className="mb-8 pb-6 border-b-2 border-cyan-200">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-cyan-800 bg-clip-text text-transparent">
+              ✍️ Feuille d'Émargement ESS
+            </h2>
+            <p className="text-gray-600 mt-2">Saisissez les informations et la liste des participants</p>
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6 max-w-4xl">
+            {/* Identité */}
+            <FormSection title="👤 Identité de l'élève">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Nom"
+                  value={formData.nom}
+                  onChange={(e) => updateField("nom", e.target.value)}
+                  placeholder="Ex. Nora Dupont"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Date ESS</label>
-                <input
-                  type="date"
-                  value={formData.date_ess}
-                  onChange={(e) => updateField("date_ess", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Date de naissance</label>
-                <input
+                <FormInput
+                  label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Nom</label>
-                <input
-                  type="text"
-                  value={formData.nom}
-                  onChange={(e) => updateField("nom", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Niveau</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Niveau"
                   value={formData.niveau}
                   onChange={(e) => updateField("niveau", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Ex. 3e, 2nde GT, 1ère Pro."
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Numéro de dossier</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Numéro de dossier"
                   value={formData.dossier_num}
                   onChange={(e) => updateField("dossier_num", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Ex. 72-2025-00123"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Établissement</label>
-                <input
-                  type="text"
+            </FormSection>
+
+            {/* Établissement */}
+            <FormSection title="🏫 Établissement">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Établissement"
                   value={formData.etablissement}
                   onChange={(e) => updateField("etablissement", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Ex. Collège Jean Monnet"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Chef d'établissement</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Chef d'établissement"
                   value={formData.chef_etab}
                   onChange={(e) => updateField("chef_etab", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="Ex. Mme/M. Dupont"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Participants</label>
-              {formData.participants.map((p, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Nom"
-                    value={p.nom}
-                    onChange={(e) => updateParticipant(index, "nom", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Fonction"
-                    value={p.fonction}
-                    onChange={(e) => updateParticipant(index, "fonction", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={p.email}
-                    onChange={(e) => updateParticipant(index, "email", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeParticipant(index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    -
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addParticipant}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Ajouter participant
-              </button>
-            </div>
+            </FormSection>
+
+            {/* Réunion */}
+            <FormSection title="📅 Réunion ESS">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Type de demande"
+                  value={formData.typedemande}
+                  onChange={(e) => updateField("typedemande", e.target.value)}
+                />
+                <FormInput
+                  label="Date de l'ESS"
+                  type="date"
+                  value={formData.date_ess}
+                  onChange={(e) => updateField("date_ess", e.target.value)}
+                />
+              </div>
+            </FormSection>
+
+            {/* Participants */}
+            <FormSection title="👥 Participants ({formData.participants.length})">
+              <div className="space-y-3">
+                {formData.participants.length === 0 ? (
+                  <p className="text-gray-500 italic">Aucun participant ajouté. Cliquez sur le bouton ci-dessous.</p>
+                ) : (
+                  formData.participants.map((p, index) => (
+                    <div key={index} className="p-4 bg-gradient-to-r from-gray-50 to-cyan-50 rounded-lg border-2 border-gray-200 hover:border-cyan-300 transition">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="font-bold text-gray-900">Participant #{index + 1}</span>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => moveParticipant(index, "up")}
+                            disabled={index === 0}
+                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400 disabled:opacity-50 transition"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveParticipant(index, "down")}
+                            disabled={index === formData.participants.length - 1}
+                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400 disabled:opacity-50 transition"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeParticipant(index)}
+                            className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Nom"
+                          value={p.nom}
+                          onChange={(e) => updateParticipant(index, "nom", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Fonction"
+                          value={p.fonction}
+                          onChange={(e) => updateParticipant(index, "fonction", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition text-sm"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={p.email}
+                          onChange={(e) => updateParticipant(index, "email", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
+                <button
+                  type="button"
+                  onClick={addParticipant}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition font-semibold shadow-md"
+                >
+                  + Ajouter un participant
+                </button>
+              </div>
+            </FormSection>
+
             <button
               type="submit"
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-lg hover:from-cyan-700 hover:to-cyan-800 transition font-bold text-lg shadow-lg hover:shadow-xl"
             >
-              Générer le PDF
+              ✨ Générer le PDF
             </button>
           </form>
         </div>
       )}
     </PDFGenerator>
+  );
+}
+
+// Composants réutilisables
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200 hover:border-cyan-200 transition">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <input
+        {...props}
+        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition"
+      />
+    </div>
   );
 }

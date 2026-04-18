@@ -1,13 +1,82 @@
 import { useState } from "react";
 import PDFGenerator from "../PDFGenerator";
 
+// Options pour les multi-select
+const DEMANDES_OPTIONS = [
+  { id: "aesh", label: "AESH" },
+  { id: "aesh_ulis", label: "AESH collectif (ULIS)" },
+  { id: "ordi", label: "Ordinateur portable" },
+  { id: "tablette", label: "Tablette" },
+  { id: "logiciel", label: "Logiciel spécifique (ex : dictée vocale)" },
+  { id: "materiel_adapte", label: "Matériel pédagogique adapté" },
+  { id: "ulis_ecole", label: "ULIS école" },
+  { id: "ulis_college", label: "ULIS collège" },
+  { id: "ulis_lycee", label: "ULIS lycée" },
+  { id: "segpa", label: "SEGPA" },
+  { id: "erea", label: "EREA" },
+  { id: "maintien_maternelle", label: "Maintien en maternelle" },
+  { id: "enseignement_amenage", label: "Enseignement ordinaire avec aménagements" },
+  { id: "sessad", label: "SESSAD" },
+  { id: "ime", label: "IME" },
+  { id: "iem", label: "IEM" },
+  { id: "itep", label: "ITEP" },
+  { id: "ies", label: "IES" },
+  { id: "safe", label: "SAFE" },
+  { id: "camsp", label: "CAMSP" },
+  { id: "cmpp", label: "CMPP" },
+  { id: "cmp", label: "CMP" },
+  { id: "ue_ems", label: "UE (Unité d'Enseignement en EMS)" },
+  { id: "transport_adapte", label: "Transport scolaire adapté" },
+  { id: "indemnisation_transport", label: "Indemnisation de transport" },
+  { id: "amen_exam", label: "Aménagements d'examen (DNB, Bac…)" },
+  { id: "pai_pap", label: "Mise en place d'un PAI / PAP" },
+  { id: "temps_majore", label: "Temps majoré ou secrétariat aux épreuves" },
+  { id: "aeeh", label: "AEEH" },
+  { id: "pch", label: "PCH" },
+  { id: "cmi", label: "CMI" },
+  { id: "rqth", label: "RQTH" },
+];
+
+const PI_OPTIONS = [
+  { id: "ci_eleve", label: "Carte d'identité de l'élève" },
+  { id: "pass_eleve", label: "Passeport élève" },
+  { id: "livret_famille", label: "Livret de famille" },
+  { id: "extrait_naissance", label: "Extrait d'acte de naissance" },
+  { id: "ci_parent1", label: "Carte d'identité représentant légal (Parent 1)" },
+  { id: "ci_parent2", label: "Carte d'identité représentant légal (Parent 2)" },
+  { id: "pass_parent1", label: "Passeport représentant légal (Parent 1)" },
+  { id: "pass_parent2", label: "Passeport représentant légal (Parent 2)" },
+  { id: "jugement_divorce", label: "Jugement de divorce / autorité parentale" },
+  { id: "delegation_parentale", label: "Attestation de délégation parentale" },
+  { id: "tutelle", label: "Tutelle / curatelle" },
+  { id: "titre_sejour", label: "Titre de séjour" },
+  { id: "ofpra", label: "Attestation OFPRA / réfugié" },
+  { id: "doc_provisoire", label: "Document provisoire (préfecture)" },
+  { id: "identite_mecs", label: "Identité transmise par établissement / MECS" },
+];
+
+const JD_OPTIONS = [
+  { id: "impots", label: "Impots (taxe d'habitation...)" },
+  { id: "facture_nrj", label: "Facture d'énergie" },
+  { id: "facture_tel", label: "Facture de téléphone / box" },
+  { id: "quittance_loyer", label: "Quittance de loyer (organisme social ou agence)" },
+  { id: "attestation_hebergement", label: "Attestation d'hébergement" },
+  { id: "jd_parents", label: "Justificatif de domicile des représentants légaux" },
+  { id: "titre_propriete", label: "Titre de propriété" },
+  { id: "bail", label: "Bail locatif" },
+  { id: "attestation_caf", label: "Attestation CAF de résidence" },
+  { id: "courrier_mairie", label: "Courrier mairie / CCAS" },
+  { id: "hebergement_mecs", label: "Hébergement en foyer / MECS" },
+  { id: "rib_adresse", label: "RIB avec adresse" },
+];
+
 export default function BordereauForm() {
   const [formData, setFormData] = useState({
     typedemande: "",
     dossier_num: "",
     nom: "",
     date_nais: "",
-    demandes: "",
+    demandes: [] as string[],
     CERFA: false,
     HAS_PI: false,
     PI: "",
@@ -31,127 +100,304 @@ export default function BordereauForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const toggleMultiSelect = (field: string, value: string) => {
+    const arr = formData[field as keyof typeof formData] as string[];
+    if (Array.isArray(arr)) {
+      if (arr.includes(value)) {
+        updateField(field, arr.filter(v => v !== value));
+      } else {
+        updateField(field, [...arr, value]);
+      }
+    }
+  };
+
   return (
     <PDFGenerator docType="bordereau">
       {(onSubmit) => (
         <div>
-          <h2 className="text-xl font-bold mb-4">Bordereau de dépôt MDPH</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Type de demande</label>
-                <select
-                  value={formData.typedemande}
-                  onChange={(e) => updateField("typedemande", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                >
-                  <option value="">Sélectionner</option>
-                  <option value="Première demande">Première demande</option>
-                  <option value="Réexamen">Réexamen</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Numéro de dossier</label>
-                <input
-                  type="text"
-                  value={formData.dossier_num}
-                  onChange={(e) => updateField("dossier_num", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Nom</label>
-                <input
-                  type="text"
+          <div className="mb-8 pb-6 border-b-2 border-blue-200">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              📋 Bordereau de dépôt MDPH
+            </h2>
+            <p className="text-gray-600 mt-2">Complétez tous les champs pour générer votre bordereau</p>
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6 max-w-4xl">
+            {/* Identité */}
+            <FormSection title="👤 Identité de l'élève">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Nom"
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Date de naissance</label>
-                <input
+                <FormInput
+                  label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Demandes</label>
-              <textarea
-                value={formData.demandes}
-                onChange={(e) => updateField("demandes", e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 h-24"
-              />
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.CERFA}
-                onChange={(e) => updateField("CERFA", e.target.checked)}
-                className="mr-2"
-              />
-              <label className="text-sm font-medium">CERFA</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.HAS_PI}
-                onChange={(e) => updateField("HAS_PI", e.target.checked)}
-                className="mr-2"
-              />
-              <label className="text-sm font-medium">Pièces d'identité</label>
-            </div>
-            {formData.HAS_PI && (
-              <input
-                type="text"
-                value={formData.PI}
-                onChange={(e) => updateField("PI", e.target.value)}
-                placeholder="Détails PI"
-                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-              />
-            )}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.HAS_JD}
-                onChange={(e) => updateField("HAS_JD", e.target.checked)}
-                className="mr-2"
-              />
-              <label className="text-sm font-medium">Justificatifs de domicile</label>
-            </div>
-            {formData.HAS_JD && (
-              <input
-                type="text"
-                value={formData.JD}
-                onChange={(e) => updateField("JD", e.target.value)}
-                placeholder="Détails JD"
-                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-              />
-            )}
-            <div>
-              <label className="block text-sm font-medium">Certificat médical</label>
-              <textarea
-                value={formData.cert_med}
-                onChange={(e) => updateField("cert_med", e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 h-24"
-              />
-            </div>
-            {/* Autres champs peuvent être ajoutés de manière similaire */}
+            </FormSection>
+
+            {/* Dossier */}
+            <FormSection title="📁 Dossier">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormSelect
+                  label="Type de demande"
+                  value={formData.typedemande}
+                  onChange={(e) => updateField("typedemande", e.target.value)}
+                  options={[
+                    { value: "", label: "Sélectionner..." },
+                    { value: "Première demande", label: "Première demande" },
+                    { value: "Réexamen", label: "Réexamen" },
+                    { value: "Autre", label: "Autre" },
+                  ]}
+                />
+                <FormInput
+                  label="Numéro de dossier"
+                  value={formData.dossier_num}
+                  onChange={(e) => updateField("dossier_num", e.target.value)}
+                  placeholder="Ex. 72-2025-00123"
+                />
+              </div>
+            </FormSection>
+
+            {/* Demandes */}
+            <FormSection title="🎯 Demandes">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {DEMANDES_OPTIONS.map(opt => (
+                  <FormCheckbox
+                    key={opt.id}
+                    checked={formData.demandes.includes(opt.id)}
+                    onChange={() => toggleMultiSelect("demandes", opt.id)}
+                    label={opt.label}
+                  />
+                ))}
+              </div>
+            </FormSection>
+
+            {/* Documents CERFA */}
+            <FormSection title="📄 Documents">
+              <div className="space-y-4">
+                <FormCheckbox
+                  checked={formData.CERFA}
+                  onChange={(e) => updateField("CERFA", e.target.checked)}
+                  label="CERFA 14-004-01"
+                />
+
+                <div className="border-t pt-4">
+                  <FormCheckbox
+                    checked={formData.HAS_PI}
+                    onChange={(e) => updateField("HAS_PI", e.target.checked)}
+                    label="Pièces d'identité"
+                  />
+                  {formData.HAS_PI && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-2 border border-blue-200">
+                      {PI_OPTIONS.map(opt => (
+                        <FormCheckbox
+                          key={opt.id}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-4">
+                  <FormCheckbox
+                    checked={formData.HAS_JD}
+                    onChange={(e) => updateField("HAS_JD", e.target.checked)}
+                    label="Justificatifs de domicile"
+                  />
+                  {formData.HAS_JD && (
+                    <div className="mt-3 p-3 bg-green-50 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-2 border border-green-200">
+                      {JD_OPTIONS.map(opt => (
+                        <FormCheckbox
+                          key={opt.id}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <FormLabel>Certificat médical</FormLabel>
+                <textarea
+                  value={formData.cert_med}
+                  onChange={(e) => updateField("cert_med", e.target.value)}
+                  className="mt-1 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                />
+              </div>
+            </FormSection>
+
+            {/* GEVA-Sco */}
+            <FormSection title="📊 GEVA-Sco">
+              <div className="space-y-3">
+                <FormCheckbox
+                  checked={formData.HAS_GEVASco}
+                  onChange={(e) => updateField("HAS_GEVASco", e.target.checked)}
+                  label="GEVA-Sco disponible"
+                />
+                {formData.HAS_GEVASco && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
+                    <FormInput
+                      label="Date GEVA-Sco"
+                      type="date"
+                      value={formData.date_geva_sco}
+                      onChange={(e) => updateField("date_geva_sco", e.target.value)}
+                    />
+                    <FormSelect
+                      label="Type de réunion"
+                      value={formData.type_reunion}
+                      onChange={(e) => updateField("type_reunion", e.target.value)}
+                      options={[
+                        { value: "", label: "Sélectionner..." },
+                        { value: "ESS", label: "ESS" },
+                        { value: "Equipe éducative", label: "Équipe éducative" },
+                      ]}
+                    />
+                  </div>
+                )}
+              </div>
+            </FormSection>
+
+            {/* Autres sections */}
+            <FormSection title="📌 LPI et Documents supplémentaires">
+              <div className="space-y-3">
+                <FormCheckbox
+                  checked={formData.HAS_LPI}
+                  onChange={(e) => updateField("HAS_LPI", e.target.checked)}
+                  label="LPI (Livret de Parcours Inclusif) disponible"
+                />
+                {formData.HAS_LPI && (
+                  <FormInput
+                    label="Numéro LPI"
+                    value={formData.NUM_LPI}
+                    onChange={(e) => updateField("NUM_LPI", e.target.value)}
+                  />
+                )}
+
+                <div className="border-t pt-4">
+                  <FormCheckbox
+                    checked={formData.HAS_PSY}
+                    onChange={(e) => updateField("HAS_PSY", e.target.checked)}
+                    label="Document psychologue"
+                  />
+                  {formData.HAS_PSY && (
+                    <textarea
+                      value={formData.PSY}
+                      onChange={(e) => updateField("PSY", e.target.value)}
+                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                    />
+                  )}
+                </div>
+
+                <div className="border-t pt-4">
+                  <FormCheckbox
+                    checked={formData.HAS_PRO}
+                    onChange={(e) => updateField("HAS_PRO", e.target.checked)}
+                    label="Document professionnel"
+                  />
+                  {formData.HAS_PRO && (
+                    <textarea
+                      value={formData.PRO}
+                      onChange={(e) => updateField("PRO", e.target.value)}
+                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                    />
+                  )}
+                </div>
+
+                <div className="border-t pt-4">
+                  <FormCheckbox
+                    checked={formData.HAS_AUTRE}
+                    onChange={(e) => updateField("HAS_AUTRE", e.target.checked)}
+                    label="Autre document"
+                  />
+                  {formData.HAS_AUTRE && (
+                    <textarea
+                      value={formData.AUTRE}
+                      onChange={(e) => updateField("AUTRE", e.target.value)}
+                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                    />
+                  )}
+                </div>
+              </div>
+            </FormSection>
+
             <button
               type="submit"
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition font-bold text-lg shadow-lg hover:shadow-xl"
             >
-              Générer le PDF
+              ✨ Générer le PDF
             </button>
           </form>
         </div>
       )}
     </PDFGenerator>
+  );
+}
+
+// Components réutilisables
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200 hover:border-blue-200 transition">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function FormLabel({ children }: { children: React.ReactNode }) {
+  return <label className="block text-sm font-semibold text-gray-700 mb-2">{children}</label>;
+}
+
+function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <FormLabel>{label}</FormLabel>
+      <input
+        {...props}
+        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+      />
+    </div>
+  );
+}
+
+function FormSelect({ 
+  label, 
+  options,
+  ...props 
+}: { 
+  label: string; 
+  options: { value: string; label: string }[] 
+} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div>
+      <FormLabel>{label}</FormLabel>
+      <select
+        {...props}
+        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition bg-white"
+      >
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function FormCheckbox({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+      <input
+        type="checkbox"
+        {...props}
+        className="h-5 w-5 text-blue-600 rounded border-gray-300 cursor-pointer"
+      />
+      <span className="text-sm text-gray-700">{label}</span>
+    </label>
   );
 }

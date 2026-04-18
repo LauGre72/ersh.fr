@@ -7,6 +7,27 @@ interface Participant {
   email: string;
 }
 
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200 hover:border-teal-200 transition">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <input
+        {...props}
+        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition"
+      />
+    </div>
+  );
+}
+
 export default function EssFeuillePresenceForm() {
   const [formData, setFormData] = useState({
     year_scolaire: "2025-2026",
@@ -52,164 +73,149 @@ export default function EssFeuillePresenceForm() {
     <PDFGenerator docType="essFeuillePresence">
       {(onSubmit) => (
         <div>
-          <h2 className="text-xl font-bold mb-4">Feuille de Présence ESS</h2>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Année scolaire</label>
-                <input
-                  type="text"
-                  value={formData.year_scolaire}
-                  onChange={(e) => updateField("year_scolaire", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Date ESS</label>
-                <input
-                  type="date"
-                  value={formData.date_ess}
-                  onChange={(e) => updateField("date_ess", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Numéro ESS</label>
-                <input
-                  type="text"
-                  value={formData.numero_ess}
-                  onChange={(e) => updateField("numero_ess", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Prénom</label>
-                <input
-                  type="text"
+          <div className="mb-8 pb-6 border-b-2 border-teal-200">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
+              📝 Feuille de Présence ESS
+            </h2>
+            <p className="text-gray-600 mt-2">Nouveau format pour les réunions de l'Équipe de Suivi de Scolarisation</p>
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6 max-w-4xl">
+            <FormSection title="👤 Élève">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Prénom"
                   value={formData.prenom}
                   onChange={(e) => updateField("prenom", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Nom</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Nom"
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Date de naissance</label>
-                <input
+                <FormInput
+                  label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Classe</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Classe"
                   value={formData.classe}
                   onChange={(e) => updateField("classe", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium">Numéro de dossier</label>
-                <input
-                  type="text"
+            </FormSection>
+
+            <FormSection title="📚 Dossier">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Numéro de dossier"
                   value={formData.dossier_num}
                   onChange={(e) => updateField("dossier_num", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                />
+                <FormInput
+                  label="Établissement"
+                  value={formData.etablissement}
+                  onChange={(e) => updateField("etablissement", e.target.value)}
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Établissement</label>
-              <input
-                type="text"
-                value={formData.etablissement}
-                onChange={(e) => updateField("etablissement", e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Rédacteur</label>
-                <input
-                  type="text"
+            </FormSection>
+
+            <FormSection title="📅 Réunion ESS">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Année scolaire"
+                  value={formData.year_scolaire}
+                  onChange={(e) => updateField("year_scolaire", e.target.value)}
+                />
+                <FormInput
+                  label="Date ESS"
+                  type="date"
+                  value={formData.date_ess}
+                  onChange={(e) => updateField("date_ess", e.target.value)}
+                />
+                <FormInput
+                  label="Numéro ESS"
+                  value={formData.numero_ess}
+                  onChange={(e) => updateField("numero_ess", e.target.value)}
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="✍️ Rédacteur">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Nom du rédacteur"
                   value={formData.redacteur}
                   onChange={(e) => updateField("redacteur", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Fonction du rédacteur</label>
-                <input
-                  type="text"
+                <FormInput
+                  label="Fonction du rédacteur"
                   value={formData.fonction_redacteur}
                   onChange={(e) => updateField("fonction_redacteur", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Participants</label>
-              {formData.participants.map((p, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Nom"
-                    value={p.nom}
-                    onChange={(e) => updateParticipant(index, "nom", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Fonction"
-                    value={p.fonction}
-                    onChange={(e) => updateParticipant(index, "fonction", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={p.email}
-                    onChange={(e) => updateParticipant(index, "email", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeParticipant(index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    -
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addParticipant}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Ajouter participant
-              </button>
-            </div>
+            </FormSection>
+
+            <FormSection title="👥 Participants ({formData.participants.length})">
+              <div className="space-y-3">
+                {formData.participants.length === 0 ? (
+                  <p className="text-gray-500 italic">Aucun participant. Ajoutez-en avec le bouton ci-dessous.</p>
+                ) : (
+                  formData.participants.map((p, index) => (
+                    <div key={index} className="p-4 bg-gradient-to-r from-gray-50 to-teal-50 rounded-lg border-2 border-gray-200">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="font-bold text-gray-900">Participant #{index + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeParticipant(index)}
+                          className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Nom"
+                          value={p.nom}
+                          onChange={(e) => updateParticipant(index, "nom", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Fonction"
+                          value={p.fonction}
+                          onChange={(e) => updateParticipant(index, "fonction", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition text-sm"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={p.email}
+                          onChange={(e) => updateParticipant(index, "email", e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none transition text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
+                <button
+                  type="button"
+                  onClick={addParticipant}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 transition font-semibold shadow-md"
+                >
+                  + Ajouter un participant
+                </button>
+              </div>
+            </FormSection>
+
             <button
               type="submit"
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-700 hover:to-teal-800 transition font-bold text-lg shadow-lg hover:shadow-xl"
             >
-              Générer le PDF
+              ✨ Générer le PDF
             </button>
           </form>
         </div>
