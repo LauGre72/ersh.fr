@@ -33,6 +33,12 @@ function replaceExtension(name: string, extension: string) {
 }
 
 function buildDraftFilename(docType: string, draftData: Record<string, any> | undefined, currentPdfFilename: string) {
+  if (docType === "bordereau") {
+    const name = sanitizeFilenamePart(draftData?.nom).replace(/-/g, "_") || "sans_nom";
+    const today = new Date().toISOString().slice(0, 10);
+    return `Bordereau_MDPH_${name}_${today}.json`;
+  }
+
   if (currentPdfFilename && currentPdfFilename !== "document.pdf") {
     return replaceExtension(currentPdfFilename, "json");
   }
