@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
+import { auth } from "../../firebase";
+import { getProfile } from "../api";
 
 interface Participant {
   nom: string;
@@ -19,6 +22,49 @@ export default function EmargementForm() {
     chef_etab: "",
     participants: [] as Participant[],
   });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      try {
+        const token = await user.getIdToken();
+        const profile = await getProfile(token);
+        if (cancelled) return;
+
+        const defaultParticipant = {
+          nom: profile.full_name || user.displayName || "",
+          fonction: profile.sign || "",
+          email: profile.email || user.email || "",
+        };
+
+        setFormData(prev => {
+          if (prev.participants.length > 0) return prev;
+          if (!defaultParticipant.nom && !defaultParticipant.fonction && !defaultParticipant.email) return prev;
+          return { ...prev, participants: [defaultParticipant] };
+        });
+      } catch {
+        if (cancelled) return;
+        setFormData(prev => {
+          if (prev.participants.length > 0 || !user.email) return prev;
+          return {
+            ...prev,
+            participants: [{
+              nom: user.displayName || "",
+              fonction: "",
+              email: user.email,
+            }],
+          };
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -120,10 +166,15 @@ export default function EmargementForm() {
             {/* Réunion */}
             <FormSection title="📅 Réunion ESS">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormInput
+                <FormSelect
                   label="Type de demande"
                   value={formData.typedemande}
                   onChange={(e) => updateField("typedemande", e.target.value)}
+                  options={[
+                    { value: "", label: "Sélectionner..." },
+                    { value: "Première demande", label: "Première demande" },
+                    { value: "Réexamen", label: "Réexamen" },
+                  ]}
                 />
                 <FormInput
                   label="Date de l'ESS"
@@ -237,6 +288,29 @@ function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttri
         {...props}
         className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition"
       />
+    </div>
+  );
+}
+
+function FormSelect({
+  label,
+  options,
+  ...props
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <select
+        {...props}
+        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition bg-white"
+      >
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
     </div>
   );
 }
