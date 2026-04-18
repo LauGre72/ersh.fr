@@ -10,6 +10,43 @@ interface PDFGeneratorProps {
   children: (onSubmit: (data: any) => void) => React.ReactNode;
 }
 
+const DOCUMENT_LABELS: Record<string, string> = {
+  bordereau: "bordereau",
+  feuillePresence: "feuille-presence",
+  essFeuillePresence: "ess-feuille-presence",
+  essNoteGeva: "ess-note-geva",
+  essPointSituation: "ess-point-situation",
+};
+
+function sanitizeFilenamePart(value: unknown) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+}
+
+function replaceExtension(name: string, extension: string) {
+  const withoutExtension = name.replace(/\.[^.]+$/, "");
+  return `${withoutExtension}.${extension}`;
+}
+
+function buildDraftFilename(docType: string, draftData: Record<string, any> | undefined, currentPdfFilename: string) {
+  if (currentPdfFilename && currentPdfFilename !== "document.pdf") {
+    return replaceExtension(currentPdfFilename, "json");
+  }
+
+  const parts = [
+    DOCUMENT_LABELS[docType] || docType,
+    sanitizeFilenamePart(draftData?.nom),
+    sanitizeFilenamePart(draftData?.prenom),
+    sanitizeFilenamePart(draftData?.date_ess || draftData?.date_nais),
+  ].filter(Boolean);
+
+  return `${parts.join("-") || "document"}.json`;
+}
+
 export default function PDFGenerator({ docType, draftData, onLoadDraft, children }: PDFGeneratorProps) {
   const [user, setUser] = useState<any>(null);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -32,10 +69,9 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    const date = savedAt.slice(0, 10);
 
     link.href = url;
-    link.download = `ersh-${docType}-${date}.json`;
+    link.download = buildDraftFilename(docType, draftData, filename);
     link.click();
     URL.revokeObjectURL(url);
     setDraftMessage("Fichier JSON de sauvegarde cree.");
