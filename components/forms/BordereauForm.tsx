@@ -77,11 +77,14 @@ export default function BordereauForm() {
     nom: "",
     date_nais: "",
     demandes: [] as string[],
+    demandes_autre: "",
     CERFA: false,
     HAS_PI: false,
     PI: [] as string[],
+    PI_autre: "",
     HAS_JD: false,
     JD: [] as string[],
+    JD_autre: "",
     cert_med: "",
     HAS_GEVASco: false,
     date_geva_sco: "",
@@ -111,19 +114,26 @@ export default function BordereauForm() {
     }
   };
 
-  const buildBulletList = (selectedIds: string[], options: { id: string; label: string }[]) => {
+  const linesFromText = (value: string) =>
+    value
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
+
+  const buildBulletList = (selectedIds: string[], options: { id: string; label: string }[], freeText = "") => {
     const labels = selectedIds
       .map(id => options.find(opt => opt.id === id)?.label)
       .filter((label): label is string => Boolean(label));
+    const lines = [...labels, ...linesFromText(freeText)];
 
-    return labels.length ? labels.map(label => `* ${label}`).join("\n") : null;
+    return lines.length ? lines.map(label => `* ${label}`).join("\n") : null;
   };
 
   const buildPayload = () => ({
     ...formData,
-    demandes: buildBulletList(formData.demandes, DEMANDES_OPTIONS),
-    PI: buildBulletList(formData.PI, PI_OPTIONS),
-    JD: buildBulletList(formData.JD, JD_OPTIONS),
+    demandes: buildBulletList(formData.demandes, DEMANDES_OPTIONS, formData.demandes_autre),
+    PI: buildBulletList(formData.PI, PI_OPTIONS, formData.PI_autre),
+    JD: buildBulletList(formData.JD, JD_OPTIONS, formData.JD_autre),
     typedemande: formData.typedemande || null,
     dossier_num: formData.dossier_num || null,
     date_nais: formData.date_nais || null,
@@ -204,6 +214,15 @@ export default function BordereauForm() {
                   />
                 ))}
               </div>
+              <div className="mt-4">
+                <FormLabel>Saisie libre - une ligne par demande</FormLabel>
+                <textarea
+                  value={formData.demandes_autre}
+                  onChange={(e) => updateField("demandes_autre", e.target.value)}
+                  placeholder="Ex. Orientation vers un service spécifique"
+                  className="mt-1 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-24"
+                />
+              </div>
             </FormSection>
 
             {/* Documents CERFA */}
@@ -231,6 +250,15 @@ export default function BordereauForm() {
                           onChange={() => toggleMultiSelect("PI", opt.id)}
                         />
                       ))}
+                      <div className="sm:col-span-2">
+                        <FormLabel>Saisie libre - une ligne par pièce</FormLabel>
+                        <textarea
+                          value={formData.PI_autre}
+                          onChange={(e) => updateField("PI_autre", e.target.value)}
+                          placeholder="Ex. Attestation d'identité"
+                          className="mt-1 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-24 bg-white"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -251,6 +279,15 @@ export default function BordereauForm() {
                           onChange={() => toggleMultiSelect("JD", opt.id)}
                         />
                       ))}
+                      <div className="sm:col-span-2">
+                        <FormLabel>Saisie libre - une ligne par justificatif</FormLabel>
+                        <textarea
+                          value={formData.JD_autre}
+                          onChange={(e) => updateField("JD_autre", e.target.value)}
+                          placeholder="Ex. Attestation de résidence"
+                          className="mt-1 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-24 bg-white"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -306,11 +343,29 @@ export default function BordereauForm() {
                   label="LPI (Livret de Parcours Inclusif) disponible"
                 />
                 {formData.HAS_LPI && (
-                  <FormInput
-                    label="Numéro LPI"
-                    value={formData.NUM_LPI}
-                    onChange={(e) => updateField("NUM_LPI", e.target.value)}
-                  />
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <FormInput
+                      label="Numéro du LPI"
+                      value={formData.NUM_LPI}
+                      onChange={(e) => updateField("NUM_LPI", e.target.value)}
+                    />
+                    <FormInput
+                      label="Date de réunion"
+                      type="date"
+                      value={formData.date_geva_sco}
+                      onChange={(e) => updateField("date_geva_sco", e.target.value)}
+                    />
+                    <FormSelect
+                      label="Type de réunion"
+                      value={formData.type_reunion}
+                      onChange={(e) => updateField("type_reunion", e.target.value)}
+                      options={[
+                        { value: "", label: "Sélectionner..." },
+                        { value: "ESS", label: "ESS" },
+                        { value: "Equipe éducative", label: "Équipe éducative" },
+                      ]}
+                    />
+                  </div>
                 )}
 
                 <div className="border-t pt-4">

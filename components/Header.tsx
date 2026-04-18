@@ -5,12 +5,12 @@ export default function Header() {
   const isHome = location.pathname === "/";
 
   return (
-    <header className="sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg border-b border-blue-800">
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg border-b border-blue-800">
       <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
         <Link to="/" className="font-bold text-white text-xl hover:text-blue-100 transition">
           🎓 ERSH Portail
         </Link>
-        <nav className="flex gap-1">
+        <nav className="flex gap-1 text-white">
           {!isHome && (
             <Link 
               to="/" 
