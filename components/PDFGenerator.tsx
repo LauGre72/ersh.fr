@@ -164,7 +164,7 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-400 bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2"
             >
               <span aria-hidden="true">💾</span>
               <span>Enregistrer le dossier</span>
