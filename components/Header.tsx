@@ -41,7 +41,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setProfileOpen(true)}
-                className="ml-1 inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                className="ml-1 inline-flex items-center gap-2 rounded-lg border border-blue-950 bg-blue-950 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-900"
               >
                 <span aria-hidden="true">👤</span>
                 <span>Profil</span>
