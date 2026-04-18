@@ -79,9 +79,9 @@ export default function BordereauForm() {
     demandes: [] as string[],
     CERFA: false,
     HAS_PI: false,
-    PI: "",
+    PI: [] as string[],
     HAS_JD: false,
-    JD: "",
+    JD: [] as string[],
     cert_med: "",
     HAS_GEVASco: false,
     date_geva_sco: "",
@@ -111,6 +111,31 @@ export default function BordereauForm() {
     }
   };
 
+  const buildBulletList = (selectedIds: string[], options: { id: string; label: string }[]) => {
+    const labels = selectedIds
+      .map(id => options.find(opt => opt.id === id)?.label)
+      .filter((label): label is string => Boolean(label));
+
+    return labels.length ? labels.map(label => `* ${label}`).join("\n") : null;
+  };
+
+  const buildPayload = () => ({
+    ...formData,
+    demandes: buildBulletList(formData.demandes, DEMANDES_OPTIONS),
+    PI: buildBulletList(formData.PI, PI_OPTIONS),
+    JD: buildBulletList(formData.JD, JD_OPTIONS),
+    typedemande: formData.typedemande || null,
+    dossier_num: formData.dossier_num || null,
+    date_nais: formData.date_nais || null,
+    cert_med: formData.cert_med || null,
+    date_geva_sco: formData.date_geva_sco || null,
+    NUM_LPI: formData.NUM_LPI || null,
+    type_reunion: formData.type_reunion || null,
+    PSY: formData.PSY || null,
+    PRO: formData.PRO || null,
+    AUTRE: formData.AUTRE || null,
+  });
+
   return (
     <PDFGenerator docType="bordereau">
       {(onSubmit) => (
@@ -122,7 +147,7 @@ export default function BordereauForm() {
             <p className="text-gray-600 mt-2">Complétez tous les champs pour générer votre bordereau</p>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6 max-w-4xl">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="space-y-6 max-w-4xl">
             {/* Identité */}
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,6 +223,8 @@ export default function BordereauForm() {
                         <FormCheckbox
                           key={opt.id}
                           label={opt.label}
+                          checked={formData.PI.includes(opt.id)}
+                          onChange={() => toggleMultiSelect("PI", opt.id)}
                         />
                       ))}
                     </div>
@@ -216,6 +243,8 @@ export default function BordereauForm() {
                         <FormCheckbox
                           key={opt.id}
                           label={opt.label}
+                          checked={formData.JD.includes(opt.id)}
+                          onChange={() => toggleMultiSelect("JD", opt.id)}
                         />
                       ))}
                     </div>
