@@ -34,9 +34,7 @@ export default function Header() {
             {!isHome && <div className="w-px self-stretch bg-blue-500" />}
             <Link to="/bordereau" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Bordereau</Link>
             <Link to="/emargement" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Emargement</Link>
-            <Link to="/ess-feuille-presence" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Feuille</Link>
-            <Link to="/ess-note-geva" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Note</Link>
-            <Link to="/ess-point-situation" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Points</Link>
+            <Link to="/reunion-ess" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Reunion ESS</Link>
             {user && (
               <button
                 type="button"
