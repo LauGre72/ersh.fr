@@ -1,5 +1,14 @@
 import { useState } from "react";
 import PDFGenerator from "../PDFGenerator";
+import {
+  FormCheckbox,
+  FormHeader,
+  FormInput,
+  FormLabel,
+  FormSection,
+  FormSelect,
+  SubmitButton,
+} from "./FormControls";
 
 // Options pour les multi-select
 const DEMANDES_OPTIONS = [
@@ -154,12 +163,10 @@ export default function BordereauForm() {
     >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white shadow-md">
-            <h2 className="text-3xl font-bold text-white">
-              📋 Bordereau de dépôt MDPH
-            </h2>
-            <p className="mt-2 text-white/90">Complétez tous les champs pour générer votre bordereau</p>
-          </div>
+          <FormHeader
+            title="📋 Bordereau de dépôt MDPH"
+            description="Complétez tous les champs pour générer votre bordereau"
+          />
 
           <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="w-full space-y-6">
             {/* Identité */}
@@ -399,77 +406,10 @@ export default function BordereauForm() {
               </div>
             </FormSection>
 
-            <button
-              type="submit"
-              className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition font-bold text-lg shadow-lg hover:shadow-xl"
-            >
-              ✨ Générer le PDF
-            </button>
+            <SubmitButton />
           </form>
         </div>
       )}
     </PDFGenerator>
-  );
-}
-
-// Components réutilisables
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200 hover:border-blue-200 transition">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">{title}</h3>
-      {children}
-    </div>
-  );
-}
-
-function FormLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-sm font-semibold text-gray-700 mb-2">{children}</label>;
-}
-
-function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <div>
-      <FormLabel>{label}</FormLabel>
-      <input
-        {...props}
-        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-      />
-    </div>
-  );
-}
-
-function FormSelect({ 
-  label, 
-  options,
-  ...props 
-}: { 
-  label: string; 
-  options: { value: string; label: string }[] 
-} & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <div>
-      <FormLabel>{label}</FormLabel>
-      <select
-        {...props}
-        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition bg-white"
-      >
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function FormCheckbox({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <label className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
-      <input
-        type="checkbox"
-        {...props}
-        className="h-5 w-5 text-blue-600 rounded border-gray-300 cursor-pointer"
-      />
-      <span className="text-sm text-gray-700">{label}</span>
-    </label>
   );
 }

@@ -59,10 +59,20 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
   const [filename, setFilename] = useState<string>("document.pdf");
   const [draftMessage, setDraftMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearPolling = () => {
+    if (!pollIntervalRef.current) return;
+    clearInterval(pollIntervalRef.current);
+    pollIntervalRef.current = null;
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => setUser(u));
-    return () => unsub();
+    return () => {
+      unsub();
+      clearPolling();
+    };
   }, []);
 
   const handleSaveDraft = () => {
@@ -108,6 +118,9 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
 
   const handleSubmit = async (formData: any) => {
     if (!user) return;
+    if (status === "submitting" || status === "pending") return;
+
+    clearPolling();
     setStatus("submitting");
     setError(null);
     try {
@@ -124,21 +137,23 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
   };
 
   const pollStatus = async (id: string, token: string) => {
-    const interval = setInterval(async () => {
+    clearPolling();
+
+    pollIntervalRef.current = setInterval(async () => {
       try {
         const job = await getPDFStatus(id, token);
         setStatus(job.status);
         if (job.filename) setFilename(job.filename);
         if (job.status === "done") {
-          clearInterval(interval);
+          clearPolling();
         } else if (job.status === "error") {
           setError(job.error || "Erreur lors de la génération");
-          clearInterval(interval);
+          clearPolling();
         }
       } catch (err) {
         setError("Erreur lors de la vérification du statut");
         setStatus("error");
-        clearInterval(interval);
+        clearPolling();
       }
     }, 1000);
   };

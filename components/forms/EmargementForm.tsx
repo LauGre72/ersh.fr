@@ -3,6 +3,16 @@ import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
+import {
+  AddButton,
+  DeleteIconButton,
+  FormHeader,
+  FormInput as BaseFormInput,
+  FormSection as BaseFormSection,
+  FormSelect as BaseFormSelect,
+  MoveButton,
+  SubmitButton,
+} from "./FormControls";
 
 interface Participant {
   nom: string;
@@ -109,12 +119,11 @@ export default function EmargementForm() {
     >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-800 p-6 text-white shadow-md">
-            <h2 className="text-3xl font-bold text-white">
-              ✍️ Feuille d'Émargement ESS
-            </h2>
-            <p className="mt-2 text-white/90">Saisissez les informations et la liste des participants</p>
-          </div>
+          <FormHeader
+            title="✍️ Feuille d'Émargement ESS"
+            description="Saisissez les informations et la liste des participants"
+            theme="cyan"
+          />
 
           <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
             {/* Identité */}
@@ -198,46 +207,16 @@ export default function EmargementForm() {
                       <div className="flex justify-between items-start mb-3">
                         <span className="font-bold text-gray-900">Participant #{index + 1}</span>
                         <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => moveParticipant(index, "up")}
-                            disabled={index === 0}
-                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400 disabled:opacity-50 transition"
-                          >
-                            ↑
-                          </button>
-                          <button
-                            type="button"
+                          <MoveButton direction="up" onClick={() => moveParticipant(index, "up")} disabled={index === 0} />
+                          <MoveButton
+                            direction="down"
                             onClick={() => moveParticipant(index, "down")}
                             disabled={index === formData.participants.length - 1}
-                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400 disabled:opacity-50 transition"
-                          >
-                            ↓
-                          </button>
-                          <button
-                            type="button"
+                          />
+                          <DeleteIconButton
+                            label={`Supprimer le participant ${index + 1}`}
                             onClick={() => removeParticipant(index)}
-                            aria-label={`Supprimer le participant ${index + 1}`}
-                            title="Supprimer le participant"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-700 text-white shadow-sm transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              viewBox="0 0 24 24"
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.4"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M3 6h18" />
-                              <path d="M8 6V4h8v2" />
-                              <path d="M19 6l-1 14H6L5 6" />
-                              <path d="M10 11v5" />
-                              <path d="M14 11v5" />
-                            </svg>
-                          </button>
+                          />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -266,22 +245,11 @@ export default function EmargementForm() {
                     </div>
                   ))
                 )}
-                <button
-                  type="button"
-                  onClick={addParticipant}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition font-semibold shadow-md"
-                >
-                  + Ajouter un participant
-                </button>
+                <AddButton theme="cyan" onClick={addParticipant}>+ Ajouter un participant</AddButton>
               </div>
             </FormSection>
 
-            <button
-              type="submit"
-              className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-lg hover:from-cyan-700 hover:to-cyan-800 transition font-bold text-lg shadow-lg hover:shadow-xl"
-            >
-              ✨ Générer le PDF
-            </button>
+            <SubmitButton theme="cyan" />
           </form>
         </div>
       )}
@@ -291,24 +259,11 @@ export default function EmargementForm() {
 
 // Composants réutilisables
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border-2 border-gray-200 hover:border-cyan-200 transition">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">{title}</h3>
-      {children}
-    </div>
-  );
+  return <BaseFormSection title={title} theme="cyan">{children}</BaseFormSection>;
 }
 
 function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
-      <input
-        {...props}
-        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition"
-      />
-    </div>
-  );
+  return <BaseFormInput label={label} theme="cyan" {...props} />;
 }
 
 function FormSelect({
@@ -319,17 +274,5 @@ function FormSelect({
   label: string;
   options: { value: string; label: string }[];
 } & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
-      <select
-        {...props}
-        className="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition bg-white"
-      >
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-    </div>
-  );
+  return <BaseFormSelect label={label} options={options} theme="cyan" {...props} />;
 }

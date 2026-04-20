@@ -1,5 +1,14 @@
 import { useState } from "react";
 import PDFGenerator from "../PDFGenerator";
+import {
+  AddButton,
+  DeleteIconButton,
+  FormHeader,
+  FormInput as BaseFormInput,
+  FormSection as BaseFormSection,
+  FormTextarea as BaseFormTextarea,
+  SubmitButton,
+} from "./FormControls";
 
 interface Participant {
   nom: string;
@@ -37,39 +46,18 @@ const initialFormData = {
 };
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-lg border border-gray-200 bg-gray-50 p-5">
-      <h3 className="mb-4 text-lg font-bold text-gray-900">{title}</h3>
-      {children}
-    </section>
-  );
+  return <BaseFormSection title={title} theme="emerald">{children}</BaseFormSection>;
 }
 
 function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-gray-700">{label}</span>
-      <input
-        {...props}
-        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-      />
-    </label>
-  );
+  return <BaseFormInput label={label} theme="emerald" {...props} />;
 }
 
 function FormTextarea({
   label,
   ...props
 }: { label: string } & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-gray-700">{label}</span>
-      <textarea
-        {...props}
-        className="min-h-28 w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-      />
-    </label>
-  );
+  return <BaseFormTextarea label={label} theme="emerald" className="min-h-28" {...props} />;
 }
 
 export default function ReunionEssForm() {
@@ -128,12 +116,11 @@ export default function ReunionEssForm() {
     >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-800 p-6 text-white shadow-md">
-            <h2 className="text-3xl font-bold text-white">🗂️ Reunion ESS</h2>
-            <p className="mt-2 text-white/90">
-              Formulaire unique pour la feuille d'emargement, la note GEVA-Sco et les points de situation.
-            </p>
-          </div>
+          <FormHeader
+            title="🗂️ Réunion ESS"
+            description="Formulaire unique pour la feuille d'émargement, la note GEVA-Sco et les points de situation."
+            theme="emerald"
+          />
 
           <form
             onSubmit={(event) => {
@@ -222,13 +209,10 @@ export default function ReunionEssForm() {
                     <div key={index} className="rounded-lg border border-gray-200 bg-white p-4">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <span className="font-semibold text-gray-900">Participant {index + 1}</span>
-                        <button
-                          type="button"
+                        <DeleteIconButton
+                          label={`Supprimer le participant ${index + 1}`}
                           onClick={() => removeParticipant(index)}
-                          className="rounded-lg bg-red-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-red-700"
-                        >
-                          Supprimer
-                        </button>
+                        />
                       </div>
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         <FormInput label="Nom" value={participant.nom} onChange={(event) => updateParticipant(index, "nom", event.target.value)} />
@@ -247,13 +231,7 @@ export default function ReunionEssForm() {
                     </div>
                   ))
                 )}
-                <button
-                  type="button"
-                  onClick={addParticipant}
-                  className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-                >
-                  Ajouter un participant
-                </button>
+                <AddButton theme="emerald" onClick={addParticipant}>Ajouter un participant</AddButton>
               </div>
             </FormSection>
 
@@ -296,12 +274,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 text-lg font-bold text-white shadow-lg transition hover:from-emerald-700 hover:to-emerald-800 hover:shadow-xl"
-            >
-              Generer le PDF
-            </button>
+            <SubmitButton theme="emerald" />
           </form>
         </div>
       )}
@@ -337,13 +310,7 @@ function DynamicList({
                 onChange={(event) => onUpdate(index, event.target.value)}
                 className="min-w-0 flex-1 rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
-              <button
-                type="button"
-                onClick={() => onRemove(index)}
-                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
-              >
-                Supprimer
-              </button>
+              <DeleteIconButton label={`Supprimer l'entrée ${index + 1}`} onClick={() => onRemove(index)} />
             </div>
           ))
         )}
