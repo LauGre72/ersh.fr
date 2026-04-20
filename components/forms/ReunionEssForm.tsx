@@ -51,7 +51,7 @@ function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttri
       <span className="mb-2 block text-sm font-semibold text-gray-700">{label}</span>
       <input
         {...props}
-        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   );
@@ -66,7 +66,7 @@ function FormTextarea({
       <span className="mb-2 block text-sm font-semibold text-gray-700">{label}</span>
       <textarea
         {...props}
-        className="min-h-28 w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className="min-h-28 w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   );
@@ -128,8 +128,8 @@ export default function ReunionEssForm() {
     >
       {(onSubmit) => (
         <div>
-          <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white shadow-md">
-            <h2 className="text-3xl font-bold text-white">Reunion ESS</h2>
+          <div className="mb-8 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-800 p-6 text-white shadow-md">
+            <h2 className="text-3xl font-bold text-white">🗂️ Reunion ESS</h2>
             <p className="mt-2 text-white/90">
               Formulaire unique pour la feuille d'emargement, la note GEVA-Sco et les points de situation.
             </p>
@@ -250,7 +250,7 @@ export default function ReunionEssForm() {
                 <button
                   type="button"
                   onClick={addParticipant}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                  className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                 >
                   Ajouter un participant
                 </button>
@@ -298,7 +298,7 @@ export default function ReunionEssForm() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-lg font-bold text-white shadow-lg transition hover:from-blue-700 hover:to-blue-800 hover:shadow-xl"
+              className="w-full rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 text-lg font-bold text-white shadow-lg transition hover:from-emerald-700 hover:to-emerald-800 hover:shadow-xl"
             >
               Generer le PDF
             </button>
@@ -335,7 +335,7 @@ function DynamicList({
                 type="text"
                 value={value}
                 onChange={(event) => onUpdate(index, event.target.value)}
-                className="min-w-0 flex-1 rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="min-w-0 flex-1 rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
               <button
                 type="button"
