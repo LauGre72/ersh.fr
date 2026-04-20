@@ -142,7 +142,7 @@ export default function ReunionEssForm() {
             }}
             className="w-full space-y-6"
           >
-            <FormSection title="Eleve">
+            <FormSection title="👤 Élève">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput label="Prenom" value={formData.prenom} onChange={(event) => updateField("prenom", event.target.value)} />
                 <FormInput label="Nom" value={formData.nom} onChange={(event) => updateField("nom", event.target.value)} />
@@ -156,7 +156,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Dossier et etablissement">
+            <FormSection title="📁 Dossier et établissement">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Numero de dossier"
@@ -171,7 +171,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Reunion">
+            <FormSection title="📅 Réunion ESS">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Annee scolaire"
@@ -198,7 +198,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Redacteur">
+            <FormSection title="✍️ Rédacteur">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Nom du redacteur"
@@ -213,7 +213,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title={`Liste d'emargement (${formData.liste_emargement.length})`}>
+            <FormSection title={`👥 Liste d'émargement (${formData.liste_emargement.length})`}>
               <div className="space-y-3">
                 {formData.liste_emargement.length === 0 ? (
                   <p className="text-sm italic text-gray-500">Aucun participant ajoute.</p>
@@ -257,7 +257,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Notifications et suivis">
+            <FormSection title="📄 Notifications et suivis">
               <DynamicList
                 label="Notifications MDPH"
                 values={formData.notifications_mdph}
@@ -276,7 +276,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Points de situation">
+            <FormSection title="📌 Points de situation">
               <div className="space-y-4">
                 <FormTextarea
                   label="Point de situation des representants"
