@@ -343,27 +343,11 @@ export default function BordereauForm() {
                   label="LPI (Livret de Parcours Inclusif) disponible"
                 />
                 {formData.HAS_LPI && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <FormInput
                       label="Numéro du LPI"
                       value={formData.NUM_LPI}
                       onChange={(e) => updateField("NUM_LPI", e.target.value)}
-                    />
-                    <FormInput
-                      label="Date de réunion"
-                      type="date"
-                      value={formData.date_geva_sco}
-                      onChange={(e) => updateField("date_geva_sco", e.target.value)}
-                    />
-                    <FormSelect
-                      label="Type de réunion"
-                      value={formData.type_reunion}
-                      onChange={(e) => updateField("type_reunion", e.target.value)}
-                      options={[
-                        { value: "", label: "Sélectionner..." },
-                        { value: "ESS", label: "ESS" },
-                        { value: "Equipe éducative", label: "Équipe éducative" },
-                      ]}
                     />
                   </div>
                 )}

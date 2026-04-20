@@ -10,6 +10,8 @@ interface Participant {
   email: string;
 }
 
+const DEFAULT_USER_FUNCTION = "Enseignante référente";
+
 export default function EmargementForm() {
   const [formData, setFormData] = useState({
     typedemande: "",
@@ -35,7 +37,7 @@ export default function EmargementForm() {
 
         const defaultParticipant = {
           nom: profile.full_name || user.displayName || "",
-          fonction: profile.sign || "",
+          fonction: DEFAULT_USER_FUNCTION,
           email: profile.email || user.email || "",
         };
 
@@ -52,7 +54,7 @@ export default function EmargementForm() {
             ...prev,
             participants: [{
               nom: user.displayName || "",
-              fonction: "",
+              fonction: DEFAULT_USER_FUNCTION,
               email: user.email,
             }],
           };
