@@ -41,7 +41,7 @@ export default function Header() {
                 onClick={() => setProfileOpen(true)}
                 aria-label="Gérer le profil"
                 title="Gérer le profil"
-                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full border border-blue-950 bg-blue-950 text-white transition hover:bg-blue-900"
+                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-white text-blue-800 shadow-sm transition hover:bg-blue-50 hover:text-blue-950 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
               >
                 <svg
                   aria-hidden="true"
