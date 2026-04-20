@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import type { ReactNode } from "react";
 
 function Home() {
   return (
@@ -16,27 +17,36 @@ function Home() {
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormTile
             to="/bordereau"
-            icon="B"
+            icon={<ClipboardIcon />}
             title="Bordereau MDPH"
             desc="Bordereau de depot"
             explain="Remplissez et generez votre bordereau de depot MDPH en PDF."
-            color="from-blue-500 to-blue-600"
+            color="from-blue-600 to-blue-800"
+            iconColor="bg-blue-600 text-white"
+            actionColor="text-blue-700"
+            titleHoverColor="group-hover:text-blue-700"
           />
           <FormTile
             to="/emargement"
-            icon="E"
+            icon={<SignatureIcon />}
             title="Feuille d'emargement"
             desc="Feuille de presence"
             explain="Creez la feuille d'emargement pour vos reunions ESS."
-            color="from-cyan-500 to-cyan-600"
+            color="from-cyan-600 to-cyan-800"
+            iconColor="bg-cyan-600 text-white"
+            actionColor="text-cyan-700"
+            titleHoverColor="group-hover:text-cyan-700"
           />
           <FormTile
             to="/reunion-ess"
-            icon="ESS"
+            icon={<UsersDocumentIcon />}
             title="Reunion ESS"
             desc="Formulaire ESS complet"
             explain="Regroupez emargement, note GEVA-Sco et points de situation dans un seul PDF."
-            color="from-teal-500 to-teal-600"
+            color="from-blue-600 to-blue-800"
+            iconColor="bg-blue-700 text-white"
+            actionColor="text-blue-700"
+            titleHoverColor="group-hover:text-blue-700"
           />
         </div>
 
@@ -76,13 +86,19 @@ function FormTile({
   desc,
   explain,
   color,
+  iconColor,
+  actionColor,
+  titleHoverColor,
 }: {
   to: string;
-  icon: string;
+  icon: ReactNode;
   title: string;
   desc: string;
   explain: string;
   color: string;
+  iconColor: string;
+  actionColor: string;
+  titleHoverColor: string;
 }) {
   return (
     <Link
@@ -92,17 +108,80 @@ function FormTile({
       <div className={`absolute left-0 right-0 top-0 h-1 bg-gradient-to-r ${color}`} />
 
       <div className="p-6">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-gray-900 text-lg font-bold text-white">
+        <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-lg ${iconColor}`}>
           {icon}
         </div>
-        <h3 className="mb-1 text-lg font-bold text-gray-900 transition group-hover:text-blue-600">{title}</h3>
+        <h3 className={`mb-1 text-lg font-bold text-gray-900 transition ${titleHoverColor}`}>{title}</h3>
         <p className="mb-3 text-sm font-medium text-gray-500">{desc}</p>
         <p className="line-clamp-2 text-sm text-gray-600">{explain}</p>
-        <div className="mt-4 flex items-center text-sm font-medium text-blue-600 transition group-hover:translate-x-1">
+        <div className={`mt-4 flex items-center text-sm font-medium transition group-hover:translate-x-1 ${actionColor}`}>
           Acceder -&gt;
         </div>
       </div>
     </Link>
+  );
+}
+
+function ClipboardIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-7 w-7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 4h6" />
+      <path d="M9 4a3 3 0 0 0 6 0" />
+      <path d="M8 6H6.5A2.5 2.5 0 0 0 4 8.5v10A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5v-10A2.5 2.5 0 0 0 17.5 6H16" />
+      <path d="M8 12h8" />
+      <path d="M8 16h6" />
+    </svg>
+  );
+}
+
+function SignatureIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-7 w-7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 20h18" />
+      <path d="M4 16c2.5 0 2.5-8 5-8 3 0 1 8 4 8 1.4 0 2.1-1.7 3-3" />
+      <path d="m15 11 4-4" />
+      <path d="m18 4 2 2" />
+    </svg>
+  );
+}
+
+function UsersDocumentIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-7 w-7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 3h4l3 3v12a3 3 0 0 1-3 3h-3" />
+      <path d="M18 3v4h4" />
+      <circle cx="8" cy="9" r="3" />
+      <path d="M3 20a5 5 0 0 1 10 0" />
+      <path d="M14 11h4" />
+      <path d="M15 15h3" />
+    </svg>
   );
 }
 

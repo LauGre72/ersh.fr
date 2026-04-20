@@ -60,3 +60,21 @@ jobs:
             dist/ "${SSH_USER}@${SSH_HOST}:/var/www/ersh.fr/"
           ssh -p "${PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
             "sudo chown -R www-data:www-data /var/www/ersh.fr"
+
+      - name: Verify deployed assets
+        env:
+          SSH_HOST: ${{ secrets.VPS_HOST }}
+          SSH_USER: ${{ secrets.VPS_USER }}
+          SSH_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          PORT="${SSH_PORT:-22}"
+          ASSET_MANIFEST="$(find dist/assets -maxdepth 1 -type f \( -name '*.js' -o -name '*.css' \) -printf '%f\n')"
+          if [ -z "$ASSET_MANIFEST" ]; then
+            echo "No JS/CSS assets found in dist/assets" >&2
+            exit 1
+          fi
+
+          while IFS= read -r asset; do
+            ssh -p "${PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+              "test -f '/var/www/ersh.fr/assets/${asset}'"
+          done <<< "$ASSET_MANIFEST"

@@ -1,0 +1,14 @@
+AddType text/css .css
+AddType application/javascript .js .mjs
+AddType application/wasm .wasm
+
+RewriteEngine On
+
+RewriteRule ^assets/ - [END]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [END]
+
+RewriteRule ^index\.html$ - [END]
+RewriteRule . /index.html [END]

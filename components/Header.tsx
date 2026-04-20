@@ -53,9 +53,10 @@ export default function Header() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="9" r="3" />
-                  <path d="M6.5 18a6.5 6.5 0 0 1 11 0" />
+                  <path d="M15.5 19.5h-7A3.5 3.5 0 0 1 5 16a5 5 0 0 1 5-5h4" />
+                  <circle cx="11" cy="7" r="3" />
+                  <path d="m16 11 4 4" />
+                  <path d="m20.5 10.5-5.75 5.75L13 17l.75-1.75 5.75-5.75a.7.7 0 0 1 1 1Z" />
                 </svg>
               </button>
             )}
