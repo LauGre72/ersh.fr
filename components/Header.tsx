@@ -48,15 +48,15 @@ export default function Header() {
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
                   fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
+                  stroke="#1e3a8a"
+                  strokeWidth="2.3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M15.5 19.5h-7A3.5 3.5 0 0 1 5 16a5 5 0 0 1 5-5h4" />
-                  <circle cx="11" cy="7" r="3" />
-                  <path d="m16 11 4 4" />
-                  <path d="m20.5 10.5-5.75 5.75L13 17l.75-1.75 5.75-5.75a.7.7 0 0 1 1 1Z" />
+                  <circle cx="10" cy="8" r="3" />
+                  <path d="M4.5 19a5.5 5.5 0 0 1 11 0" />
+                  <path d="m16 13 3 3" />
+                  <path d="m20.5 10.5-5 5L14 18l2.5-1.5 5-5a.7.7 0 0 0-1-1Z" />
                 </svg>
               </button>
             )}
