@@ -186,7 +186,7 @@ export default function EmargementForm() {
             </FormSection>
 
             {/* Participants */}
-            <FormSection title="👥 Participants ({formData.participants.length})">
+            <FormSection title={`👥 Participants (${formData.participants.length})`}>
               <div className="space-y-3">
                 {formData.participants.length === 0 ? (
                   <p className="text-gray-500 italic">Aucun participant ajouté. Cliquez sur le bouton ci-dessous.</p>
