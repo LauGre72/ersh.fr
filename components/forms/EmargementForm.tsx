@@ -130,7 +130,7 @@ export default function EmargementForm() {
 
           <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
             {/* Réunion */}
-            <FormSection title="📅 Réunion ESS">
+            <FormSection title="📅 Organisation">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
                   label="Date de l'ESS"

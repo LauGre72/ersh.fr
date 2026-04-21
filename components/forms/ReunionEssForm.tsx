@@ -167,7 +167,7 @@ export default function ReunionEssForm() {
             }}
             className="w-full space-y-6"
           >
-            <FormSection title="📅 ESS de suivi">
+            <FormSection title="📅 Organisation">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Date de l'ESS de suivi"
@@ -229,7 +229,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="📅 Réunion ESS">
+            <FormSection title="📊 GEVA-Sco">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormSelect
                   label="Type de dernier GEVA-Sco"
