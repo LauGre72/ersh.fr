@@ -65,6 +65,7 @@ const PI_OPTIONS = [
 ];
 
 const JD_OPTIONS = [
+  { id: "contrat", label: "Contrat" },
   { id: "impots", label: "Impots (taxe d'habitation...)" },
   { id: "facture_nrj", label: "Facture d'énergie" },
   { id: "facture_tel", label: "Facture de téléphone / box" },

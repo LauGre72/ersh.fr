@@ -155,7 +155,7 @@ export default function ReunionEssForm() {
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="Réunion ESS"
+            title="🗂️ Réunion ESS"
             description="Formulaire unique pour la feuille d'émargement, la note GEVA-Sco et les points de situation."
             theme="emerald"
           />
@@ -234,8 +234,6 @@ export default function ReunionEssForm() {
                     { value: "", label: "Sélectionner..." },
                     { value: "Première demande", label: "Première demande" },
                     { value: "Réexamen", label: "Réexamen" },
-                    { value: "Équipe éducative", label: "Équipe éducative" },
-                    { value: "ESS", label: "ESS" },
                   ]}
                 />
                 <FormInput
