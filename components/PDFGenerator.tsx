@@ -13,7 +13,7 @@ interface PDFGeneratorProps {
 const DOCUMENT_LABELS: Record<string, string> = {
   bordereau: "bordereau",
   feuillePresence: "feuille-presence",
-  reunionESS: "reunion-ess",
+  crEssSuivi: "compte-rendu-ess-suivi",
 };
 
 function sanitizeFilenamePart(value: unknown) {

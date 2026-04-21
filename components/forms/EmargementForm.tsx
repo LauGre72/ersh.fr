@@ -9,7 +9,6 @@ import {
   FormHeader,
   FormInput as BaseFormInput,
   FormSection as BaseFormSection,
-  FormSelect as BaseFormSelect,
   MoveButton,
   SubmitButton,
 } from "./FormControls";
@@ -24,7 +23,6 @@ const DEFAULT_USER_FUNCTION = "Enseignante référente";
 
 export default function EmargementForm() {
   const [formData, setFormData] = useState({
-    typedemande: "",
     date_ess: "",
     date_nais: "",
     nom: "",
@@ -82,6 +80,11 @@ export default function EmargementForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const loadDraft = (data: Partial<typeof formData> & { typedemande?: string }) => {
+    const { typedemande: _typedemande, ...supportedData } = data;
+    setFormData(prev => ({ ...prev, ...supportedData }));
+  };
+
   const addParticipant = () => {
     setFormData(prev => ({
       ...prev,
@@ -115,17 +118,29 @@ export default function EmargementForm() {
     <PDFGenerator
       docType="feuillePresence"
       draftData={formData}
-      onLoadDraft={(data) => setFormData(prev => ({ ...prev, ...data }))}
+      onLoadDraft={loadDraft}
     >
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="✍️ Feuille d'Émargement ESS"
+            title="Feuille d’émargement  ESS initiale"
             description="Saisissez les informations et la liste des participants"
             theme="cyan"
           />
 
           <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
+            {/* Réunion */}
+            <FormSection title="📅 Réunion ESS">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Date de l'ESS"
+                  type="date"
+                  value={formData.date_ess}
+                  onChange={(e) => updateField("date_ess", e.target.value)}
+                />
+              </div>
+            </FormSection>
+
             {/* Identité */}
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,28 +185,6 @@ export default function EmargementForm() {
                   value={formData.chef_etab}
                   onChange={(e) => updateField("chef_etab", e.target.value)}
                   placeholder="Ex. Mme/M. Dupont"
-                />
-              </div>
-            </FormSection>
-
-            {/* Réunion */}
-            <FormSection title="📅 Réunion ESS">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormSelect
-                  label="Type de GEVA-Sco"
-                  value={formData.typedemande}
-                  onChange={(e) => updateField("typedemande", e.target.value)}
-                  options={[
-                    { value: "", label: "Sélectionner..." },
-                    { value: "Première demande", label: "Première demande" },
-                    { value: "Réexamen", label: "Réexamen" },
-                  ]}
-                />
-                <FormInput
-                  label="Date de l'ESS"
-                  type="date"
-                  value={formData.date_ess}
-                  onChange={(e) => updateField("date_ess", e.target.value)}
                 />
               </div>
             </FormSection>
@@ -264,15 +257,4 @@ function FormSection({ title, children }: { title: string; children: React.React
 
 function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return <BaseFormInput label={label} theme="cyan" {...props} />;
-}
-
-function FormSelect({
-  label,
-  options,
-  ...props
-}: {
-  label: string;
-  options: { value: string; label: string }[];
-} & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <BaseFormSelect label={label} options={options} theme="cyan" {...props} />;
 }

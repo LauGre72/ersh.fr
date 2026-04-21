@@ -6,10 +6,10 @@ function Home() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-            Generateur de Documents PDF
+            Générateur de documents PDF
           </h1>
           <p className="mx-auto max-w-2xl text-xl text-gray-600">
-            Creez et telechargez facilement vos documents PDF pour les reunions ESS et demandes MDPH.
+            Sélectionnez le formulaire adapté, complétez les informations utiles, puis générez le PDF correspondant.
           </p>
         </div>
 
@@ -18,8 +18,8 @@ function Home() {
             to="/bordereau"
             icon="📋"
             title="Bordereau MDPH"
-            desc="Bordereau de depot"
-            explain="Remplissez et generez votre bordereau de depot MDPH en PDF."
+            desc="Dépôt du dossier"
+            explain="Préparez le bordereau qui accompagne les pièces transmises à la MDPH."
             color="from-blue-600 to-blue-800"
             iconColor="bg-blue-600 text-white"
             actionColor="text-blue-700"
@@ -28,9 +28,9 @@ function Home() {
           <FormTile
             to="/emargement"
             icon="✍️"
-            title="Feuille d'emargement"
-            desc="Feuille de presence"
-            explain="Creez la feuille d'emargement pour vos reunions ESS."
+            title="Feuille d’émargement"
+            desc="Présence à l’ESS"
+            explain="Générez la feuille de présence à faire signer lors de l’ESS initiale."
             color="from-cyan-600 to-cyan-800"
             iconColor="bg-cyan-600 text-white"
             actionColor="text-cyan-700"
@@ -39,9 +39,9 @@ function Home() {
           <FormTile
             to="/reunion-ess"
             icon="🗂️"
-            title="Reunion ESS"
-            desc="Formulaire ESS complet"
-            explain="Regroupez emargement, note GEVA-Sco et points de situation dans un seul PDF."
+            title="Compte rendu ESS"
+            desc="ESS de suivi"
+            explain="Rédigez le compte rendu de l’ESS de suivi avec les notifications, les bilans et les points de situation."
             color="from-emerald-600 to-emerald-800"
             iconColor="bg-emerald-600 text-white"
             actionColor="text-emerald-700"
@@ -50,11 +50,11 @@ function Home() {
         </div>
 
         <div className="rounded-xl border-l-4 border-blue-600 bg-white p-8 shadow-lg">
-          <h2 className="mb-4 text-2xl font-bold text-gray-900">Comment ca marche ?</h2>
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Comment ça marche ?</h2>
           <div className="grid gap-6 md:grid-cols-3">
-            <Step number="1" title="Remplissez" text="Completez le formulaire avec les informations requises." />
-            <Step number="2" title="Generez" text="Cliquez sur Generer le PDF pour creer le document." />
-            <Step number="3" title="Telechargez" text="Telechargez votre document PDF pret a l'emploi." />
+            <Step number="1" title="Choisissez" text="Ouvrez le formulaire correspondant au document dont vous avez besoin." />
+            <Step number="2" title="Complétez" text="Renseignez les champs nécessaires et ajoutez les participants ou pièces utiles." />
+            <Step number="3" title="Générez" text="Créez le PDF, puis téléchargez le document finalisé." />
           </div>
         </div>
       </div>

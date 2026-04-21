@@ -1,4 +1,4 @@
-import { Navigate, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import AuthGate from "./components/AuthGate";
 import Home from "./components/Home";
@@ -16,9 +16,6 @@ export default function App() {
           <Route path="/bordereau" element={<BordereauForm />} />
           <Route path="/emargement" element={<EmargementForm />} />
           <Route path="/reunion-ess" element={<ReunionEssForm />} />
-          <Route path="/ess-feuille-presence" element={<Navigate to="/reunion-ess" replace />} />
-          <Route path="/ess-note-geva" element={<Navigate to="/reunion-ess" replace />} />
-          <Route path="/ess-point-situation" element={<Navigate to="/reunion-ess" replace />} />
         </Routes>
       </AuthGate>
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-gray-500">

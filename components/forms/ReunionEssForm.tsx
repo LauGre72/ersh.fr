@@ -148,15 +148,15 @@ export default function ReunionEssForm() {
 
   return (
     <PDFGenerator
-      docType="reunionESS"
+      docType="crEssSuivi"
       draftData={formData}
       onLoadDraft={(data) => setFormData((prev) => ({ ...prev, ...data }))}
     >
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="🗂️ Réunion ESS"
-            description="Formulaire unique pour la feuille d'émargement, la note GEVA-Sco et les points de situation."
+            title="Compte rendu d’ESS de suivi"
+            description="Complétez les informations de la réunion de suivi, les notifications en cours et les points de situation."
             theme="emerald"
           />
 
@@ -167,6 +167,22 @@ export default function ReunionEssForm() {
             }}
             className="w-full space-y-6"
           >
+            <FormSection title="📅 ESS de suivi">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormInput
+                  label="Date de l'ESS de suivi"
+                  type="date"
+                  value={formData.date_ess}
+                  onChange={(event) => updateField("date_ess", event.target.value)}
+                />
+                <FormInput
+                  label="N° de l'ESS de suivi"
+                  value={formData.numero_ess}
+                  onChange={(event) => updateField("numero_ess", event.target.value)}
+                />
+              </div>
+            </FormSection>
+
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
@@ -215,17 +231,6 @@ export default function ReunionEssForm() {
 
             <FormSection title="📅 Réunion ESS">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormInput
-                  label="Date de l'ESS"
-                  type="date"
-                  value={formData.date_ess}
-                  onChange={(event) => updateField("date_ess", event.target.value)}
-                />
-                <FormInput
-                  label="N° de l'ESS"
-                  value={formData.numero_ess}
-                  onChange={(event) => updateField("numero_ess", event.target.value)}
-                />
                 <FormSelect
                   label="Type de dernier GEVA-Sco"
                   value={formData.type_geva_sco}
