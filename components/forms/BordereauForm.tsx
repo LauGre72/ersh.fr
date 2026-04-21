@@ -173,7 +173,7 @@ export default function BordereauForm() {
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
-                  label="Nom"
+                  label="Nom et prénom"
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
                 />
@@ -190,7 +190,7 @@ export default function BordereauForm() {
             <FormSection title="📁 Dossier">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormSelect
-                  label="Type de demande"
+                  label="Type de GEVA-Sco"
                   value={formData.typedemande}
                   onChange={(e) => updateField("typedemande", e.target.value)}
                   options={[
@@ -201,7 +201,7 @@ export default function BordereauForm() {
                   ]}
                 />
                 <FormInput
-                  label="Numéro de dossier"
+                  label="N° de dossier MDPH"
                   value={formData.dossier_num}
                   onChange={(e) => updateField("dossier_num", e.target.value)}
                   placeholder="Ex. 72-2025-00123"
@@ -222,7 +222,7 @@ export default function BordereauForm() {
                 ))}
               </div>
               <div className="mt-4">
-                <FormLabel>Saisie libre - une ligne par demande</FormLabel>
+                <FormLabel>Demandes</FormLabel>
                 <textarea
                   value={formData.demandes_autre}
                   onChange={(e) => updateField("demandes_autre", e.target.value)}
@@ -238,14 +238,14 @@ export default function BordereauForm() {
                 <FormCheckbox
                   checked={formData.CERFA}
                   onChange={(e) => updateField("CERFA", e.target.checked)}
-                  label="CERFA 14-004-01"
+                  label="CERFA 15692*01 rempli"
                 />
 
                 <div className="border-t pt-4">
                   <FormCheckbox
                     checked={formData.HAS_PI}
                     onChange={(e) => updateField("HAS_PI", e.target.checked)}
-                    label="Pièces d'identité"
+                    label="Presence d’une piece d’identité"
                   />
                   {formData.HAS_PI && (
                     <div className="mt-3 p-3 bg-blue-50 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-2 border border-blue-200">
@@ -258,7 +258,7 @@ export default function BordereauForm() {
                         />
                       ))}
                       <div className="sm:col-span-2">
-                        <FormLabel>Saisie libre - une ligne par pièce</FormLabel>
+                        <FormLabel>Piece d’identité</FormLabel>
                         <textarea
                           value={formData.PI_autre}
                           onChange={(e) => updateField("PI_autre", e.target.value)}
@@ -274,7 +274,7 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_JD}
                     onChange={(e) => updateField("HAS_JD", e.target.checked)}
-                    label="Justificatifs de domicile"
+                    label="Presence du justificatif de domiciliation"
                   />
                   {formData.HAS_JD && (
                     <div className="mt-3 p-3 bg-green-50 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-2 border border-green-200">
@@ -287,7 +287,7 @@ export default function BordereauForm() {
                         />
                       ))}
                       <div className="sm:col-span-2">
-                        <FormLabel>Saisie libre - une ligne par justificatif</FormLabel>
+                        <FormLabel>Justificatif de domiciliation</FormLabel>
                         <textarea
                           value={formData.JD_autre}
                           onChange={(e) => updateField("JD_autre", e.target.value)}
@@ -301,7 +301,7 @@ export default function BordereauForm() {
               </div>
 
               <div className="mt-4">
-                <FormLabel>Certificat médical</FormLabel>
+                <FormLabel>Certificat medical</FormLabel>
                 <textarea
                   value={formData.cert_med}
                   onChange={(e) => updateField("cert_med", e.target.value)}
@@ -316,18 +316,18 @@ export default function BordereauForm() {
                 <FormCheckbox
                   checked={formData.HAS_GEVASco}
                   onChange={(e) => updateField("HAS_GEVASco", e.target.checked)}
-                  label="GEVA-Sco disponible"
+                  label="Presence d’un GEVA-Sco"
                 />
                 {formData.HAS_GEVASco && (
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
                     <FormInput
-                      label="Date GEVA-Sco"
+                      label="Date du GEVA-Sco"
                       type="date"
                       value={formData.date_geva_sco}
                       onChange={(e) => updateField("date_geva_sco", e.target.value)}
                     />
                     <FormSelect
-                      label="Type de réunion"
+                      label="Type de reunion dont est issu le GEVA-Sco"
                       value={formData.type_reunion}
                       onChange={(e) => updateField("type_reunion", e.target.value)}
                       options={[
@@ -347,12 +347,12 @@ export default function BordereauForm() {
                 <FormCheckbox
                   checked={formData.HAS_LPI}
                   onChange={(e) => updateField("HAS_LPI", e.target.checked)}
-                  label="LPI (Livret de Parcours Inclusif) disponible"
+                  label="Presence du LPI"
                 />
                 {formData.HAS_LPI && (
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <FormInput
-                      label="Numéro du LPI"
+                      label="N° LPI"
                       value={formData.NUM_LPI}
                       onChange={(e) => updateField("NUM_LPI", e.target.value)}
                     />
@@ -363,14 +363,17 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_PSY}
                     onChange={(e) => updateField("HAS_PSY", e.target.checked)}
-                    label="Document psychologue"
+                    label="Presence du bilan psychologique"
                   />
                   {formData.HAS_PSY && (
-                    <textarea
-                      value={formData.PSY}
-                      onChange={(e) => updateField("PSY", e.target.value)}
-                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
-                    />
+                    <div className="mt-2">
+                      <FormLabel>Bilan psychologique</FormLabel>
+                      <textarea
+                        value={formData.PSY}
+                        onChange={(e) => updateField("PSY", e.target.value)}
+                        className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -378,14 +381,17 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_PRO}
                     onChange={(e) => updateField("HAS_PRO", e.target.checked)}
-                    label="Document professionnel"
+                    label="Presence du volet professionnel"
                   />
                   {formData.HAS_PRO && (
-                    <textarea
-                      value={formData.PRO}
-                      onChange={(e) => updateField("PRO", e.target.value)}
-                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
-                    />
+                    <div className="mt-2">
+                      <FormLabel>Volet professionnel</FormLabel>
+                      <textarea
+                        value={formData.PRO}
+                        onChange={(e) => updateField("PRO", e.target.value)}
+                        className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -393,14 +399,17 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_AUTRE}
                     onChange={(e) => updateField("HAS_AUTRE", e.target.checked)}
-                    label="Autre document"
+                    label="Presence d'un autre document"
                   />
                   {formData.HAS_AUTRE && (
-                    <textarea
-                      value={formData.AUTRE}
-                      onChange={(e) => updateField("AUTRE", e.target.value)}
-                      className="mt-2 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
-                    />
+                    <div className="mt-2">
+                      <FormLabel>Autre document</FormLabel>
+                      <textarea
+                        value={formData.AUTRE}
+                        onChange={(e) => updateField("AUTRE", e.target.value)}
+                        className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition h-20"
+                      />
+                    </div>
                   )}
                 </div>
               </div>

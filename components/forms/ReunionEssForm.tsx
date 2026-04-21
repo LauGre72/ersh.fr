@@ -199,13 +199,13 @@ export default function ReunionEssForm() {
                   placeholder="Ex. 72-2025-00123"
                 />
                 <FormInput
-                  label="Établissement"
+                  label="Etablissement"
                   value={formData.etablissement}
                   onChange={(event) => updateField("etablissement", event.target.value)}
                   placeholder="Ex. Collège Jean Monnet"
                 />
                 <FormInput
-                  label="Chef d'établissement"
+                  label="Chef d'etablissement"
                   value={formData.chef_etab}
                   onChange={(event) => updateField("chef_etab", event.target.value)}
                   placeholder="Ex. Mme/M. Dupont"
@@ -318,7 +318,7 @@ export default function ReunionEssForm() {
                   onChange={(event) => updateField("point_situation_professionnels", event.target.value)}
                 />
                 <FormTextarea
-                  label="Conclusion de la réunion"
+                  label="Conclusion de la reunion"
                   value={formData.conclusion_reunion}
                   onChange={(event) => updateField("conclusion_reunion", event.target.value)}
                 />

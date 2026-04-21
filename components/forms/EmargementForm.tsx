@@ -130,7 +130,7 @@ export default function EmargementForm() {
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
-                  label="Nom"
+                  label="Nom et prénom"
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
                   placeholder="Ex. Nora Dupont"
@@ -142,13 +142,13 @@ export default function EmargementForm() {
                   onChange={(e) => updateField("date_nais", e.target.value)}
                 />
                 <FormInput
-                  label="Niveau"
+                  label="Niveau scolaire"
                   value={formData.niveau}
                   onChange={(e) => updateField("niveau", e.target.value)}
                   placeholder="Ex. 3e, 2nde GT, 1ère Pro."
                 />
                 <FormInput
-                  label="Numéro de dossier"
+                  label="N° de dossier MDPH"
                   value={formData.dossier_num}
                   onChange={(e) => updateField("dossier_num", e.target.value)}
                   placeholder="Ex. 72-2025-00123"
@@ -160,13 +160,13 @@ export default function EmargementForm() {
             <FormSection title="🏫 Établissement">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
-                  label="Établissement"
+                  label="Etablissement"
                   value={formData.etablissement}
                   onChange={(e) => updateField("etablissement", e.target.value)}
                   placeholder="Ex. Collège Jean Monnet"
                 />
                 <FormInput
-                  label="Chef d'établissement"
+                  label="Chef d'etablissement"
                   value={formData.chef_etab}
                   onChange={(e) => updateField("chef_etab", e.target.value)}
                   placeholder="Ex. Mme/M. Dupont"
@@ -178,7 +178,7 @@ export default function EmargementForm() {
             <FormSection title="📅 Réunion ESS">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormSelect
-                  label="Type de demande"
+                  label="Type de GEVA-Sco"
                   value={formData.typedemande}
                   onChange={(e) => updateField("typedemande", e.target.value)}
                   options={[
