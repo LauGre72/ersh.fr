@@ -5,6 +5,7 @@ import {
   DeleteIconButton,
   FormHeader,
   FormInput as BaseFormInput,
+  FormSelect as BaseFormSelect,
   FormSection as BaseFormSection,
   FormTextarea as BaseFormTextarea,
   SubmitButton,
@@ -25,19 +26,17 @@ const emptyParticipant: Participant = {
 };
 
 const initialFormData = {
-  annee_scolaire: "2025 - 2026",
-  date_ess: "",
-  numero_ess: "",
-  prenom: "",
   nom: "",
   date_nais: "",
-  classe: "",
   dossier_num: "",
   etablissement: "",
-  redacteur: "",
-  fonction_redacteur: "",
-  liste_emargement: [] as Participant[],
+  chef_etab: "",
+  niveau: "",
+  type_geva_sco: "",
   date_geva_sco: "",
+  date_ess: "",
+  numero_ess: "",
+  participants: [] as Participant[],
   notifications_mdph: [] as string[],
   suivis_bilans: [] as string[],
   point_situation_representants: "",
@@ -51,6 +50,17 @@ function FormSection({ title, children }: { title: string; children: React.React
 
 function FormInput({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return <BaseFormInput label={label} theme="emerald" {...props} />;
+}
+
+function FormSelect({
+  label,
+  options,
+  ...props
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return <BaseFormSelect label={label} options={options} theme="emerald" {...props} />;
 }
 
 function FormTextarea({
@@ -70,14 +80,14 @@ export default function ReunionEssForm() {
   const addParticipant = () => {
     setFormData((prev) => ({
       ...prev,
-      liste_emargement: [...prev.liste_emargement, { ...emptyParticipant }],
+      participants: [...prev.participants, { ...emptyParticipant }],
     }));
   };
 
   const updateParticipant = (index: number, field: keyof Participant, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      liste_emargement: prev.liste_emargement.map((participant, currentIndex) =>
+      participants: prev.participants.map((participant, currentIndex) =>
         currentIndex === index ? { ...participant, [field]: value } : participant,
       ),
     }));
@@ -86,7 +96,7 @@ export default function ReunionEssForm() {
   const removeParticipant = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      liste_emargement: prev.liste_emargement.filter((_, currentIndex) => currentIndex !== index),
+      participants: prev.participants.filter((_, currentIndex) => currentIndex !== index),
     }));
   };
 
@@ -108,6 +118,34 @@ export default function ReunionEssForm() {
     }));
   };
 
+  const emptyToNull = (value: string) => value.trim() || null;
+  const cleanStringList = (values: string[]) => values.map((value) => value.trim()).filter(Boolean);
+
+  const buildPayload = () => ({
+    nom: emptyToNull(formData.nom),
+    date_nais: emptyToNull(formData.date_nais),
+    dossier_num: emptyToNull(formData.dossier_num),
+    etablissement: emptyToNull(formData.etablissement),
+    chef_etab: emptyToNull(formData.chef_etab),
+    niveau: emptyToNull(formData.niveau),
+    type_geva_sco: emptyToNull(formData.type_geva_sco),
+    date_geva_sco: emptyToNull(formData.date_geva_sco),
+    date_ess: emptyToNull(formData.date_ess),
+    numero_ess: emptyToNull(formData.numero_ess),
+    participants: formData.participants
+      .map((participant) => ({
+        nom: participant.nom.trim(),
+        fonction: participant.fonction.trim(),
+        email: participant.email.trim(),
+      }))
+      .filter((participant) => participant.nom || participant.fonction || participant.email),
+    notifications_mdph: cleanStringList(formData.notifications_mdph),
+    suivis_bilans: cleanStringList(formData.suivis_bilans),
+    point_situation_representants: emptyToNull(formData.point_situation_representants),
+    point_situation_professionnels: emptyToNull(formData.point_situation_professionnels),
+    conclusion_reunion: emptyToNull(formData.conclusion_reunion),
+  });
+
   return (
     <PDFGenerator
       docType="reunionESS"
@@ -117,7 +155,7 @@ export default function ReunionEssForm() {
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="🗂️ Réunion ESS"
+            title="Réunion ESS"
             description="Formulaire unique pour la feuille d'émargement, la note GEVA-Sco et les points de situation."
             theme="emerald"
           />
@@ -125,56 +163,80 @@ export default function ReunionEssForm() {
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              onSubmit(formData);
+              onSubmit(buildPayload());
             }}
             className="w-full space-y-6"
           >
-            <FormSection title="👤 Élève">
+            <FormSection title="Élève">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormInput label="Prenom" value={formData.prenom} onChange={(event) => updateField("prenom", event.target.value)} />
-                <FormInput label="Nom" value={formData.nom} onChange={(event) => updateField("nom", event.target.value)} />
+                <FormInput
+                  label="Nom et prénom"
+                  value={formData.nom}
+                  onChange={(event) => updateField("nom", event.target.value)}
+                  placeholder="Ex. Nora Dupont"
+                />
                 <FormInput
                   label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(event) => updateField("date_nais", event.target.value)}
                 />
-                <FormInput label="Classe" value={formData.classe} onChange={(event) => updateField("classe", event.target.value)} />
+                <FormInput
+                  label="Niveau scolaire"
+                  value={formData.niveau}
+                  onChange={(event) => updateField("niveau", event.target.value)}
+                  placeholder="Ex. 6e, 3e, 2nde GT"
+                />
               </div>
             </FormSection>
 
-            <FormSection title="📁 Dossier et établissement">
+            <FormSection title="Dossier et établissement">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
-                  label="Numero de dossier"
+                  label="N° de dossier MDPH"
                   value={formData.dossier_num}
                   onChange={(event) => updateField("dossier_num", event.target.value)}
+                  placeholder="Ex. 72-2025-00123"
                 />
                 <FormInput
-                  label="Etablissement"
+                  label="Établissement"
                   value={formData.etablissement}
                   onChange={(event) => updateField("etablissement", event.target.value)}
+                  placeholder="Ex. Collège Jean Monnet"
+                />
+                <FormInput
+                  label="Chef d'établissement"
+                  value={formData.chef_etab}
+                  onChange={(event) => updateField("chef_etab", event.target.value)}
+                  placeholder="Ex. Mme/M. Dupont"
                 />
               </div>
             </FormSection>
 
-            <FormSection title="📅 Réunion ESS">
+            <FormSection title="Réunion ESS">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
-                  label="Annee scolaire"
-                  value={formData.annee_scolaire}
-                  onChange={(event) => updateField("annee_scolaire", event.target.value)}
-                />
-                <FormInput
-                  label="Date ESS"
+                  label="Date de l'ESS"
                   type="date"
                   value={formData.date_ess}
                   onChange={(event) => updateField("date_ess", event.target.value)}
                 />
                 <FormInput
-                  label="Numero ESS"
+                  label="N° de l'ESS"
                   value={formData.numero_ess}
                   onChange={(event) => updateField("numero_ess", event.target.value)}
+                />
+                <FormSelect
+                  label="Type de dernier GEVA-Sco"
+                  value={formData.type_geva_sco}
+                  onChange={(event) => updateField("type_geva_sco", event.target.value)}
+                  options={[
+                    { value: "", label: "Sélectionner..." },
+                    { value: "Première demande", label: "Première demande" },
+                    { value: "Réexamen", label: "Réexamen" },
+                    { value: "Équipe éducative", label: "Équipe éducative" },
+                    { value: "ESS", label: "ESS" },
+                  ]}
                 />
                 <FormInput
                   label="Date du dernier GEVA-Sco"
@@ -185,27 +247,12 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="✍️ Rédacteur">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormInput
-                  label="Nom du redacteur"
-                  value={formData.redacteur}
-                  onChange={(event) => updateField("redacteur", event.target.value)}
-                />
-                <FormInput
-                  label="Fonction du redacteur"
-                  value={formData.fonction_redacteur}
-                  onChange={(event) => updateField("fonction_redacteur", event.target.value)}
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title={`👥 Liste d'émargement (${formData.liste_emargement.length})`}>
+            <FormSection title={`Participants (${formData.participants.length})`}>
               <div className="space-y-3">
-                {formData.liste_emargement.length === 0 ? (
-                  <p className="text-sm italic text-gray-500">Aucun participant ajoute.</p>
+                {formData.participants.length === 0 ? (
+                  <p className="text-sm italic text-gray-500">Aucun participant ajouté.</p>
                 ) : (
-                  formData.liste_emargement.map((participant, index) => (
+                  formData.participants.map((participant, index) => (
                     <div key={index} className="rounded-lg border border-gray-200 bg-white p-4">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <span className="font-semibold text-gray-900">Participant {index + 1}</span>
@@ -215,7 +262,11 @@ export default function ReunionEssForm() {
                         />
                       </div>
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <FormInput label="Nom" value={participant.nom} onChange={(event) => updateParticipant(index, "nom", event.target.value)} />
+                        <FormInput
+                          label="Nom"
+                          value={participant.nom}
+                          onChange={(event) => updateParticipant(index, "nom", event.target.value)}
+                        />
                         <FormInput
                           label="Fonction"
                           value={participant.fonction}
@@ -235,9 +286,9 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="📄 Notifications et suivis">
+            <FormSection title="Notifications et suivis">
               <DynamicList
-                label="Notifications MDPH"
+                label="Notifications MDPH en cours"
                 values={formData.notifications_mdph}
                 onAdd={() => addListItem("notifications_mdph")}
                 onUpdate={(index, value) => updateListItem("notifications_mdph", index, value)}
@@ -254,20 +305,20 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="📌 Points de situation">
+            <FormSection title="Points de situation">
               <div className="space-y-4">
                 <FormTextarea
-                  label="Point de situation des representants"
+                  label="Point de situation - élève et parents"
                   value={formData.point_situation_representants}
                   onChange={(event) => updateField("point_situation_representants", event.target.value)}
                 />
                 <FormTextarea
-                  label="Point de situation des professionnels"
+                  label="Point de situation - professionnels"
                   value={formData.point_situation_professionnels}
                   onChange={(event) => updateField("point_situation_professionnels", event.target.value)}
                 />
                 <FormTextarea
-                  label="Conclusion de la reunion"
+                  label="Conclusion de la réunion"
                   value={formData.conclusion_reunion}
                   onChange={(event) => updateField("conclusion_reunion", event.target.value)}
                 />
@@ -300,7 +351,7 @@ function DynamicList({
       <div className="mb-2 text-sm font-semibold text-gray-700">{label}</div>
       <div className="space-y-2">
         {values.length === 0 ? (
-          <p className="text-sm italic text-gray-500">Aucune entree ajoutee.</p>
+          <p className="text-sm italic text-gray-500">Aucune entrée ajoutée.</p>
         ) : (
           values.map((value, index) => (
             <div key={index} className="flex gap-2">
