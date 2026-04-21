@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
+import { auth } from "../../firebase";
+import { getProfile } from "../api";
 import {
   AddButton,
   DeleteIconButton,
@@ -24,6 +27,8 @@ const emptyParticipant: Participant = {
   fonction: "",
   email: "",
 };
+
+const DEFAULT_USER_FUNCTION = "Enseignante référente";
 
 const initialFormData = {
   nom: "",
@@ -72,6 +77,49 @@ function FormTextarea({
 
 export default function ReunionEssForm() {
   const [formData, setFormData] = useState(initialFormData);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      try {
+        const token = await user.getIdToken();
+        const profile = await getProfile(token);
+        if (cancelled) return;
+
+        const defaultParticipant = {
+          nom: profile.full_name || user.displayName || "",
+          fonction: DEFAULT_USER_FUNCTION,
+          email: profile.email || user.email || "",
+        };
+
+        setFormData((prev) => {
+          if (prev.participants.length > 0) return prev;
+          if (!defaultParticipant.nom && !defaultParticipant.fonction && !defaultParticipant.email) return prev;
+          return { ...prev, participants: [defaultParticipant] };
+        });
+      } catch {
+        if (cancelled) return;
+        setFormData((prev) => {
+          if (prev.participants.length > 0 || !user.email) return prev;
+          return {
+            ...prev,
+            participants: [{
+              nom: user.displayName || "",
+              fonction: DEFAULT_USER_FUNCTION,
+              email: user.email,
+            }],
+          };
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   const updateField = <K extends keyof typeof initialFormData>(field: K, value: (typeof initialFormData)[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -155,7 +203,7 @@ export default function ReunionEssForm() {
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="Compte rendu d’ESS de suivi"
+            title="🗂️ Compte rendu d’ESS de suivi"
             description="Complétez les informations de la réunion de suivi, les notifications en cours et les points de situation."
             theme="emerald"
           />
