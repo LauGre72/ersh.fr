@@ -193,6 +193,12 @@ export default function BordereauForm() {
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
                 />
+                <FormInput
+                  label="N° de dossier MDPH"
+                  value={formData.dossier_num}
+                  onChange={(e) => updateField("dossier_num", e.target.value)}
+                  placeholder="Ex. 72-2025-00123"
+                />
               </div>
             </FormSection>
 
@@ -209,12 +215,6 @@ export default function BordereauForm() {
                     { value: "Réexamen", label: "Réexamen" },
                     { value: "Autre", label: "Autre" },
                   ]}
-                />
-                <FormInput
-                  label="N° de dossier MDPH"
-                  value={formData.dossier_num}
-                  onChange={(e) => updateField("dossier_num", e.target.value)}
-                  placeholder="Ex. 72-2025-00123"
                 />
               </div>
             </FormSection>
