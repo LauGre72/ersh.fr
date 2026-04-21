@@ -167,7 +167,7 @@ export default function ReunionEssForm() {
             }}
             className="w-full space-y-6"
           >
-            <FormSection title="Élève">
+            <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Nom et prénom"
@@ -187,17 +187,17 @@ export default function ReunionEssForm() {
                   onChange={(event) => updateField("niveau", event.target.value)}
                   placeholder="Ex. 6e, 3e, 2nde GT"
                 />
-              </div>
-            </FormSection>
-
-            <FormSection title="Dossier et établissement">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="N° de dossier MDPH"
                   value={formData.dossier_num}
                   onChange={(event) => updateField("dossier_num", event.target.value)}
                   placeholder="Ex. 72-2025-00123"
                 />
+              </div>
+            </FormSection>
+
+            <FormSection title="🏫 Établissement">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Etablissement"
                   value={formData.etablissement}
@@ -213,7 +213,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Réunion ESS">
+            <FormSection title="📅 Réunion ESS">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
                   label="Date de l'ESS"
@@ -247,7 +247,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title={`Participants (${formData.participants.length})`}>
+            <FormSection title={`👥 Participants (${formData.participants.length})`}>
               <div className="space-y-3">
                 {formData.participants.length === 0 ? (
                   <p className="text-sm italic text-gray-500">Aucun participant ajouté.</p>

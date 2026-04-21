@@ -138,21 +138,31 @@ export default function BordereauForm() {
     return lines.length ? lines.map(label => `* ${label}`).join("\n") : null;
   };
 
+  const emptyToNull = (value: string) => value.trim() || null;
+
   const buildPayload = () => ({
-    ...formData,
+    typedemande: emptyToNull(formData.typedemande),
+    dossier_num: emptyToNull(formData.dossier_num),
+    nom: emptyToNull(formData.nom),
+    date_nais: emptyToNull(formData.date_nais),
     demandes: buildBulletList(formData.demandes, DEMANDES_OPTIONS, formData.demandes_autre),
-    PI: buildBulletList(formData.PI, PI_OPTIONS, formData.PI_autre),
-    JD: buildBulletList(formData.JD, JD_OPTIONS, formData.JD_autre),
-    typedemande: formData.typedemande || null,
-    dossier_num: formData.dossier_num || null,
-    date_nais: formData.date_nais || null,
-    cert_med: formData.cert_med || null,
-    date_geva_sco: formData.date_geva_sco || null,
-    NUM_LPI: formData.NUM_LPI || null,
-    type_reunion: formData.type_reunion || null,
-    PSY: formData.PSY || null,
-    PRO: formData.PRO || null,
-    AUTRE: formData.AUTRE || null,
+    CERFA: formData.CERFA,
+    HAS_PI: formData.HAS_PI,
+    PI: formData.HAS_PI ? buildBulletList(formData.PI, PI_OPTIONS, formData.PI_autre) : null,
+    HAS_JD: formData.HAS_JD,
+    JD: formData.HAS_JD ? buildBulletList(formData.JD, JD_OPTIONS, formData.JD_autre) : null,
+    cert_med: emptyToNull(formData.cert_med),
+    HAS_GEVASco: formData.HAS_GEVASco,
+    date_geva_sco: formData.HAS_GEVASco ? emptyToNull(formData.date_geva_sco) : null,
+    type_reunion: formData.HAS_GEVASco ? emptyToNull(formData.type_reunion) : null,
+    HAS_LPI: formData.HAS_LPI,
+    NUM_LPI: formData.HAS_LPI ? emptyToNull(formData.NUM_LPI) : null,
+    HAS_PSY: formData.HAS_PSY,
+    PSY: formData.HAS_PSY ? emptyToNull(formData.PSY) : null,
+    HAS_PRO: formData.HAS_PRO,
+    PRO: formData.HAS_PRO ? emptyToNull(formData.PRO) : null,
+    HAS_AUTRE: formData.HAS_AUTRE,
+    AUTRE: formData.HAS_AUTRE ? emptyToNull(formData.AUTRE) : null,
   });
 
   return (
