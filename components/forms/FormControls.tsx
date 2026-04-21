@@ -180,6 +180,37 @@ export function SubmitButton({
   );
 }
 
+export function ResetButton({
+  children = "Réinitialiser",
+  onClick,
+}: {
+  children?: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-5 py-4 text-lg font-bold text-gray-800 shadow-sm transition hover:border-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:w-auto"
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 12a9 9 0 1 0 3-6.7" />
+        <path d="M3 4v6h6" />
+      </svg>
+      <span>{children}</span>
+    </button>
+  );
+}
+
 export function AddButton({
   children,
   onClick,

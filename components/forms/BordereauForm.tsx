@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormSection,
   FormSelect,
+  ResetButton,
   SubmitButton,
 } from "./FormControls";
 
@@ -80,34 +81,36 @@ const JD_OPTIONS = [
   { id: "rib_adresse", label: "RIB avec adresse" },
 ];
 
+const createInitialFormData = () => ({
+  typedemande: "",
+  dossier_num: "",
+  nom: "",
+  date_nais: "",
+  demandes: [] as string[],
+  demandes_autre: "",
+  CERFA: false,
+  HAS_PI: false,
+  PI: [] as string[],
+  PI_autre: "",
+  HAS_JD: false,
+  JD: [] as string[],
+  JD_autre: "",
+  cert_med: "",
+  HAS_GEVASco: false,
+  date_geva_sco: "",
+  HAS_LPI: false,
+  NUM_LPI: "",
+  type_reunion: "",
+  HAS_PSY: false,
+  PSY: "",
+  HAS_PRO: false,
+  PRO: "",
+  HAS_AUTRE: false,
+  AUTRE: "",
+});
+
 export default function BordereauForm() {
-  const [formData, setFormData] = useState({
-    typedemande: "",
-    dossier_num: "",
-    nom: "",
-    date_nais: "",
-    demandes: [] as string[],
-    demandes_autre: "",
-    CERFA: false,
-    HAS_PI: false,
-    PI: [] as string[],
-    PI_autre: "",
-    HAS_JD: false,
-    JD: [] as string[],
-    JD_autre: "",
-    cert_med: "",
-    HAS_GEVASco: false,
-    date_geva_sco: "",
-    HAS_LPI: false,
-    NUM_LPI: "",
-    type_reunion: "",
-    HAS_PSY: false,
-    PSY: "",
-    HAS_PRO: false,
-    PRO: "",
-    HAS_AUTRE: false,
-    AUTRE: "",
-  });
+  const [formData, setFormData] = useState(createInitialFormData);
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -140,6 +143,10 @@ export default function BordereauForm() {
   };
 
   const emptyToNull = (value: string) => value.trim() || null;
+
+  const resetForm = () => {
+    setFormData(createInitialFormData());
+  };
 
   const buildPayload = () => ({
     typedemande: emptyToNull(formData.typedemande),
@@ -426,7 +433,12 @@ export default function BordereauForm() {
               </div>
             </FormSection>
 
-            <SubmitButton />
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ResetButton onClick={resetForm} />
+              <div className="flex-1">
+                <SubmitButton />
+              </div>
+            </div>
           </form>
         </div>
       )}

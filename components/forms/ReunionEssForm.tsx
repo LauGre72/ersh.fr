@@ -11,6 +11,7 @@ import {
   FormSelect as BaseFormSelect,
   FormSection as BaseFormSection,
   FormTextarea as BaseFormTextarea,
+  ResetButton,
   SubmitButton,
 } from "./FormControls";
 
@@ -77,6 +78,7 @@ function FormTextarea({
 
 export default function ReunionEssForm() {
   const [formData, setFormData] = useState(initialFormData);
+  const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +95,7 @@ export default function ReunionEssForm() {
           fonction: DEFAULT_USER_FUNCTION,
           email: profile.email || user.email || "",
         };
+        setDefaultParticipant(defaultParticipant);
 
         setFormData((prev) => {
           if (prev.participants.length > 0) return prev;
@@ -101,15 +104,18 @@ export default function ReunionEssForm() {
         });
       } catch {
         if (cancelled) return;
+        const fallbackParticipant = {
+          nom: user.displayName || "",
+          fonction: DEFAULT_USER_FUNCTION,
+          email: user.email || "",
+        };
+        setDefaultParticipant(fallbackParticipant);
+
         setFormData((prev) => {
           if (prev.participants.length > 0 || !user.email) return prev;
           return {
             ...prev,
-            participants: [{
-              nom: user.displayName || "",
-              fonction: DEFAULT_USER_FUNCTION,
-              email: user.email,
-            }],
+            participants: [fallbackParticipant],
           };
         });
       }
@@ -123,6 +129,15 @@ export default function ReunionEssForm() {
 
   const updateField = <K extends keyof typeof initialFormData>(field: K, value: (typeof initialFormData)[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      ...initialFormData,
+      participants: defaultParticipant ? [defaultParticipant] : [],
+      notifications_mdph: [],
+      suivis_bilans: [],
+    });
   };
 
   const addParticipant = () => {
@@ -376,7 +391,12 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <SubmitButton theme="emerald" />
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ResetButton onClick={resetForm} />
+              <div className="flex-1">
+                <SubmitButton theme="emerald" />
+              </div>
+            </div>
           </form>
         </div>
       )}

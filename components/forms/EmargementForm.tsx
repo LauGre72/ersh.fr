@@ -10,6 +10,7 @@ import {
   FormInput as BaseFormInput,
   FormSection as BaseFormSection,
   MoveButton,
+  ResetButton,
   SubmitButton,
 } from "./FormControls";
 
@@ -21,17 +22,20 @@ interface Participant {
 
 const DEFAULT_USER_FUNCTION = "Enseignante référente";
 
+const initialFormData = {
+  date_ess: "",
+  date_nais: "",
+  nom: "",
+  niveau: "",
+  dossier_num: "",
+  etablissement: "",
+  chef_etab: "",
+  participants: [] as Participant[],
+};
+
 export default function EmargementForm() {
-  const [formData, setFormData] = useState({
-    date_ess: "",
-    date_nais: "",
-    nom: "",
-    niveau: "",
-    dossier_num: "",
-    etablissement: "",
-    chef_etab: "",
-    participants: [] as Participant[],
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +52,7 @@ export default function EmargementForm() {
           fonction: DEFAULT_USER_FUNCTION,
           email: profile.email || user.email || "",
         };
+        setDefaultParticipant(defaultParticipant);
 
         setFormData(prev => {
           if (prev.participants.length > 0) return prev;
@@ -56,15 +61,18 @@ export default function EmargementForm() {
         });
       } catch {
         if (cancelled) return;
+        const fallbackParticipant = {
+          nom: user.displayName || "",
+          fonction: DEFAULT_USER_FUNCTION,
+          email: user.email || "",
+        };
+        setDefaultParticipant(fallbackParticipant);
+
         setFormData(prev => {
           if (prev.participants.length > 0 || !user.email) return prev;
           return {
             ...prev,
-            participants: [{
-              nom: user.displayName || "",
-              fonction: DEFAULT_USER_FUNCTION,
-              email: user.email,
-            }],
+            participants: [fallbackParticipant],
           };
         });
       }
@@ -78,6 +86,13 @@ export default function EmargementForm() {
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      ...initialFormData,
+      participants: defaultParticipant ? [defaultParticipant] : [],
+    });
   };
 
   const loadDraft = (data: Partial<typeof formData> & { typedemande?: string }) => {
@@ -242,7 +257,12 @@ export default function EmargementForm() {
               </div>
             </FormSection>
 
-            <SubmitButton theme="cyan" />
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ResetButton onClick={resetForm} />
+              <div className="flex-1">
+                <SubmitButton theme="cyan" />
+              </div>
+            </div>
           </form>
         </div>
       )}
