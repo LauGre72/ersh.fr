@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
+import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
   DeleteIconButton,
@@ -46,7 +47,7 @@ const initialFormData = {
   type_geva_sco: "",
   date_geva_sco: "",
   date_ess: "",
-  annee_scolaire: "",
+  annee_scolaire: getCurrentSchoolYear(),
   numero_ess: "",
   participants: [] as Participant[],
   notifications_mdph: [] as string[],
@@ -162,6 +163,7 @@ export default function ReunionEssForm() {
   const resetForm = () => {
     setFormData({
       ...initialFormData,
+      annee_scolaire: getCurrentSchoolYear(),
       participants: defaultParticipant ? [defaultParticipant] : [],
       notifications_mdph: [],
       suivis_bilans: [],

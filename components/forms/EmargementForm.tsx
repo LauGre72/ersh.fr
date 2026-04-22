@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
+import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
   DeleteIconButton,
@@ -35,7 +36,7 @@ const emptyParticipant: Participant = {
 
 const initialFormData = {
   date_ess: "",
-  annee_scolaire: "",
+  annee_scolaire: getCurrentSchoolYear(),
   date_nais: "",
   nom: "",
   niveau: "",
@@ -125,6 +126,7 @@ export default function EmargementForm() {
   const resetForm = () => {
     setFormData({
       ...initialFormData,
+      annee_scolaire: getCurrentSchoolYear(),
       participants: defaultParticipant ? [defaultParticipant] : [],
     });
   };
