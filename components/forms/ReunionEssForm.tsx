@@ -50,6 +50,7 @@ const initialFormData = {
   annee_scolaire: getCurrentSchoolYear(),
   numero_ess: "",
   participants: [] as Participant[],
+  situation_anterieure: "",
   notifications_mdph: [] as string[],
   suivis_bilans: [] as string[],
   point_situation_representants: "",
@@ -229,6 +230,7 @@ export default function ReunionEssForm() {
     participants: formData.participants
       .map(participantForApi)
       .filter((participant) => participant.nom || participant.fonction || participant.email),
+    situation_anterieure: cleanString(formData.situation_anterieure),
     notifications_mdph: cleanStringList(formData.notifications_mdph),
     suivis_bilans: cleanStringList(formData.suivis_bilans),
     point_situation_representants: cleanString(formData.point_situation_representants),
@@ -398,6 +400,11 @@ export default function ReunionEssForm() {
                   ))
                 )}
                 <AddButton theme="emerald" onClick={addParticipant}>Ajouter un participant</AddButton>
+                <FormTextarea
+                  label="Situation antérieure"
+                  value={formData.situation_anterieure}
+                  onChange={(event) => updateField("situation_anterieure", event.target.value)}
+                />
               </div>
             </FormSection>
 
