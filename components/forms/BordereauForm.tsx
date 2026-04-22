@@ -387,7 +387,6 @@ export default function BordereauForm() {
                   />
                   {formData.HAS_PSY && (
                     <div className="mt-2">
-                      <FormLabel>Bilan psychologique</FormLabel>
                       <textarea
                         value={formData.PSY}
                         onChange={(e) => updateField("PSY", e.target.value)}
@@ -405,7 +404,7 @@ export default function BordereauForm() {
                   />
                   {formData.HAS_PRO && (
                     <div className="mt-2">
-                      
+
                       <textarea
                         value={formData.PRO}
                         onChange={(e) => updateField("PRO", e.target.value)}
@@ -423,7 +422,6 @@ export default function BordereauForm() {
                   />
                   {formData.HAS_AUTRE && (
                     <div className="mt-2">
-                      <FormLabel>Autres documents</FormLabel>
                       <textarea
                         value={formData.AUTRE}
                         onChange={(e) => updateField("AUTRE", e.target.value)}
