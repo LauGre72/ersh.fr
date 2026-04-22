@@ -35,6 +35,7 @@ const emptyParticipant: Participant = {
 
 const initialFormData = {
   date_ess: "",
+  annee_scolaire: "",
   date_nais: "",
   nom: "",
   niveau: "",
@@ -196,6 +197,12 @@ export default function EmargementForm() {
                   type="date"
                   value={formData.date_ess}
                   onChange={(e) => updateField("date_ess", e.target.value)}
+                />
+                <FormInput
+                  label="Année scolaire"
+                  value={formData.annee_scolaire}
+                  onChange={(e) => updateField("annee_scolaire", e.target.value)}
+                  placeholder="Ex. 2025-2026"
                 />
               </div>
             </FormSection>

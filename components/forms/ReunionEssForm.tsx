@@ -46,6 +46,7 @@ const initialFormData = {
   type_geva_sco: "",
   date_geva_sco: "",
   date_ess: "",
+  annee_scolaire: "",
   numero_ess: "",
   participants: [] as Participant[],
   notifications_mdph: [] as string[],
@@ -221,6 +222,7 @@ export default function ReunionEssForm() {
     type_geva_sco: emptyToNull(formData.type_geva_sco),
     date_geva_sco: emptyToNull(formData.date_geva_sco),
     date_ess: emptyToNull(formData.date_ess),
+    annee_scolaire: emptyToNull(formData.annee_scolaire),
     numero_ess: emptyToNull(formData.numero_ess),
     participants: formData.participants
       .map(participantForApi)
@@ -266,6 +268,12 @@ export default function ReunionEssForm() {
                   type="date"
                   value={formData.date_ess}
                   onChange={(event) => updateField("date_ess", event.target.value)}
+                />
+                <FormInput
+                  label="Année scolaire"
+                  value={formData.annee_scolaire}
+                  onChange={(event) => updateField("annee_scolaire", event.target.value)}
+                  placeholder="Ex. 2025-2026"
                 />
                 <FormInput
                   label="N° de l'ESS de suivi"
