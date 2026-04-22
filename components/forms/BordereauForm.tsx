@@ -383,7 +383,7 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_PSY}
                     onChange={(e) => updateField("HAS_PSY", e.target.checked)}
-                    label="Presence du bilan psychologique"
+                    label="Bilan psychologique"
                   />
                   {formData.HAS_PSY && (
                     <div className="mt-2">
@@ -401,7 +401,7 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_PRO}
                     onChange={(e) => updateField("HAS_PRO", e.target.checked)}
-                    label="Presence du volet professionnel"
+                    label="Synthèse de professionnels"
                   />
                   {formData.HAS_PRO && (
                     <div className="mt-2">
@@ -419,7 +419,7 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_AUTRE}
                     onChange={(e) => updateField("HAS_AUTRE", e.target.checked)}
-                    label="Presence d’autres documents"
+                    label="Autres documents"
                   />
                   {formData.HAS_AUTRE && (
                     <div className="mt-2">
