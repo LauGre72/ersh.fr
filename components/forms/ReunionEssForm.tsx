@@ -400,15 +400,18 @@ export default function ReunionEssForm() {
                   ))
                 )}
                 <AddButton theme="emerald" onClick={addParticipant}>Ajouter un participant</AddButton>
-                <FormTextarea
-                  label="Situation antérieure"
-                  value={formData.situation_anterieure}
-                  onChange={(event) => updateField("situation_anterieure", event.target.value)}
-                />
               </div>
             </FormSection>
 
-            <FormSection title="Notifications et suivis">
+            <FormSection title="📋 Situation antérieure">
+              <FormTextarea
+                label="Situation antérieure"
+                value={formData.situation_anterieure}
+                onChange={(event) => updateField("situation_anterieure", event.target.value)}
+              />
+            </FormSection>
+
+            <FormSection title="🔔 Notifications et suivis">
               <DynamicList
                 label="Notifications MDPH en cours"
                 values={formData.notifications_mdph}
@@ -427,7 +430,7 @@ export default function ReunionEssForm() {
               </div>
             </FormSection>
 
-            <FormSection title="Points de situation">
+            <FormSection title="💬 Points de situation">
               <div className="space-y-4">
                 <FormTextarea
                   label="Point de situation - élève et parents"
