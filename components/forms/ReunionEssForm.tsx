@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
+import { getTodayDateInputValue } from "../dateLimits";
 import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
@@ -107,6 +108,7 @@ function FormTextarea({
 export default function ReunionEssForm() {
   const [formData, setFormData] = useState(initialFormData);
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
+  const today = getTodayDateInputValue();
 
   useEffect(() => {
     let cancelled = false;
@@ -294,12 +296,14 @@ export default function ReunionEssForm() {
                   value={formData.nom}
                   onChange={(event) => updateField("nom", event.target.value)}
                   placeholder="Ex. Nora Dupont"
+                  required
                 />
                 <FormInput
                   label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(event) => updateField("date_nais", event.target.value)}
+                  max={today}
                 />
                 <FormInput
                   label="Niveau scolaire"

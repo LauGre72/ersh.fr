@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PDFGenerator from "../PDFGenerator";
+import { getTodayDateInputValue } from "../dateLimits";
 import {
   FormCheckbox,
   FormHeader,
@@ -112,6 +113,7 @@ const createInitialFormData = () => ({
 
 export default function BordereauForm() {
   const [formData, setFormData] = useState(createInitialFormData);
+  const today = getTodayDateInputValue();
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -195,12 +197,14 @@ export default function BordereauForm() {
                   label="Nom et prénom"
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
+                  required
                 />
                 <FormInput
                   label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
+                  max={today}
                 />
                 <FormInput
                   label="N° de dossier MDPH"
@@ -222,7 +226,6 @@ export default function BordereauForm() {
                     { value: "", label: "Sélectionner..." },
                     { value: "Première demande", label: "Première demande" },
                     { value: "Réexamen", label: "Réexamen" },
-                    { value: "Autre", label: "Autre" },
                   ]}
                 />
               </div>

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { submitPDF, getPDFStatus, downloadPDF } from "./api";
+import { isDateInputValueInFuture } from "./dateLimits";
 
 interface PDFGeneratorProps {
   docType: string;
@@ -119,6 +120,16 @@ export default function PDFGenerator({ docType, draftData, onLoadDraft, children
   const handleSubmit = async (formData: any) => {
     if (!user) return;
     if (status === "submitting" || status === "pending") return;
+    if (!String(formData?.nom || "").trim()) {
+      setError("Le nom et prénom de l'élève doivent être saisis avant de générer le PDF.");
+      setStatus("error");
+      return;
+    }
+    if (isDateInputValueInFuture(formData?.date_nais)) {
+      setError("La date de naissance ne peut pas être dans le futur.");
+      setStatus("error");
+      return;
+    }
 
     clearPolling();
     setStatus("submitting");

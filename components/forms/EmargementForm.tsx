@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
+import { getTodayDateInputValue } from "../dateLimits";
 import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
@@ -69,6 +70,7 @@ function participantForApi(participant: Participant) {
 export default function EmargementForm() {
   const [formData, setFormData] = useState(initialFormData);
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
+  const today = getTodayDateInputValue();
 
   useEffect(() => {
     let cancelled = false;
@@ -217,12 +219,14 @@ export default function EmargementForm() {
                   value={formData.nom}
                   onChange={(e) => updateField("nom", e.target.value)}
                   placeholder="Ex. Nora Dupont"
+                  required
                 />
                 <FormInput
                   label="Date de naissance"
                   type="date"
                   value={formData.date_nais}
                   onChange={(e) => updateField("date_nais", e.target.value)}
+                  max={today}
                 />
                 <FormInput
                   label="Niveau scolaire"
