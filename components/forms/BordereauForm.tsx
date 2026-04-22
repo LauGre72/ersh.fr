@@ -405,7 +405,7 @@ export default function BordereauForm() {
                   />
                   {formData.HAS_PRO && (
                     <div className="mt-2">
-                      <FormLabel>Volet professionnel</FormLabel>
+                      
                       <textarea
                         value={formData.PRO}
                         onChange={(e) => updateField("PRO", e.target.value)}
