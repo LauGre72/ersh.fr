@@ -6,6 +6,7 @@ import { getProfile } from "../api";
 import {
   AddButton,
   DeleteIconButton,
+  FormCheckbox,
   FormHeader,
   FormInput as BaseFormInput,
   FormSection as BaseFormSection,
@@ -18,9 +19,19 @@ interface Participant {
   nom: string;
   fonction: string;
   email: string;
+  noEmail?: boolean;
 }
 
 const DEFAULT_USER_FUNCTION = "Enseignante référente";
+
+const NO_MAIL_VALUE = "NO_MAIL";
+
+const emptyParticipant: Participant = {
+  nom: "",
+  fonction: "",
+  email: "",
+  noEmail: false,
+};
 
 const initialFormData = {
   date_ess: "",
@@ -32,6 +43,26 @@ const initialFormData = {
   chef_etab: "",
   participants: [] as Participant[],
 };
+
+function normalizeParticipant(participant: Partial<Participant>): Participant {
+  const email = participant.email || "";
+  const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
+
+  return {
+    nom: participant.nom || "",
+    fonction: participant.fonction || "",
+    email: noEmail ? "" : email,
+    noEmail,
+  };
+}
+
+function participantForApi(participant: Participant) {
+  return {
+    nom: participant.nom.trim(),
+    fonction: participant.fonction.trim(),
+    email: participant.noEmail ? NO_MAIL_VALUE : participant.email.trim(),
+  };
+}
 
 export default function EmargementForm() {
   const [formData, setFormData] = useState(initialFormData);
@@ -51,6 +82,7 @@ export default function EmargementForm() {
           nom: profile.full_name || user.displayName || "",
           fonction: DEFAULT_USER_FUNCTION,
           email: profile.email || user.email || "",
+          noEmail: false,
         };
         setDefaultParticipant(defaultParticipant);
 
@@ -65,6 +97,7 @@ export default function EmargementForm() {
           nom: user.displayName || "",
           fonction: DEFAULT_USER_FUNCTION,
           email: user.email || "",
+          noEmail: false,
         };
         setDefaultParticipant(fallbackParticipant);
 
@@ -97,17 +130,21 @@ export default function EmargementForm() {
 
   const loadDraft = (data: Partial<typeof formData> & { typedemande?: string }) => {
     const { typedemande: _typedemande, ...supportedData } = data;
-    setFormData(prev => ({ ...prev, ...supportedData }));
+    setFormData(prev => ({
+      ...prev,
+      ...supportedData,
+      participants: supportedData.participants?.map(normalizeParticipant) || prev.participants,
+    }));
   };
 
   const addParticipant = () => {
     setFormData(prev => ({
       ...prev,
-      participants: [...prev.participants, { nom: "", fonction: "", email: "" }]
+      participants: [...prev.participants, { ...emptyParticipant }]
     }));
   };
 
-  const updateParticipant = (index: number, field: keyof Participant, value: string) => {
+  const updateParticipant = (index: number, field: keyof Participant, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       participants: prev.participants.map((p, i) => i === index ? { ...p, [field]: value } : p)
@@ -129,6 +166,13 @@ export default function EmargementForm() {
     setFormData(prev => ({ ...prev, participants }));
   };
 
+  const buildPayload = () => ({
+    ...formData,
+    participants: formData.participants
+      .map(participantForApi)
+      .filter((participant) => participant.nom || participant.fonction || participant.email),
+  });
+
   return (
     <PDFGenerator
       docType="feuillePresence"
@@ -143,7 +187,7 @@ export default function EmargementForm() {
             theme="cyan"
           />
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="w-full space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="w-full space-y-6">
             {/* Réunion */}
             <FormSection title="📅 Organisation">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -246,8 +290,17 @@ export default function EmargementForm() {
                           type="email"
                           placeholder="Email"
                           value={p.email}
+                          disabled={p.noEmail}
                           onChange={(e) => updateParticipant(index, "email", e.target.value)}
-                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition text-sm"
+                          className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition text-sm disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <FormCheckbox
+                          theme="cyan"
+                          checked={Boolean(p.noEmail)}
+                          onChange={(e) => updateParticipant(index, "noEmail", e.target.checked)}
+                          label="Pas d'email pour ce participant"
                         />
                       </div>
                     </div>

@@ -6,6 +6,7 @@ import { getProfile } from "../api";
 import {
   AddButton,
   DeleteIconButton,
+  FormCheckbox,
   FormHeader,
   FormInput as BaseFormInput,
   FormSelect as BaseFormSelect,
@@ -19,6 +20,7 @@ interface Participant {
   nom: string;
   fonction: string;
   email: string;
+  noEmail?: boolean;
 }
 
 type ListField = "notifications_mdph" | "suivis_bilans";
@@ -27,9 +29,12 @@ const emptyParticipant: Participant = {
   nom: "",
   fonction: "",
   email: "",
+  noEmail: false,
 };
 
 const DEFAULT_USER_FUNCTION = "Enseignante référente";
+
+const NO_MAIL_VALUE = "NO_MAIL";
 
 const initialFormData = {
   nom: "",
@@ -49,6 +54,26 @@ const initialFormData = {
   point_situation_professionnels: "",
   conclusion_reunion: "",
 };
+
+function normalizeParticipant(participant: Partial<Participant>): Participant {
+  const email = participant.email || "";
+  const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
+
+  return {
+    nom: participant.nom || "",
+    fonction: participant.fonction || "",
+    email: noEmail ? "" : email,
+    noEmail,
+  };
+}
+
+function participantForApi(participant: Participant) {
+  return {
+    nom: participant.nom.trim(),
+    fonction: participant.fonction.trim(),
+    email: participant.noEmail ? NO_MAIL_VALUE : participant.email.trim(),
+  };
+}
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return <BaseFormSection title={title} theme="emerald">{children}</BaseFormSection>;
@@ -94,6 +119,7 @@ export default function ReunionEssForm() {
           nom: profile.full_name || user.displayName || "",
           fonction: DEFAULT_USER_FUNCTION,
           email: profile.email || user.email || "",
+          noEmail: false,
         };
         setDefaultParticipant(defaultParticipant);
 
@@ -108,6 +134,7 @@ export default function ReunionEssForm() {
           nom: user.displayName || "",
           fonction: DEFAULT_USER_FUNCTION,
           email: user.email || "",
+          noEmail: false,
         };
         setDefaultParticipant(fallbackParticipant);
 
@@ -147,7 +174,7 @@ export default function ReunionEssForm() {
     }));
   };
 
-  const updateParticipant = (index: number, field: keyof Participant, value: string) => {
+  const updateParticipant = (index: number, field: keyof Participant, value: string | boolean) => {
     setFormData((prev) => ({
       ...prev,
       participants: prev.participants.map((participant, currentIndex) =>
@@ -196,11 +223,7 @@ export default function ReunionEssForm() {
     date_ess: emptyToNull(formData.date_ess),
     numero_ess: emptyToNull(formData.numero_ess),
     participants: formData.participants
-      .map((participant) => ({
-        nom: participant.nom.trim(),
-        fonction: participant.fonction.trim(),
-        email: participant.email.trim(),
-      }))
+      .map(participantForApi)
       .filter((participant) => participant.nom || participant.fonction || participant.email),
     notifications_mdph: cleanStringList(formData.notifications_mdph),
     suivis_bilans: cleanStringList(formData.suivis_bilans),
@@ -213,7 +236,13 @@ export default function ReunionEssForm() {
     <PDFGenerator
       docType="crEssSuivi"
       draftData={formData}
-      onLoadDraft={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+      onLoadDraft={(data) =>
+        setFormData((prev) => ({
+          ...prev,
+          ...data,
+          participants: data.participants?.map(normalizeParticipant) || prev.participants,
+        }))
+      }
     >
       {(onSubmit) => (
         <div>
@@ -342,7 +371,17 @@ export default function ReunionEssForm() {
                           label="Email"
                           type="email"
                           value={participant.email}
+                          disabled={participant.noEmail}
                           onChange={(event) => updateParticipant(index, "email", event.target.value)}
+                          className="disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <FormCheckbox
+                          theme="emerald"
+                          checked={Boolean(participant.noEmail)}
+                          onChange={(event) => updateParticipant(index, "noEmail", event.target.checked)}
+                          label="Pas d'email pour ce participant"
                         />
                       </div>
                     </div>

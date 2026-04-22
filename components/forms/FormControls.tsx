@@ -87,6 +87,7 @@ export function FormLabel({ children }: { children: ReactNode }) {
 export function FormInput({
   label,
   theme = "blue",
+  className = "",
   ...props
 }: { label: string; theme?: FormTheme } & InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -94,7 +95,7 @@ export function FormInput({
       <FormLabel>{label}</FormLabel>
       <input
         {...props}
-        className={`w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:ring-2 ${themeClasses[theme].focus}`}
+        className={`w-full rounded-lg border-2 border-gray-200 px-4 py-2 outline-none transition focus:ring-2 ${themeClasses[theme].focus} ${className}`}
       />
     </label>
   );
