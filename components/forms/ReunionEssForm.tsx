@@ -211,29 +211,29 @@ export default function ReunionEssForm() {
     }));
   };
 
-  const emptyToNull = (value: string) => value.trim() || null;
+  const cleanString = (value: string) => value.trim();
   const cleanStringList = (values: string[]) => values.map((value) => value.trim()).filter(Boolean);
 
   const buildPayload = () => ({
-    nom: emptyToNull(formData.nom),
-    date_nais: emptyToNull(formData.date_nais),
-    dossier_num: emptyToNull(formData.dossier_num),
-    etablissement: emptyToNull(formData.etablissement),
-    chef_etab: emptyToNull(formData.chef_etab),
-    niveau: emptyToNull(formData.niveau),
-    type_geva_sco: emptyToNull(formData.type_geva_sco),
-    date_geva_sco: emptyToNull(formData.date_geva_sco),
-    date_ess: emptyToNull(formData.date_ess),
-    annee_scolaire: emptyToNull(formData.annee_scolaire),
-    numero_ess: emptyToNull(formData.numero_ess),
+    nom: cleanString(formData.nom),
+    date_nais: cleanString(formData.date_nais),
+    dossier_num: cleanString(formData.dossier_num),
+    etablissement: cleanString(formData.etablissement),
+    chef_etab: cleanString(formData.chef_etab),
+    niveau: cleanString(formData.niveau),
+    type_geva_sco: cleanString(formData.type_geva_sco),
+    date_geva_sco: cleanString(formData.date_geva_sco),
+    date_ess: cleanString(formData.date_ess),
+    annee_scolaire: cleanString(formData.annee_scolaire),
+    numero_ess: cleanString(formData.numero_ess),
     participants: formData.participants
       .map(participantForApi)
       .filter((participant) => participant.nom || participant.fonction || participant.email),
     notifications_mdph: cleanStringList(formData.notifications_mdph),
     suivis_bilans: cleanStringList(formData.suivis_bilans),
-    point_situation_representants: emptyToNull(formData.point_situation_representants),
-    point_situation_professionnels: emptyToNull(formData.point_situation_professionnels),
-    conclusion_reunion: emptyToNull(formData.conclusion_reunion),
+    point_situation_representants: cleanString(formData.point_situation_representants),
+    point_situation_professionnels: cleanString(formData.point_situation_professionnels),
+    conclusion_reunion: cleanString(formData.conclusion_reunion),
   });
 
   return (

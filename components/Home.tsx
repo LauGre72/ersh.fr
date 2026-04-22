@@ -29,7 +29,7 @@ function Home() {
             to="/emargement"
             icon="✍️"
             title="Feuille d’émargement"
-            desc="Présence à l’ESS"
+            desc="Présence à l’ESS annuelle"
             explain="Générez la feuille de présence à faire signer lors de l’ESS annuelle."
             color="from-cyan-600 to-cyan-800"
             iconColor="bg-cyan-600 text-white"
