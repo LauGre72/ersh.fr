@@ -138,7 +138,7 @@ export default function EmargementForm() {
       {(onSubmit) => (
         <div>
           <FormHeader
-            title="✍️ Feuille d’émargement ESS initiale"
+            title="✍️ Feuille d’émargement ESS annuelle"
             description="Saisissez les informations et la liste des participants"
             theme="cyan"
           />
