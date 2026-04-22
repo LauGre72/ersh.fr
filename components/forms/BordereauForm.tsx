@@ -13,72 +13,73 @@ import {
 
 // Options pour les multi-select
 const DEMANDES_OPTIONS = [
+  { id: "aeeh", label: "AEEH" },
   { id: "aesh", label: "AESH" },
   { id: "aesh_ulis", label: "AESH collectif (ULIS)" },
-  { id: "ordi", label: "Ordinateur portable" },
-  { id: "tablette", label: "Tablette" },
-  { id: "logiciel", label: "Logiciel spécifique (ex : dictée vocale)" },
-  { id: "materiel_adapte", label: "Matériel pédagogique adapté" },
-  { id: "ulis_ecole", label: "ULIS école" },
-  { id: "ulis_college", label: "ULIS collège" },
-  { id: "ulis_lycee", label: "ULIS lycée" },
-  { id: "segpa", label: "SEGPA" },
-  { id: "erea", label: "EREA" },
-  { id: "maintien_maternelle", label: "Maintien en maternelle" },
-  { id: "enseignement_amenage", label: "Enseignement ordinaire avec aménagements" },
-  { id: "sessad", label: "SESSAD" },
-  { id: "ime", label: "IME" },
-  { id: "iem", label: "IEM" },
-  { id: "itep", label: "ITEP" },
-  { id: "ies", label: "IES" },
-  { id: "safe", label: "SAFE" },
-  { id: "camsp", label: "CAMSP" },
-  { id: "cmpp", label: "CMPP" },
-  { id: "cmp", label: "CMP" },
-  { id: "ue_ems", label: "UE (Unité d'Enseignement en EMS)" },
-  { id: "transport_adapte", label: "Transport scolaire adapté" },
-  { id: "indemnisation_transport", label: "Indemnisation de transport" },
   { id: "amen_exam", label: "Aménagements d'examen (DNB, Bac…)" },
-  { id: "pai_pap", label: "Mise en place d'un PAI / PAP" },
-  { id: "temps_majore", label: "Temps majoré ou secrétariat aux épreuves" },
-  { id: "aeeh", label: "AEEH" },
-  { id: "pch", label: "PCH" },
+  { id: "camsp", label: "CAMSP" },
   { id: "cmi", label: "CMI" },
+  { id: "cmp", label: "CMP" },
+  { id: "cmpp", label: "CMPP" },
+  { id: "enseignement_amenage", label: "Enseignement ordinaire avec aménagements" },
+  { id: "erea", label: "EREA" },
+  { id: "iem", label: "IEM" },
+  { id: "ies", label: "IES" },
+  { id: "ime", label: "IME" },
+  { id: "indemnisation_transport", label: "Indemnisation de transport" },
+  { id: "itep", label: "ITEP" },
+  { id: "logiciel", label: "Logiciel spécifique (ex : dictée vocale)" },
+  { id: "maintien_maternelle", label: "Maintien en maternelle" },
+  { id: "materiel_adapte", label: "Matériel pédagogique adapté" },
+  { id: "ordi", label: "Ordinateur portable" },
+  { id: "pai_pap", label: "Mise en place d'un PAI / PAP" },
+  { id: "pch", label: "PCH" },
   { id: "rqth", label: "RQTH" },
+  { id: "safe", label: "SAFE" },
+  { id: "segpa", label: "SEGPA" },
+  { id: "sessad", label: "SESSAD" },
+  { id: "tablette", label: "Tablette" },
+  { id: "temps_majore", label: "Temps majoré ou secrétariat aux épreuves" },
+  { id: "transport_adapte", label: "Transport scolaire adapté" },
+  { id: "ue_ems", label: "UE (Unité d'Enseignement en EMS)" },
+  { id: "ulis_college", label: "ULIS collège" },
+  { id: "ulis_ecole", label: "ULIS école" },
+  { id: "ulis_lycee", label: "ULIS lycée" },
 ];
 
 const PI_OPTIONS = [
+  { id: "delegation_parentale", label: "Attestation de délégation parentale"},   
+  { id: "ofpra", label: "Attestation OFPRA / réfugié" },
   { id: "ci_eleve", label: "Carte d'identité de l'élève" },
-  { id: "pass_eleve", label: "Passeport élève" },
-  { id: "livret_famille", label: "Livret de famille" },
-  { id: "extrait_naissance", label: "Extrait d'acte de naissance" },
   { id: "ci_parent1", label: "Carte d'identité représentant légal (Parent 1)" },
   { id: "ci_parent2", label: "Carte d'identité représentant légal (Parent 2)" },
+  { id: "doc_provisoire", label: "Document provisoire (préfecture)" },   
+  { id: "extrait_naissance", label: "Extrait d'acte de naissance" },
+  { id: "identite_mecs", label: "Identité transmise par établissement / MECS" },
+  { id: "jugement_divorce", label: "Jugement de divorce / autorité parentale" },
+  { id: "livret_famille", label: "Livret de famille" },
+  { id: "pass_eleve", label: "Passeport élève" },
   { id: "pass_parent1", label: "Passeport représentant légal (Parent 1)" },
   { id: "pass_parent2", label: "Passeport représentant légal (Parent 2)" },
-  { id: "jugement_divorce", label: "Jugement de divorce / autorité parentale" },
-  { id: "delegation_parentale", label: "Attestation de délégation parentale" },
-  { id: "tutelle", label: "Tutelle / curatelle" },
   { id: "titre_sejour", label: "Titre de séjour" },
-  { id: "ofpra", label: "Attestation OFPRA / réfugié" },
-  { id: "doc_provisoire", label: "Document provisoire (préfecture)" },
-  { id: "identite_mecs", label: "Identité transmise par établissement / MECS" },
+  { id: "tutelle", label: "Tutelle / curatelle" },
+
 ];
 
 const JD_OPTIONS = [
+  { id: "attestation_caf", label: "Attestation CAF de résidence" },
+  { id: "attestation_hebergement", label: "Attestation d'hébergement" },
+  { id: "bail", label: "Bail locatif" },
   { id: "contrat", label: "Contrat" },
-  { id: "impots", label: "Impots (taxe d'habitation...)" },
+  { id: "courrier_mairie", label: "Courrier mairie / CCAS" },
   { id: "facture_nrj", label: "Facture d'énergie" },
   { id: "facture_tel", label: "Facture de téléphone / box" },
-  { id: "quittance_loyer", label: "Quittance de loyer (organisme social ou agence)" },
-  { id: "attestation_hebergement", label: "Attestation d'hébergement" },
-  { id: "jd_parents", label: "Justificatif de domicile des représentants légaux" },
-  { id: "titre_propriete", label: "Titre de propriété" },
-  { id: "bail", label: "Bail locatif" },
-  { id: "attestation_caf", label: "Attestation CAF de résidence" },
-  { id: "courrier_mairie", label: "Courrier mairie / CCAS" },
   { id: "hebergement_mecs", label: "Hébergement en foyer / MECS" },
+  { id: "impots", label: "Impots (taxe d'habitation...)" },
+  { id: "jd_parents", label: "Justificatif de domicile des représentants légaux" },
+  { id: "quittance_loyer", label: "Quittance de loyer (organisme social ou agence)" },
   { id: "rib_adresse", label: "RIB avec adresse" },
+  { id: "titre_propriete", label: "Titre de propriété" },
 ];
 
 const createInitialFormData = () => ({
@@ -417,11 +418,11 @@ export default function BordereauForm() {
                   <FormCheckbox
                     checked={formData.HAS_AUTRE}
                     onChange={(e) => updateField("HAS_AUTRE", e.target.checked)}
-                    label="Presence d'un autre document"
+                    label="Presence d’autres documents"
                   />
                   {formData.HAS_AUTRE && (
                     <div className="mt-2">
-                      <FormLabel>Autre document</FormLabel>
+                      <FormLabel>Autres documents</FormLabel>
                       <textarea
                         value={formData.AUTRE}
                         onChange={(e) => updateField("AUTRE", e.target.value)}
