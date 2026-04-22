@@ -330,7 +330,7 @@ export default function BordereauForm() {
             </FormSection>
 
             {/* GEVA-Sco */}
-            <FormSection title="📊 GEVA-Sco">
+            <FormSection title="📊 LPI et GEVA-Sco">
               <div className="space-y-3">
                 <FormCheckbox
                   checked={formData.HAS_GEVASco}
@@ -357,12 +357,6 @@ export default function BordereauForm() {
                     />
                   </div>
                 )}
-              </div>
-            </FormSection>
-
-            {/* Autres sections */}
-            <FormSection title="📌 LPI et Documents supplémentaires">
-              <div className="space-y-3">
                 <FormCheckbox
                   checked={formData.HAS_LPI}
                   onChange={(e) => updateField("HAS_LPI", e.target.checked)}
@@ -377,6 +371,13 @@ export default function BordereauForm() {
                     />
                   </div>
                 )}
+              </div>
+            </FormSection>
+
+            {/* Autres sections */}
+            <FormSection title="📌 Documents supplémentaires">
+              <div className="space-y-3">
+                
 
                 <div className="border-t pt-4">
                   <FormCheckbox
