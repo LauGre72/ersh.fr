@@ -14,6 +14,7 @@ import {
   FormSelect as BaseFormSelect,
   FormSection as BaseFormSection,
   FormTextarea as BaseFormTextarea,
+  MoveButton,
   ResetButton,
   SubmitButton,
 } from "./FormControls";
@@ -196,6 +197,14 @@ export default function ReunionEssForm() {
     }));
   };
 
+  const moveParticipant = (from: number, direction: "up" | "down") => {
+    const to = direction === "up" ? from - 1 : from + 1;
+    if (to < 0 || to >= formData.participants.length) return;
+    const participants = [...formData.participants];
+    [participants[from], participants[to]] = [participants[to], participants[from]];
+    setFormData((prev) => ({ ...prev, participants }));
+  };
+
   const addListItem = (field: ListField) => {
     setFormData((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
   };
@@ -367,10 +376,22 @@ export default function ReunionEssForm() {
                     <div key={index} className="rounded-lg border border-gray-200 bg-white p-4">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <span className="font-semibold text-gray-900">Participant {index + 1}</span>
-                        <DeleteIconButton
-                          label={`Supprimer le participant ${index + 1}`}
-                          onClick={() => removeParticipant(index)}
-                        />
+                        <div className="flex gap-2">
+                          <MoveButton
+                            direction="up"
+                            onClick={() => moveParticipant(index, "up")}
+                            disabled={index === 0}
+                          />
+                          <MoveButton
+                            direction="down"
+                            onClick={() => moveParticipant(index, "down")}
+                            disabled={index === formData.participants.length - 1}
+                          />
+                          <DeleteIconButton
+                            label={`Supprimer le participant ${index + 1}`}
+                            onClick={() => removeParticipant(index)}
+                          />
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         <FormInput
