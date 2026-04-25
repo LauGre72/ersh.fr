@@ -1,0 +1,42 @@
+<svg width="320" height="96" viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Fil Conducteur</title>
+  <desc id="desc">Logo moderne acidule de l'application Fil Conducteur</desc>
+  <defs>
+    <linearGradient id="markGradient" x1="12" y1="10" x2="88" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22C55E"/>
+      <stop offset="0.45" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="linePink" x1="24" y1="27" x2="77" y2="27" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB7185"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="lineBlue" x1="24" y1="47" x2="77" y2="47" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="lineGreen" x1="24" y1="67" x2="77" y2="67" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A3E635"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="8" width="80" height="80" rx="20" fill="url(#markGradient)"/>
+  <rect x="14" y="14" width="68" height="68" rx="16" fill="white" fill-opacity="0.82"/>
+
+  <path d="M27 27H70" stroke="url(#linePink)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M27 47H62" stroke="url(#lineBlue)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M27 67H74" stroke="url(#lineGreen)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="30" cy="27" r="5" fill="#FFF7ED"/>
+  <circle cx="44" cy="47" r="5" fill="#EFF6FF"/>
+  <circle cx="58" cy="67" r="5" fill="#F0FDF4"/>
+
+  <path d="M35 23C48 18 61 21 72 32" stroke="#0F172A" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round"/>
+  <path d="M75 33L75 22L64 22" stroke="#0F172A" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="108" y="43" fill="#0F172A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" letter-spacing="0">Fil</text>
+  <text x="108" y="70" fill="#334155" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" letter-spacing="0">Conducteur</text>
+  <circle cx="287" cy="26" r="8" fill="#FB7185"/>
+  <circle cx="306" cy="40" r="6" fill="#FACC15"/>
+  <circle cx="288" cy="58" r="7" fill="#38BDF8"/>
+</svg>

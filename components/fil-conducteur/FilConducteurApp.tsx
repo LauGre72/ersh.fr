@@ -36,9 +36,12 @@ export default function FilConducteurApp() {
     <main className="fc-app min-h-screen bg-slate-50 px-4 py-6 text-gray-900">
       <div className="mx-auto w-full max-w-none">
         <div className="mb-5 flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-normal text-gray-950">Fil Conducteur</h1>
-            <p className="text-sm text-gray-600">Suivi visuel des dossiers eleves par etablissement.</p>
+          <div className="flex items-center gap-3">
+            <img src="/fil-conducteur-logo.svg" alt="Fil Conducteur" className="h-14 w-auto" />
+            <div>
+              <h1 className="sr-only">Fil Conducteur</h1>
+              <p className="text-sm text-gray-600">Suivi visuel des dossiers eleves par etablissement.</p>
+            </div>
           </div>
           <nav className="flex flex-wrap gap-2">
             <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur">
