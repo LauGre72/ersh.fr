@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import PDFGenerator from "../PDFGenerator";
 import { getTodayDateInputValue } from "../dateLimits";
 import {
@@ -111,8 +112,24 @@ const createInitialFormData = () => ({
   AUTRE: "",
 });
 
+function getRoutePrefill(state: unknown): Partial<ReturnType<typeof createInitialFormData>> {
+  const prefill = (state as { prefill?: Record<string, string> } | null)?.prefill;
+  if (!prefill) return {};
+
+  return {
+    typedemande: prefill.typedemande || "",
+    dossier_num: prefill.dossier_num || "",
+    nom: prefill.nom || "",
+    date_nais: prefill.date_nais || "",
+  };
+}
+
 export default function BordereauForm() {
-  const [formData, setFormData] = useState(createInitialFormData);
+  const location = useLocation();
+  const [formData, setFormData] = useState(() => ({
+    ...createInitialFormData(),
+    ...getRoutePrefill(location.state),
+  }));
   const today = getTodayDateInputValue();
 
   const updateField = (field: string, value: any) => {

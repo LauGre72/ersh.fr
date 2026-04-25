@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import { useLocation } from "react-router-dom";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
@@ -47,6 +48,20 @@ const initialFormData = {
   participants: [] as Participant[],
 };
 
+function getRoutePrefill(state: unknown): Partial<typeof initialFormData> {
+  const prefill = (state as { prefill?: Record<string, string> } | null)?.prefill;
+  if (!prefill) return {};
+
+  return {
+    nom: prefill.nom || "",
+    date_nais: prefill.date_nais || "",
+    niveau: prefill.niveau || "",
+    dossier_num: prefill.dossier_num || "",
+    etablissement: prefill.etablissement || "",
+    chef_etab: prefill.chef_etab || "",
+  };
+}
+
 function normalizeParticipant(participant: Partial<Participant>): Participant {
   const email = participant.email || "";
   const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
@@ -68,7 +83,11 @@ function participantForApi(participant: Participant) {
 }
 
 export default function EmargementForm() {
-  const [formData, setFormData] = useState(initialFormData);
+  const location = useLocation();
+  const [formData, setFormData] = useState(() => ({
+    ...initialFormData,
+    ...getRoutePrefill(location.state),
+  }));
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
   const today = getTodayDateInputValue();
 

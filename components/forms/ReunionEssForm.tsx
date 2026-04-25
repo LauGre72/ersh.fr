@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import { useLocation } from "react-router-dom";
 import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
@@ -60,6 +61,21 @@ const initialFormData = {
   conclusion_reunion: "",
 };
 
+function getRoutePrefill(state: unknown): Partial<typeof initialFormData> {
+  const prefill = (state as { prefill?: Record<string, string> } | null)?.prefill;
+  if (!prefill) return {};
+
+  return {
+    nom: prefill.nom || "",
+    date_nais: prefill.date_nais || "",
+    dossier_num: prefill.dossier_num || "",
+    etablissement: prefill.etablissement || "",
+    chef_etab: prefill.chef_etab || "",
+    niveau: prefill.niveau || "",
+    type_geva_sco: prefill.type_geva_sco || "",
+  };
+}
+
 function normalizeParticipant(participant: Partial<Participant>): Participant {
   const email = participant.email || "";
   const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
@@ -107,7 +123,11 @@ function FormTextarea({
 }
 
 export default function ReunionEssForm() {
-  const [formData, setFormData] = useState(initialFormData);
+  const location = useLocation();
+  const [formData, setFormData] = useState(() => ({
+    ...initialFormData,
+    ...getRoutePrefill(location.state),
+  }));
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
   const today = getTodayDateInputValue();
 

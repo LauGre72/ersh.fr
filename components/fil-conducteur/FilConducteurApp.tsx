@@ -279,6 +279,7 @@ function KanbanPage() {
       {editing && (
         <StudentModal
           fiche={editing === "new" ? null : editing}
+          etablissement={kanban.etablissement}
           etablissementId={id}
           etats={etats}
           onClose={() => setEditing(null)}
@@ -332,6 +333,7 @@ function StudentCard({
 
 function StudentModal({
   fiche,
+  etablissement,
   etablissementId,
   etats,
   onClose,
@@ -339,12 +341,14 @@ function StudentModal({
   onDeleted,
 }: {
   fiche: FicheEleve | null;
+  etablissement: Etablissement;
   etablissementId: number;
   etats: EtatDossier[];
   onClose: () => void;
   onSaved: () => void;
   onDeleted: () => void;
 }) {
+  const navigate = useNavigate();
   const defaultEtatId = fiche?.etat_id || etats.find((etat) => etat.categorie === "Visible")?.id || etats[0]?.id || 0;
   const [form, setForm] = useState<FichePayload>({
     nom_eleve: fiche?.nom_eleve || "",
@@ -360,6 +364,19 @@ function StudentModal({
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const formPrefill = {
+    nom: form.nom_eleve,
+    date_nais: form.date_naissance || "",
+    dossier_num: form.numero_dossier_mdph || "",
+    niveau: form.niveau_scolaire,
+    etablissement: etablissement.nom,
+    chef_etab: etablissement.chef_etablissement || "",
+  };
+
+  const openForm = (path: string, prefill: Record<string, string>) => {
+    navigate(path, { state: { prefill } });
+  };
 
   const save = async () => {
     setSaving(true);
@@ -451,6 +468,28 @@ function StudentModal({
           </SelectInput>
           <div className="sm:col-span-2">
             <TextareaInput label="Commentaire" value={form.commentaire || ""} onChange={(event) => setForm({ ...form, commentaire: event.target.value })} />
+          </div>
+        </div>
+        <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="mb-2 text-sm font-semibold text-gray-800">Creer un document avec cette identite</div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <Button
+              variant="secondary"
+              onClick={() => openForm("/bordereau", { ...formPrefill, typedemande: form.parcours })}
+              disabled={!form.nom_eleve.trim()}
+            >
+              Bordereau
+            </Button>
+            <Button variant="secondary" onClick={() => openForm("/emargement", formPrefill)} disabled={!form.nom_eleve.trim()}>
+              Emargement
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => openForm("/reunion-ess", { ...formPrefill, type_geva_sco: form.parcours })}
+              disabled={!form.nom_eleve.trim()}
+            >
+              Compte rendu ESS
+            </Button>
           </div>
         </div>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
