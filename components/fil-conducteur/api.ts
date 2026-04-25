@@ -12,7 +12,7 @@ import type {
   SearchResult,
 } from "./types";
 
-const API_BASE = (import.meta.env.VITE_FIL_CONDUCTEUR_API_URL || "http://localhost:5100").replace(/\/+$/, "");
+const API_BASE = (import.meta.env.VITE_FIL_CONDUCTEUR_API_URL || "/fc").replace(/\/+$/, "");
 
 export class ApiError extends Error {
   status: number;
