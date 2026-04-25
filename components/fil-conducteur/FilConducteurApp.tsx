@@ -19,7 +19,6 @@ import {
   alerteClass,
   Button,
   orientationIcon,
-  parcoursClass,
   pastelClasses,
   SelectInput,
   StatusMessage,
@@ -35,7 +34,7 @@ const categorieOptions: EtatCategorie[] = ["Visible", "Masqué"];
 export default function FilConducteurApp() {
   return (
     <main className="fc-app min-h-screen bg-slate-50 px-4 py-6 text-gray-900">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto w-full max-w-none">
         <div className="mb-5 flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-normal text-gray-950">Fil Conducteur</h1>
@@ -131,7 +130,7 @@ function EtablissementSelector() {
                 className="rounded-lg border border-gray-200 bg-white p-4 text-left transition hover:border-blue-300 hover:shadow-sm"
               >
                 <div className="font-bold text-gray-950">{etablissement.nom}</div>
-                <div className="mt-1 text-sm text-gray-600">{etablissement.chef_etablissement || "Chef d'etablissement non renseigne"}</div>
+                {etablissement.chef_etablissement && <div className="mt-1 text-sm text-gray-600">{etablissement.chef_etablissement}</div>}
               </button>
             ))}
           </div>
@@ -161,7 +160,6 @@ function KanbanPage() {
   const [etats, setEtats] = useState<EtatDossier[]>([]);
   const [editing, setEditing] = useState<FicheEleve | "new" | null>(null);
   const [dropEtatId, setDropEtatId] = useState<number | null>(null);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -208,15 +206,12 @@ function KanbanPage() {
     if (!kanban) return;
     const previous = kanban;
     setKanban(moveLocal(previous, ficheId, etatId));
-    setMessage("Sauvegarde du deplacement...");
     try {
       await filConducteurApi.moveFiche(ficheId, etatId);
-      setMessage("Deplacement enregistre.");
       void load();
     } catch (err) {
       setKanban(previous);
       setError(errorMessage(err));
-      setMessage("");
     }
   };
 
@@ -232,7 +227,7 @@ function KanbanPage() {
             ← Changer d'etablissement
           </button>
           <h2 className="mt-1 text-xl font-bold">{kanban.etablissement.nom}</h2>
-          <p className="text-sm text-gray-600">{kanban.etablissement.chef_etablissement || "Chef d'etablissement non renseigne"}</p>
+          {kanban.etablissement.chef_etablissement && <p className="text-sm text-gray-600">{kanban.etablissement.chef_etablissement}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           <SearchBar currentEtablissementId={id} onOpen={(result) => navigate(`/fil-conducteur/kanban/${result.etablissement.id}`, { state: { ficheId: result.fiche.id } })} />
@@ -240,10 +235,9 @@ function KanbanPage() {
         </div>
       </div>
 
-      {message && <StatusMessage type="success">{message}</StatusMessage>}
       {error && <StatusMessage type="error">{error}</StatusMessage>}
 
-      <div className="grid auto-cols-[minmax(280px,1fr)] grid-flow-col gap-4 overflow-x-auto pb-4">
+      <div className="grid auto-cols-[minmax(220px,1fr)] grid-flow-col gap-3 overflow-x-auto pb-4">
         {kanban.colonnes.map((colonne) => (
           <section
             key={colonne.etat.id}
@@ -269,9 +263,8 @@ function KanbanPage() {
                 <StudentCard
                   key={fiche.id}
                   fiche={fiche}
-                  etats={etats}
+                  couleur={colonne.etat.couleur}
                   onEdit={() => setEditing(fiche)}
-                  onMove={(etatId) => void moveFiche(fiche.id, etatId)}
                 />
               ))}
             </div>
@@ -287,12 +280,10 @@ function KanbanPage() {
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
-            setMessage("Fiche enregistree.");
             void load();
           }}
           onDeleted={() => {
             setEditing(null);
-            setMessage("Fiche supprimee.");
             void load();
           }}
         />
@@ -303,53 +294,29 @@ function KanbanPage() {
 
 function StudentCard({
   fiche,
-  etats,
+  couleur,
   onEdit,
-  onMove,
 }: {
   fiche: FicheEleve;
-  etats: EtatDossier[];
+  couleur: CouleurPastel;
   onEdit: () => void;
-  onMove: (etatId: number) => void;
 }) {
   return (
     <article
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
-      className={`rounded-lg border border-white bg-white p-3 shadow-sm ${parcoursClass(fiche.parcours)} ${alerteClass(fiche.alerte_notification)}`}
+      onDoubleClick={onEdit}
+      className={`cursor-pointer rounded-lg border p-3 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${alerteClass(fiche.alerte_notification)}`}
+      title="Double-cliquer pour modifier"
     >
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h4 className="font-bold text-gray-950">{fiche.nom_eleve}</h4>
           <p className="mt-1 text-sm text-gray-600">{fiche.niveau_scolaire}</p>
         </div>
-        <span className="text-xl" title={fiche.orientation}>
+        <span className="shrink-0 text-xl" title={fiche.orientation}>
           {orientationIcon(fiche.orientation)}
         </span>
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-        <span className="rounded-full bg-white px-2 py-1 text-gray-700">{fiche.parcours}</span>
-        {fiche.date_fin_notification && <span className="rounded-full bg-white px-2 py-1 text-gray-700">Fin: {fiche.date_fin_notification}</span>}
-      </div>
-      {fiche.commentaire && <p className="mt-3 line-clamp-3 text-sm text-gray-700">{fiche.commentaire}</p>}
-      <div className="mt-3 flex gap-2">
-        <Button variant="secondary" className="flex-1 px-2 py-1.5" onClick={onEdit}>
-          Modifier
-        </Button>
-        <select
-          aria-label="Deplacer la fiche"
-          value={fiche.etat_id}
-          onChange={(event) => onMove(Number(event.target.value))}
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900"
-        >
-          {etats
-            .filter((etat) => etat.categorie === "Visible")
-            .map((etat) => (
-              <option key={etat.id} value={etat.id}>
-                {etat.nom}
-              </option>
-            ))}
-        </select>
       </div>
     </article>
   );
@@ -636,7 +603,7 @@ function EtablissementsSettings() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="font-semibold">{item.nom}</div>
-                  <div className="text-sm text-gray-600">{item.chef_etablissement || "Chef non renseigne"}</div>
+                  {item.chef_etablissement && <div className="text-sm text-gray-600">{item.chef_etablissement}</div>}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="secondary" onClick={() => setEditing(item)}>
