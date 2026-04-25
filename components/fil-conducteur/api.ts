@@ -53,6 +53,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = await getToken();
   const headers = new Headers(options.headers);
   headers.set("Authorization", `Bearer ${token}`);
+  headers.set("Accept", "application/json");
   if (options.body && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
@@ -64,6 +65,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ApiError(message, response.status, payload);
   }
   if (response.status === 204) return undefined as T;
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new ApiError(
+      `Reponse non JSON recue depuis ${API_BASE}${path}. Verifiez que le reverse proxy Apache /fc pointe bien vers le backend FilConducteur.`,
+      response.status,
+      null,
+    );
+  }
   return response.json() as Promise<T>;
 }
 
