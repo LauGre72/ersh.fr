@@ -16,8 +16,8 @@ export const pastelClasses: Record<CouleurPastel, string> = {
 
 export function parcoursClass(parcours: ParcoursEleve) {
   return parcours === "Première demande"
-    ? "border-l-4 border-l-emerald-500 bg-emerald-50"
-    : "border-l-4 border-l-sky-500 bg-sky-50";
+    ? "border-blue-300 bg-blue-200 text-blue-950"
+    : "border-emerald-300 bg-emerald-200 text-emerald-950";
 }
 
 export function alerteClass(alerte?: AlerteNotification) {

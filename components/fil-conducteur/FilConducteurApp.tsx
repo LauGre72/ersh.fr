@@ -19,6 +19,7 @@ import {
   alerteClass,
   Button,
   orientationIcon,
+  parcoursClass,
   pastelClasses,
   SelectInput,
   StatusMessage,
@@ -267,7 +268,6 @@ function KanbanPage() {
                 <StudentCard
                   key={fiche.id}
                   fiche={fiche}
-                  couleur={colonne.etat.couleur}
                   onEdit={() => setEditing(fiche)}
                 />
               ))}
@@ -299,11 +299,9 @@ function KanbanPage() {
 
 function StudentCard({
   fiche,
-  couleur,
   onEdit,
 }: {
   fiche: FicheEleve;
-  couleur: CouleurPastel;
   onEdit: () => void;
 }) {
   return (
@@ -311,7 +309,7 @@ function StudentCard({
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
       onDoubleClick={onEdit}
-      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${alerteClass(fiche.alerte_notification)}`}
+      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${parcoursClass(fiche.parcours)} ${alerteClass(fiche.alerte_notification)}`}
       title="Double-cliquer pour modifier"
     >
       <div className="flex items-start justify-between gap-1.5">
