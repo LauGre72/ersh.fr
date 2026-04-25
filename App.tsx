@@ -14,10 +14,10 @@ export default function App() {
       <AuthGate>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/fil-conducteur/*" element={<FilConducteurApp />} />          
           <Route path="/bordereau" element={<BordereauForm />} />
           <Route path="/emargement" element={<EmargementForm />} />
           <Route path="/reunion-ess" element={<ReunionEssForm />} />
-          <Route path="/fil-conducteur/*" element={<FilConducteurApp />} />
         </Routes>
       </AuthGate>
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-gray-500">
