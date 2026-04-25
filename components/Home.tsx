@@ -16,7 +16,7 @@ function Home() {
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormTile
             to="/fil-conducteur"
-            logo="🧭"
+            icon="🧭"
             title="Fil Conducteur"
             desc="Suivi Kanban des dossiers"
             explain="Pilotez les fiches élèves par établissement, état de dossier, alerte et recherche rapide."
