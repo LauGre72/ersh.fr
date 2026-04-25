@@ -311,9 +311,7 @@ function StudentCard({
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
       onDoubleClick={onEdit}
-      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${
-        fiche.parcours === parcoursOptions[1] ? "student-card--reexamen" : ""
-      } ${alerteClass(fiche.alerte_notification)}`}
+      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${alerteClass(fiche.alerte_notification)}`}
       title="Double-cliquer pour modifier"
     >
       <div className="flex items-start justify-between gap-1.5">

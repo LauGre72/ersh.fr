@@ -16,15 +16,6 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.student-card--reexamen {
-  border-width: 2px;
-  border-style: dashed;
-  border-color: #f97316 !important;
-  background-color: #ffedd5 !important;
-  background-image: none !important;
-  color: #7c2d12 !important;
-}
-
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
