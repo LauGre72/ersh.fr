@@ -19,14 +19,10 @@
 .student-card--reexamen {
   border-width: 2px;
   border-style: dashed;
-  background-image: repeating-linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.16) 0,
-    rgba(15, 23, 42, 0.16) 5px,
-    rgba(255, 255, 255, 0.72) 5px,
-    rgba(255, 255, 255, 0.72) 14px
-  );
-  background-blend-mode: multiply;
+  border-color: #f97316 !important;
+  background-color: #ffedd5 !important;
+  background-image: none !important;
+  color: #7c2d12 !important;
 }
 
 @keyframes logo-spin {
