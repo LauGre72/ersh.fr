@@ -28,6 +28,8 @@ export interface FicheEleve {
   id: number;
   user_id: string;
   nom_eleve: string;
+  numero_dossier_mdph?: string | null;
+  date_naissance?: string | null;
   niveau_scolaire: string;
   parcours: ParcoursEleve;
   orientation: OrientationEleve;
@@ -80,6 +82,8 @@ export type EtatPayload = Pick<EtatDossier, "nom" | "couleur" | "ordre_affichage
 export type FichePayload = Pick<
   FicheEleve,
   | "nom_eleve"
+  | "numero_dossier_mdph"
+  | "date_naissance"
   | "niveau_scolaire"
   | "parcours"
   | "orientation"

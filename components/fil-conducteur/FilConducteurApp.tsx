@@ -348,6 +348,8 @@ function StudentModal({
   const defaultEtatId = fiche?.etat_id || etats.find((etat) => etat.categorie === "Visible")?.id || etats[0]?.id || 0;
   const [form, setForm] = useState<FichePayload>({
     nom_eleve: fiche?.nom_eleve || "",
+    numero_dossier_mdph: fiche?.numero_dossier_mdph || "",
+    date_naissance: fiche?.date_naissance || "",
     niveau_scolaire: fiche?.niveau_scolaire || "",
     parcours: fiche?.parcours || "Première demande",
     orientation: fiche?.orientation || "Ordinaire",
@@ -363,7 +365,13 @@ function StudentModal({
     setSaving(true);
     setError("");
     try {
-      const payload = { ...form, date_fin_notification: form.date_fin_notification || null, commentaire: form.commentaire || null };
+      const payload = {
+        ...form,
+        numero_dossier_mdph: form.numero_dossier_mdph || null,
+        date_naissance: form.date_naissance || null,
+        date_fin_notification: form.date_fin_notification || null,
+        commentaire: form.commentaire || null,
+      };
       if (fiche) await filConducteurApi.updateFiche(fiche.id, payload);
       else await filConducteurApi.createFiche(payload);
       onSaved();
@@ -402,6 +410,17 @@ function StudentModal({
         {error && <StatusMessage type="error">{error}</StatusMessage>}
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <TextInput label="Nom complet de l'eleve" value={form.nom_eleve} onChange={(event) => setForm({ ...form, nom_eleve: event.target.value })} required />
+          <TextInput
+            label="Numero de dossier MDPH"
+            value={form.numero_dossier_mdph || ""}
+            onChange={(event) => setForm({ ...form, numero_dossier_mdph: event.target.value })}
+          />
+          <TextInput
+            label="Date de naissance"
+            type="date"
+            value={form.date_naissance || ""}
+            onChange={(event) => setForm({ ...form, date_naissance: event.target.value })}
+          />
           <TextInput label="Niveau scolaire" value={form.niveau_scolaire} onChange={(event) => setForm({ ...form, niveau_scolaire: event.target.value })} />
           <SelectInput label="Parcours" value={form.parcours} onChange={(event) => setForm({ ...form, parcours: event.target.value as ParcoursEleve })}>
             {parcoursOptions.map((value) => (
