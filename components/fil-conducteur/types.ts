@@ -65,6 +65,16 @@ export interface ImportCsvResponse {
   erreurs: Array<{ ligne: number; message: string }>;
 }
 
+export interface Historique {
+  id: number;
+  user_id: string;
+  fiche_eleve_id?: number | null;
+  type_modification: string;
+  ancienne_valeur?: string | null;
+  nouvelle_valeur?: string | null;
+  created_at: string;
+}
+
 export type EtablissementPayload = Pick<Etablissement, "nom" | "chef_etablissement">;
 export type EtatPayload = Pick<EtatDossier, "nom" | "couleur" | "ordre_affichage" | "categorie">;
 export type FichePayload = Pick<

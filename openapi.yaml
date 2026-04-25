@@ -1,0 +1,788 @@
+openapi: 3.1.0
+info:
+  title: API Suivi ERSH
+  version: 1.0.0
+  description: API backend pour le suivi visuel des dossiers élèves d’une ERSH.
+
+servers:
+  - url: https://www.ersh.fr/fc
+    description: Production
+  - url: http://localhost:5100
+    description: local
+
+security:
+  - GoogleBearerAuth: []
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    GoogleBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Jeton JWT issu de l’authentification Google.
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Clé API pour les imports ou intégrations externes.
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+
+    Etablissement:
+      type: object
+      required:
+        - id
+        - user_id
+        - nom
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+        nom:
+          type: string
+        chef_etablissement:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EtablissementCreate:
+      type: object
+      required:
+        - nom
+      properties:
+        nom:
+          type: string
+        chef_etablissement:
+          type: string
+          nullable: true
+
+    EtablissementUpdate:
+      type: object
+      properties:
+        nom:
+          type: string
+        chef_etablissement:
+          type: string
+          nullable: true
+
+    EtatCategorie:
+      type: string
+      enum:
+        - Visible
+        - Masqué
+
+    CouleurPastel:
+      type: string
+      enum:
+        - rose
+        - bleu
+        - vert
+        - jaune
+        - orange
+        - violet
+        - gris
+
+    EtatDossier:
+      type: object
+      required:
+        - id
+        - user_id
+        - nom
+        - couleur
+        - ordre_affichage
+        - categorie
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+        nom:
+          type: string
+        couleur:
+          $ref: "#/components/schemas/CouleurPastel"
+        ordre_affichage:
+          type: integer
+        categorie:
+          $ref: "#/components/schemas/EtatCategorie"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EtatDossierCreate:
+      type: object
+      required:
+        - nom
+        - couleur
+        - ordre_affichage
+        - categorie
+      properties:
+        nom:
+          type: string
+        couleur:
+          $ref: "#/components/schemas/CouleurPastel"
+        ordre_affichage:
+          type: integer
+        categorie:
+          $ref: "#/components/schemas/EtatCategorie"
+
+    EtatDossierUpdate:
+      type: object
+      properties:
+        nom:
+          type: string
+        couleur:
+          $ref: "#/components/schemas/CouleurPastel"
+        ordre_affichage:
+          type: integer
+        categorie:
+          $ref: "#/components/schemas/EtatCategorie"
+
+    ParcoursEleve:
+      type: string
+      enum:
+        - Première demande
+        - Réexamen
+
+    OrientationEleve:
+      type: string
+      enum:
+        - Ordinaire
+        - Dispositif
+
+    FicheEleve:
+      type: object
+      required:
+        - id
+        - user_id
+        - nom_eleve
+        - niveau_scolaire
+        - parcours
+        - orientation
+        - etat_id
+        - etablissement_id
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+        nom_eleve:
+          type: string
+        niveau_scolaire:
+          type: string
+        parcours:
+          $ref: "#/components/schemas/ParcoursEleve"
+        orientation:
+          $ref: "#/components/schemas/OrientationEleve"
+        date_fin_notification:
+          type: string
+          format: date
+          nullable: true
+        commentaire:
+          type: string
+          nullable: true
+        etat_id:
+          type: integer
+        etablissement_id:
+          type: integer
+        alerte_notification:
+          type: string
+          enum:
+            - aucune
+            - echeance_annee_scolaire
+            - expiree
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FicheEleveCreate:
+      type: object
+      required:
+        - nom_eleve
+        - niveau_scolaire
+        - parcours
+        - orientation
+        - etat_id
+        - etablissement_id
+      properties:
+        nom_eleve:
+          type: string
+        niveau_scolaire:
+          type: string
+        parcours:
+          $ref: "#/components/schemas/ParcoursEleve"
+        orientation:
+          $ref: "#/components/schemas/OrientationEleve"
+        date_fin_notification:
+          type: string
+          format: date
+          nullable: true
+        commentaire:
+          type: string
+          nullable: true
+        etat_id:
+          type: integer
+        etablissement_id:
+          type: integer
+
+    FicheEleveUpdate:
+      type: object
+      properties:
+        nom_eleve:
+          type: string
+        niveau_scolaire:
+          type: string
+        parcours:
+          $ref: "#/components/schemas/ParcoursEleve"
+        orientation:
+          $ref: "#/components/schemas/OrientationEleve"
+        date_fin_notification:
+          type: string
+          format: date
+          nullable: true
+        commentaire:
+          type: string
+          nullable: true
+        etat_id:
+          type: integer
+        etablissement_id:
+          type: integer
+
+    MoveFicheEleveRequest:
+      type: object
+      required:
+        - etat_id
+      properties:
+        etat_id:
+          type: integer
+
+    KanbanColumn:
+      type: object
+      properties:
+        etat:
+          $ref: "#/components/schemas/EtatDossier"
+        fiches:
+          type: array
+          items:
+            $ref: "#/components/schemas/FicheEleve"
+
+    KanbanResponse:
+      type: object
+      properties:
+        etablissement:
+          $ref: "#/components/schemas/Etablissement"
+        colonnes:
+          type: array
+          items:
+            $ref: "#/components/schemas/KanbanColumn"
+
+    SearchResult:
+      type: object
+      properties:
+        fiche:
+          $ref: "#/components/schemas/FicheEleve"
+        etablissement:
+          $ref: "#/components/schemas/Etablissement"
+
+    ImportCsvResponse:
+      type: object
+      properties:
+        lignes_lues:
+          type: integer
+        fiches_creees:
+          type: integer
+        fiches_mises_a_jour:
+          type: integer
+        etablissements_crees:
+          type: integer
+        lignes_rejetees:
+          type: integer
+        erreurs:
+          type: array
+          items:
+            type: object
+            properties:
+              ligne:
+                type: integer
+              message:
+                type: string
+
+    FusionEtablissementRequest:
+      type: object
+      required:
+        - source_id
+        - target_id
+      properties:
+        source_id:
+          type: integer
+        target_id:
+          type: integer
+
+    Historique:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+        fiche_eleve_id:
+          type: integer
+          nullable: true
+        type_modification:
+          type: string
+        ancienne_valeur:
+          type: string
+          nullable: true
+        nouvelle_valeur:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /me:
+    get:
+      summary: Retourne l’utilisateur connecté
+      security:
+        - GoogleBearerAuth: []
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Utilisateur courant
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  email:
+                    type: string
+
+  /etablissements:
+    get:
+      summary: Liste les établissements de l’utilisateur
+      responses:
+        "200":
+          description: Liste des établissements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Etablissement"
+
+    post:
+      summary: Crée un établissement scolaire
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EtablissementCreate"
+      responses:
+        "201":
+          description: Établissement créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Etablissement"
+
+  /etablissements/{id}:
+    get:
+      summary: Consulte un établissement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Établissement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Etablissement"
+
+    put:
+      summary: Modifie un établissement
+      description: Si le nouveau nom existe déjà, l’API retourne un conflit. Le frontend doit alors demander confirmation avant fusion.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EtablissementUpdate"
+      responses:
+        "200":
+          description: Établissement modifié
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Etablissement"
+        "409":
+          description: Un établissement du même nom existe déjà
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                  existing_etablissement_id:
+                    type: integer
+
+    delete:
+      summary: Supprime un établissement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Établissement supprimé
+
+  /etablissements/fusion:
+    post:
+      summary: Fusionne deux établissements
+      description: Toutes les fiches de l’établissement source sont rattachées à l’établissement cible.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FusionEtablissementRequest"
+      responses:
+        "200":
+          description: Fusion réalisée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Etablissement"
+
+  /etats:
+    get:
+      summary: Liste les états du dossier
+      parameters:
+        - name: visible_only
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Liste des états
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EtatDossier"
+
+    post:
+      summary: Crée un état du dossier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EtatDossierCreate"
+      responses:
+        "201":
+          description: État créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtatDossier"
+
+  /etats/{id}:
+    get:
+      summary: Consulte un état
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: État
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtatDossier"
+
+    put:
+      summary: Modifie un état
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EtatDossierUpdate"
+      responses:
+        "200":
+          description: État modifié
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtatDossier"
+
+    delete:
+      summary: Supprime un état
+      description: Refusé si des fiches élèves sont encore rattachées à cet état.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: État supprimé
+        "409":
+          description: État encore utilisé
+
+  /kanban/{etablissement_id}:
+    get:
+      summary: Charge le Kanban d’un établissement
+      parameters:
+        - name: etablissement_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Données Kanban
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KanbanResponse"
+
+  /eleves:
+    get:
+      summary: Liste les fiches élèves
+      parameters:
+        - name: etablissement_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: etat_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Liste des fiches élèves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FicheEleve"
+
+    post:
+      summary: Crée une fiche élève
+      description: Utilisable par le frontend ou par API externe.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FicheEleveCreate"
+      responses:
+        "201":
+          description: Fiche élève créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FicheEleve"
+
+  /eleves/{id}:
+    get:
+      summary: Consulte une fiche élève
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fiche élève
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FicheEleve"
+
+    put:
+      summary: Modifie une fiche élève
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FicheEleveUpdate"
+      responses:
+        "200":
+          description: Fiche modifiée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FicheEleve"
+
+    delete:
+      summary: Supprime une fiche élève
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Fiche supprimée
+
+  /eleves/{id}/move:
+    post:
+      summary: Déplace une fiche élève dans un autre état
+      description: Utilisé par le drag and drop du Kanban.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoveFicheEleveRequest"
+      responses:
+        "200":
+          description: Fiche déplacée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FicheEleve"
+
+  /eleves/search:
+    get:
+      summary: Recherche une fiche élève par nom
+      description: Recherche globale ou limitée à un établissement.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: etablissement_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Résultats de recherche
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchResult"
+
+  /eleves/import-csv:
+    post:
+      summary: Importe des fiches élèves depuis un CSV
+      description: >
+        Import CSV depuis l’IHM ou par API.  
+        Si un établissement du CSV n’existe pas, il est créé automatiquement.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                etat_defaut_id:
+                  type: integer
+                  description: État à utiliser si le CSV ne contient pas d’état.
+                update_existing:
+                  type: boolean
+                  default: true
+      responses:
+        "200":
+          description: Rapport d’import
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportCsvResponse"
+
+  /historiques:
+    get:
+      summary: Liste l’historique des modifications
+      parameters:
+        - name: fiche_eleve_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Historique
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Historique"

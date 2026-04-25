@@ -6,6 +6,7 @@ import type {
   EtatPayload,
   FicheEleve,
   FichePayload,
+  Historique,
   ImportCsvResponse,
   KanbanResponse,
   SearchResult,
@@ -85,6 +86,13 @@ export const filConducteurApi = {
   deleteEtat: (id: number) => request<void>(`/etats/${id}`, { method: "DELETE" }),
 
   getKanban: (etablissementId: number) => request<KanbanResponse>(`/kanban/${etablissementId}`),
+  listFiches: (filters: { etablissementId?: number; etatId?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (filters.etablissementId) params.set("etablissement_id", String(filters.etablissementId));
+    if (filters.etatId) params.set("etat_id", String(filters.etatId));
+    const query = params.toString();
+    return request<FicheEleve[]>(`/eleves${query ? `?${query}` : ""}`);
+  },
   createFiche: (payload: FichePayload) => request<FicheEleve>("/eleves", { method: "POST", body: JSON.stringify(payload) }),
   updateFiche: (id: number, payload: Partial<FichePayload>) =>
     request<FicheEleve>(`/eleves/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
@@ -96,11 +104,17 @@ export const filConducteurApi = {
     if (etablissementId) params.set("etablissement_id", String(etablissementId));
     return request<SearchResult[]>(`/eleves/search?${params.toString()}`);
   },
-  importCsv: (file: File, etatDefautId?: number, updateExisting = false) => {
+  importCsv: (file: File, etatDefautId?: number, updateExisting = true) => {
     const body = new FormData();
     body.set("file", file);
     if (etatDefautId) body.set("etat_defaut_id", String(etatDefautId));
     body.set("update_existing", String(updateExisting));
     return request<ImportCsvResponse>("/eleves/import-csv", { method: "POST", body });
+  },
+  listHistoriques: (ficheEleveId?: number) => {
+    const params = new URLSearchParams();
+    if (ficheEleveId) params.set("fiche_eleve_id", String(ficheEleveId));
+    const query = params.toString();
+    return request<Historique[]>(`/historiques${query ? `?${query}` : ""}`);
   },
 };

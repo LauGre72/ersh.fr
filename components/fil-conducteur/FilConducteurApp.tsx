@@ -8,6 +8,7 @@ import type {
   EtatDossier,
   FicheEleve,
   FichePayload,
+  Historique,
   ImportCsvResponse,
   KanbanResponse,
   OrientationEleve,
@@ -47,6 +48,9 @@ export default function FilConducteurApp() {
             <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/import">
               Import CSV
             </Link>
+            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/historique">
+              Historique
+            </Link>
             <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/configuration">
               Configuration
             </Link>
@@ -57,6 +61,7 @@ export default function FilConducteurApp() {
           <Route index element={<EtablissementSelector />} />
           <Route path="kanban/:etablissementId" element={<KanbanPage />} />
           <Route path="import" element={<CsvImportPage />} />
+          <Route path="historique" element={<HistoriquePage />} />
           <Route path="configuration" element={<SettingsPage />} />
         </Routes>
       </div>
@@ -791,7 +796,7 @@ function CsvImportPage() {
   const [preview, setPreview] = useState<string[][]>([]);
   const [etats, setEtats] = useState<EtatDossier[]>([]);
   const [etatDefautId, setEtatDefautId] = useState<number | undefined>();
-  const [updateExisting, setUpdateExisting] = useState(false);
+  const [updateExisting, setUpdateExisting] = useState(true);
   const [report, setReport] = useState<ImportCsvResponse | null>(null);
   const [error, setError] = useState("");
 
@@ -904,6 +909,103 @@ function CsvImportPage() {
   );
 }
 
+function HistoriquePage() {
+  const [items, setItems] = useState<Historique[]>([]);
+  const [fiches, setFiches] = useState<FicheEleve[]>([]);
+  const [ficheId, setFicheId] = useState<number | undefined>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = async (nextFicheId = ficheId) => {
+    setLoading(true);
+    setError("");
+    try {
+      const [historiques, allFiches] = await Promise.all([
+        filConducteurApi.listHistoriques(nextFicheId),
+        filConducteurApi.listFiches(),
+      ]);
+      setItems(historiques);
+      setFiches(allFiches.sort((a, b) => a.nom_eleve.localeCompare(b.nom_eleve, "fr")));
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const ficheNames = new Map(fiches.map((fiche) => [fiche.id, fiche.nom_eleve]));
+
+  return (
+    <section className="rounded-lg border border-gray-200 bg-white p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-lg font-bold">Historique des modifications</h2>
+          <p className="mt-1 text-sm text-gray-600">Journal renvoye par `GET /historiques`.</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <SelectInput
+            label="Filtrer par fiche"
+            value={ficheId || ""}
+            onChange={(event) => {
+              const next = Number(event.target.value) || undefined;
+              setFicheId(next);
+              void load(next);
+            }}
+          >
+            <option value="">Toutes les fiches</option>
+            {fiches.map((fiche) => (
+              <option key={fiche.id} value={fiche.id}>
+                {fiche.nom_eleve}
+              </option>
+            ))}
+          </SelectInput>
+          <Button variant="secondary" onClick={() => void load()} disabled={loading}>
+            Actualiser
+          </Button>
+        </div>
+      </div>
+
+      {error && <div className="mt-4"><StatusMessage type="error">{error}</StatusMessage></div>}
+      {loading ? (
+        <p className="mt-4 text-sm text-gray-500">Chargement de l'historique...</p>
+      ) : items.length === 0 ? (
+        <p className="mt-4 text-sm text-gray-500">Aucune modification a afficher.</p>
+      ) : (
+        <div className="mt-5 overflow-auto rounded-lg border border-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-50 text-left text-xs font-bold uppercase text-gray-500">
+              <tr>
+                <th className="px-3 py-2">Date</th>
+                <th className="px-3 py-2">Fiche</th>
+                <th className="px-3 py-2">Modification</th>
+                <th className="px-3 py-2">Ancienne valeur</th>
+                <th className="px-3 py-2">Nouvelle valeur</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td className="whitespace-nowrap px-3 py-2 text-gray-700">{formatDateTime(item.created_at)}</td>
+                  <td className="px-3 py-2 font-medium text-gray-900">
+                    {item.fiche_eleve_id ? ficheNames.get(item.fiche_eleve_id) || `Fiche ${item.fiche_eleve_id}` : "-"}
+                  </td>
+                  <td className="px-3 py-2 text-gray-700">{item.type_modification}</td>
+                  <td className="px-3 py-2 text-gray-600">{item.ancienne_valeur || "-"}</td>
+                  <td className="px-3 py-2 text-gray-900">{item.nouvelle_valeur || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg bg-white p-3 text-center">
@@ -952,4 +1054,13 @@ function parseCsvPreview(text: string) {
 function errorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   return "Erreur inattendue.";
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
 }
