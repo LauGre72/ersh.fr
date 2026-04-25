@@ -374,11 +374,7 @@ function StudentModal({
     chef_etab: etablissement.chef_etablissement || "",
   };
 
-  const openForm = (path: string, prefill: Record<string, string>) => {
-    navigate(path, { state: { prefill } });
-  };
-
-  const save = async () => {
+  const persistFiche = async () => {
     setSaving(true);
     setError("");
     try {
@@ -391,12 +387,22 @@ function StudentModal({
       };
       if (fiche) await filConducteurApi.updateFiche(fiche.id, payload);
       else await filConducteurApi.createFiche(payload);
-      onSaved();
+      return true;
     } catch (err) {
       setError(errorMessage(err));
+      return false;
     } finally {
       setSaving(false);
     }
+  };
+
+  const openForm = async (path: string, prefill: Record<string, string>) => {
+    if (!(await persistFiche())) return;
+    navigate(path, { state: { prefill } });
+  };
+
+  const save = async () => {
+    if (await persistFiche()) onSaved();
   };
 
   const remove = async () => {
@@ -476,17 +482,17 @@ function StudentModal({
             <Button
               variant="secondary"
               onClick={() => openForm("/bordereau", { ...formPrefill, typedemande: form.parcours })}
-              disabled={!form.nom_eleve.trim()}
+              disabled={saving || !form.nom_eleve.trim() || !form.etat_id}
             >
               Bordereau
             </Button>
-            <Button variant="secondary" onClick={() => openForm("/emargement", formPrefill)} disabled={!form.nom_eleve.trim()}>
+            <Button variant="secondary" onClick={() => openForm("/emargement", formPrefill)} disabled={saving || !form.nom_eleve.trim() || !form.etat_id}>
               Emargement
             </Button>
             <Button
               variant="secondary"
               onClick={() => openForm("/reunion-ess", { ...formPrefill, type_geva_sco: form.parcours })}
-              disabled={!form.nom_eleve.trim()}
+              disabled={saving || !form.nom_eleve.trim() || !form.etat_id}
             >
               Compte rendu ESS
             </Button>
