@@ -47,6 +47,17 @@ function Home() {
             actionColor="text-emerald-700"
             titleHoverColor="group-hover:text-emerald-700"
           />
+          <FormTile
+            to="/fil-conducteur"
+            icon="🧭"
+            title="Fil Conducteur"
+            desc="Suivi Kanban des dossiers"
+            explain="Pilotez les fiches élèves par établissement, état de dossier, alerte et recherche rapide."
+            color="from-slate-700 to-blue-700"
+            iconColor="bg-slate-800 text-white"
+            actionColor="text-slate-800"
+            titleHoverColor="group-hover:text-slate-800"
+          />
         </div>
 
         <div className="rounded-xl border-l-4 border-blue-600 bg-white p-8 shadow-lg">

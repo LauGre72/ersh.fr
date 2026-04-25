@@ -35,6 +35,7 @@ export default function Header() {
             <Link to="/bordereau" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Bordereau</Link>
             <Link to="/emargement" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Emargement</Link>
             <Link to="/reunion-ess" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Compte rendu ESS</Link>
+            <Link to="/fil-conducteur" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Fil Conducteur</Link>
             {user && (
               <button
                 type="button"

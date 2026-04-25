@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import BordereauForm from "./components/forms/BordereauForm";
 import EmargementForm from "./components/forms/EmargementForm";
 import ReunionEssForm from "./components/forms/ReunionEssForm";
+import FilConducteurApp from "./components/fil-conducteur/FilConducteurApp";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/bordereau" element={<BordereauForm />} />
           <Route path="/emargement" element={<EmargementForm />} />
           <Route path="/reunion-ess" element={<ReunionEssForm />} />
+          <Route path="/fil-conducteur/*" element={<FilConducteurApp />} />
         </Routes>
       </AuthGate>
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-gray-500">
