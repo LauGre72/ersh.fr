@@ -9,6 +9,9 @@ export const pastelClasses: Record<CouleurPastel, string> = {
   orange: "border-orange-200 bg-orange-50 text-orange-900",
   violet: "border-violet-200 bg-violet-50 text-violet-900",
   gris: "border-gray-200 bg-gray-50 text-gray-900",
+  menthe: "border-teal-200 bg-teal-50 text-teal-900",
+  lavande: "border-indigo-200 bg-indigo-50 text-indigo-900",
+  peche: "border-red-200 bg-red-50 text-red-900",
 };
 
 export function parcoursClass(parcours: ParcoursEleve) {
@@ -112,4 +115,3 @@ export function StatusMessage({ type, children }: { type: "error" | "success" | 
   };
   return <div className={`rounded-lg border px-4 py-3 text-sm ${classes[type]}`}>{children}</div>;
 }
-

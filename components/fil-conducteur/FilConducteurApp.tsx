@@ -26,7 +26,7 @@ import {
   TextInput,
 } from "./ui";
 
-const couleurs: CouleurPastel[] = ["rose", "bleu", "vert", "jaune", "orange", "violet", "gris"];
+const couleurs: CouleurPastel[] = ["rose", "bleu", "vert", "jaune", "orange", "violet", "gris", "menthe", "lavande", "peche"];
 const parcoursOptions: ParcoursEleve[] = ["Première demande", "Réexamen"];
 const orientationOptions: OrientationEleve[] = ["Ordinaire", "Dispositif"];
 const categorieOptions: EtatCategorie[] = ["Visible", "Masqué"];
@@ -255,8 +255,8 @@ function KanbanPage() {
             className={`min-h-[520px] rounded-lg border p-3 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
           >
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="font-bold">{colonne.etat.nom}</h3>
-              <span className="rounded-full bg-white/80 px-2 py-1 text-xs font-bold">{colonne.fiches.length}</span>
+              <h3 className="text-sm font-bold">{colonne.etat.nom}</h3>
+              <span className="rounded-full bg-white/80 px-2 py-1 text-[11px] font-bold">{colonne.fiches.length}</span>
             </div>
             <div className="space-y-3">
               {colonne.fiches.map((fiche) => (
@@ -306,15 +306,17 @@ function StudentCard({
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
       onDoubleClick={onEdit}
-      className={`cursor-pointer rounded-lg border p-3 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${alerteClass(fiche.alerte_notification)}`}
+      className={`cursor-pointer rounded-lg border p-3 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${
+        fiche.parcours === parcoursOptions[1] ? "student-card--reexamen" : ""
+      } ${alerteClass(fiche.alerte_notification)}`}
       title="Double-cliquer pour modifier"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h4 className="font-bold text-gray-950">{fiche.nom_eleve}</h4>
-          <p className="mt-1 text-sm text-gray-600">{fiche.niveau_scolaire}</p>
+          <h4 className="text-sm font-bold text-gray-950">{fiche.nom_eleve}</h4>
+          <p className="mt-0.5 text-xs text-gray-600">{fiche.niveau_scolaire}</p>
         </div>
-        <span className="shrink-0 text-xl" title={fiche.orientation}>
+        <span className="shrink-0 text-lg" title={fiche.orientation}>
           {orientationIcon(fiche.orientation)}
         </span>
       </div>

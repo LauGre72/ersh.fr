@@ -94,6 +94,9 @@ components:
         - orange
         - violet
         - gris
+        - menthe
+        - lavande
+        - peche
 
     EtatDossier:
       type: object

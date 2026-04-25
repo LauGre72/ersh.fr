@@ -1,5 +1,5 @@
 export type EtatCategorie = "Visible" | "Masqué";
-export type CouleurPastel = "rose" | "bleu" | "vert" | "jaune" | "orange" | "violet" | "gris";
+export type CouleurPastel = "rose" | "bleu" | "vert" | "jaune" | "orange" | "violet" | "gris" | "menthe" | "lavande" | "peche";
 export type ParcoursEleve = "Première demande" | "Réexamen";
 export type OrientationEleve = "Ordinaire" | "Dispositif";
 export type AlerteNotification = "aucune" | "echeance_annee_scolaire" | "expiree";
