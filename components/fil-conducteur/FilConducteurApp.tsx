@@ -902,6 +902,38 @@ function CsvImportPage() {
     <section className="rounded-lg border border-gray-200 bg-white p-5">
       <h2 className="text-lg font-bold">Import CSV Airtable</h2>
       <p className="mt-1 text-sm text-gray-600">Le fichier est envoye au endpoint `POST /eleves/import-csv` apres controle visuel des colonnes.</p>
+      <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-950">
+        <h3 className="font-bold">Format attendu du fichier CSV</h3>
+        <p className="mt-2">
+          La premiere ligne doit contenir les noms de colonnes. Une ligne correspond a une fiche eleve. Le separateur peut etre un point-virgule ou une virgule.
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="font-semibold">Colonnes obligatoires</div>
+            <ul className="mt-1 list-disc space-y-1 pl-5">
+              <li><code>nom</code> : nom complet de l'eleve</li>
+              <li><code>niveau</code> : niveau scolaire</li>
+              <li><code>parcours</code> : <code>Premiere demande</code> ou <code>Reexamen</code></li>
+              <li><code>orientation</code> : <code>Ordinaire</code> ou <code>Dispositif</code></li>
+              <li><code>etablissement</code> : nom de l'etablissement</li>
+            </ul>
+          </div>
+          <div>
+            <div className="font-semibold">Colonnes optionnelles</div>
+            <ul className="mt-1 list-disc space-y-1 pl-5">
+              <li><code>numero_dossier_mdph</code> : numero de dossier MDPH</li>
+              <li><code>date_naissance</code> : date au format <code>AAAA-MM-JJ</code></li>
+              <li><code>date_fin_notification</code> : date au format <code>AAAA-MM-JJ</code></li>
+              <li><code>commentaire</code> : commentaire libre</li>
+              <li><code>etat</code> : nom de l'etat du dossier, sinon l'etat par defaut est utilise</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-3 overflow-auto rounded border border-blue-200 bg-white p-3 font-mono text-xs text-blue-950">
+          nom;niveau;parcours;orientation;etablissement;numero_dossier_mdph;date_naissance;date_fin_notification;commentaire<br />
+          Nora Dupont;6e;Premiere demande;Ordinaire;College Jean Monnet;72-2025-00123;2013-04-12;2026-08-31;Dossier complet
+        </div>
+      </div>
       {error && <div className="mt-4"><StatusMessage type="error">{error}</StatusMessage></div>}
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_320px]">
         <div>
