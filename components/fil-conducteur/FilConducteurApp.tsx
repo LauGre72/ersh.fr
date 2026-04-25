@@ -211,7 +211,6 @@ function KanbanPage() {
     setKanban(moveLocal(previous, ficheId, etatId));
     try {
       await filConducteurApi.moveFiche(ficheId, etatId);
-      void load();
     } catch (err) {
       setKanban(previous);
       setError(errorMessage(err));
