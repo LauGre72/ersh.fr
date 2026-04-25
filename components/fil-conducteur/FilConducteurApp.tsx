@@ -237,7 +237,7 @@ function KanbanPage() {
 
       {error && <StatusMessage type="error">{error}</StatusMessage>}
 
-      <div className="grid auto-cols-[minmax(220px,1fr)] grid-flow-col gap-3 overflow-x-auto pb-4">
+      <div className="grid w-full gap-2 pb-4" style={{ gridTemplateColumns: `repeat(${kanban.colonnes.length}, minmax(0, 1fr))` }}>
         {kanban.colonnes.map((colonne) => (
           <section
             key={colonne.etat.id}
@@ -252,13 +252,15 @@ function KanbanPage() {
               const ficheId = Number(event.dataTransfer.getData("text/plain"));
               if (ficheId) void moveFiche(ficheId, colonne.etat.id);
             }}
-            className={`min-h-[520px] rounded-lg border p-3 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
+            className={`min-w-0 min-h-[520px] rounded-lg border p-2 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
           >
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-bold">{colonne.etat.nom}</h3>
-              <span className="rounded-full bg-white/80 px-2 py-1 text-[11px] font-bold">{colonne.fiches.length}</span>
+            <div className="mb-2 flex items-center justify-between gap-1">
+              <h3 className="min-w-0 truncate text-xs font-bold" title={colonne.etat.nom}>
+                {colonne.etat.nom}
+              </h3>
+              <span className="shrink-0 rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-bold">{colonne.fiches.length}</span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {colonne.fiches.map((fiche) => (
                 <StudentCard
                   key={fiche.id}
@@ -306,17 +308,19 @@ function StudentCard({
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
       onDoubleClick={onEdit}
-      className={`cursor-pointer rounded-lg border p-3 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${
+      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${pastelClasses[couleur]} ${
         fiche.parcours === parcoursOptions[1] ? "student-card--reexamen" : ""
       } ${alerteClass(fiche.alerte_notification)}`}
       title="Double-cliquer pour modifier"
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-1.5">
         <div className="min-w-0">
-          <h4 className="text-sm font-bold text-gray-950">{fiche.nom_eleve}</h4>
+          <h4 className="truncate text-xs font-bold text-gray-950" title={fiche.nom_eleve}>
+            {fiche.nom_eleve}
+          </h4>
           <p className="mt-0.5 text-xs text-gray-600">{fiche.niveau_scolaire}</p>
         </div>
-        <span className="shrink-0 text-lg" title={fiche.orientation}>
+        <span className="shrink-0 text-base" title={fiche.orientation}>
           {orientationIcon(fiche.orientation)}
         </span>
       </div>
@@ -628,6 +632,7 @@ function EtatsSettings() {
   const [items, setItems] = useState<EtatDossier[]>([]);
   const [draft, setDraft] = useState({ nom: "", couleur: "bleu" as CouleurPastel, ordre_affichage: 1, categorie: "Visible" as EtatCategorie });
   const [editing, setEditing] = useState<EtatDossier | null>(null);
+  const [movingId, setMovingId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const load = async () => {
@@ -645,9 +650,10 @@ function EtatsSettings() {
 
   const create = async () => {
     if (!draft.nom.trim()) return;
+    const lastOrder = items.reduce((max, etat) => Math.max(max, etat.ordre_affichage), 0);
     try {
-      await filConducteurApi.createEtat(draft);
-      setDraft({ nom: "", couleur: "bleu", ordre_affichage: items.length + 1, categorie: "Visible" });
+      await filConducteurApi.createEtat({ ...draft, ordre_affichage: lastOrder + 1 });
+      setDraft({ nom: "", couleur: "bleu", ordre_affichage: lastOrder + 2, categorie: "Visible" });
       void load();
     } catch (err) {
       setError(errorMessage(err));
@@ -679,11 +685,37 @@ function EtatsSettings() {
     }
   };
 
+  const moveEtat = async (etatId: number, direction: -1 | 1) => {
+    const orderedItems = [...items].sort((a, b) => a.ordre_affichage - b.ordre_affichage || a.id - b.id);
+    const index = orderedItems.findIndex((etat) => etat.id === etatId);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= orderedItems.length) return;
+
+    const reordered = [...orderedItems];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    const normalized = reordered.map((etat, itemIndex) => ({ ...etat, ordre_affichage: itemIndex + 1 }));
+
+    setMovingId(etatId);
+    setItems(normalized);
+    setError("");
+    try {
+      await Promise.all(normalized.map((etat) => filConducteurApi.updateEtat(etat.id, { ordre_affichage: etat.ordre_affichage })));
+      void load();
+    } catch (err) {
+      setError(errorMessage(err));
+      void load();
+    } finally {
+      setMovingId(null);
+    }
+  };
+
+  const orderedItems = [...items].sort((a, b) => a.ordre_affichage - b.ordre_affichage || a.id - b.id);
+
   return (
     <section className="rounded-lg border border-gray-200 bg-white p-5">
       <h2 className="mb-4 text-lg font-bold">Etats du dossier</h2>
       {error && <StatusMessage type="error">{error}</StatusMessage>}
-      <div className="mb-4 grid gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <TextInput label="Nouvel etat" value={draft.nom} onChange={(event) => setDraft({ ...draft, nom: event.target.value })} />
         <SelectInput label="Couleur" value={draft.couleur} onChange={(event) => setDraft({ ...draft, couleur: event.target.value as CouleurPastel })}>
           {couleurs.map((couleur) => (
@@ -692,12 +724,6 @@ function EtatsSettings() {
             </option>
           ))}
         </SelectInput>
-        <TextInput
-          label="Ordre"
-          type="number"
-          value={draft.ordre_affichage}
-          onChange={(event) => setDraft({ ...draft, ordre_affichage: Number(event.target.value) })}
-        />
         <div className="flex items-end">
           <Button className="w-full" onClick={create} disabled={!draft.nom.trim()}>
             Ajouter
@@ -705,7 +731,7 @@ function EtatsSettings() {
         </div>
       </div>
       <div className="space-y-3">
-        {items.map((etat) => (
+        {orderedItems.map((etat, index) => (
           <div key={etat.id} className={`rounded-lg border p-3 ${pastelClasses[etat.couleur]}`}>
             {editing?.id === etat.id ? (
               <div className="grid gap-3 sm:grid-cols-5">
@@ -743,7 +769,13 @@ function EtatsSettings() {
                   <div className="font-bold">{etat.nom}</div>
                   <div className="text-sm">Ordre {etat.ordre_affichage} · {etat.categorie}</div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Button variant="secondary" onClick={() => void moveEtat(etat.id, -1)} disabled={index === 0 || movingId !== null}>
+                    Monter
+                  </Button>
+                  <Button variant="secondary" onClick={() => void moveEtat(etat.id, 1)} disabled={index === orderedItems.length - 1 || movingId !== null}>
+                    Descendre
+                  </Button>
                   <Button variant="secondary" onClick={() => setEditing(etat)}>
                     Modifier
                   </Button>
