@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
-import logoComplet from "../../assets/logo-complet.png";
 import { filConducteurApi, isApiError } from "./api";
 import type {
   CouleurPastel,
@@ -36,27 +35,27 @@ const categorieOptions: EtatCategorie[] = ["Visible", "Masqué"];
 
 export default function FilConducteurApp() {
   return (
-    <main className="fc-app min-h-screen bg-[#F7FAFC] px-4 py-6 text-[#153A5B]">
+    <main className="fc-app min-h-screen bg-slate-50 px-4 py-6 text-gray-900">
       <div className="mx-auto w-full max-w-none">
-        <div className="mb-5 flex flex-col gap-3 border-b border-[#D6E2EA] pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-5 flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoComplet} alt="ERSH.fr" className="h-14 w-auto" />
+            <img src="/fil-conducteur-logo.svg" alt="Fil Conducteur" className="h-14 w-auto" />
             <div>
-              <h1 className="text-xl font-bold text-[#153A5B]">Kanban de suivi</h1>
-              <p className="text-sm text-slate-600">Dossiers élèves par établissement, état, ESS et échéances.</p>
+              <h1 className="sr-only">Fil Conducteur</h1>
+              <p className="text-sm text-gray-600">Suivi visuel des dossiers eleves par etablissement.</p>
             </div>
           </div>
           <nav className="flex flex-wrap gap-2">
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-[#153A5B] hover:bg-white" to="/fil-conducteur">
-              Établissements
+            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur">
+              Etablissements
             </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-[#153A5B] hover:bg-white" to="/fil-conducteur/import">
+            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/import">
               Import CSV
             </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-[#153A5B] hover:bg-white" to="/fil-conducteur/historique">
+            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/historique">
               Historique
             </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-[#153A5B] hover:bg-white" to="/fil-conducteur/configuration">
+            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/configuration">
               Configuration
             </Link>
           </nav>
@@ -116,21 +115,18 @@ function EtablissementSelector() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-      <section className="rounded-lg border border-[#D6E2EA] bg-white p-5">
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
         <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold">Choisir un établissement</h2>
-            <p className="mt-1 text-sm text-slate-600">Ouvrez le Kanban de l'établissement pour accéder aux fiches élèves.</p>
-          </div>
+          <h2 className="text-lg font-bold">Choisir un etablissement</h2>
           <Button variant="secondary" onClick={load} disabled={loading}>
             Actualiser
           </Button>
         </div>
         {error && <StatusMessage type="error">{error}</StatusMessage>}
         {loading ? (
-          <p className="mt-4 text-sm text-gray-500">Chargement des établissements...</p>
+          <p className="mt-4 text-sm text-gray-500">Chargement des etablissements...</p>
         ) : etablissements.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-500">Aucun établissement pour le moment.</p>
+          <p className="mt-4 text-sm text-gray-500">Aucun etablissement pour le moment.</p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {etablissements.map((etablissement) => (
@@ -138,7 +134,7 @@ function EtablissementSelector() {
                 key={etablissement.id}
                 type="button"
                 onClick={() => navigate(`/fil-conducteur/kanban/${etablissement.id}`)}
-                className="rounded-lg border border-[#D6E2EA] bg-white p-4 text-left transition hover:border-[#2A6F97] hover:shadow-sm"
+                className="rounded-lg border border-gray-200 bg-white p-4 text-left transition hover:border-blue-300 hover:shadow-sm"
               >
                 <div className="font-bold text-gray-950">{etablissement.nom}</div>
                 {etablissement.chef_etablissement && <div className="mt-1 text-sm text-gray-600">{etablissement.chef_etablissement}</div>}
@@ -149,14 +145,14 @@ function EtablissementSelector() {
         )}
       </section>
 
-      <section className="rounded-lg border border-[#D6E2EA] bg-white p-5">
-        <h2 className="mb-4 text-lg font-bold">Nouvel établissement</h2>
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="mb-4 text-lg font-bold">Nouvel etablissement</h2>
         <div className="space-y-4">
           <TextInput label="Nom" value={nom} onChange={(event) => setNom(event.target.value)} />
-          <TextInput label="Chef d'établissement" value={chef} onChange={(event) => setChef(event.target.value)} />
-          <TextInput label="Email du chef d'établissement" type="email" value={emailChef} onChange={(event) => setEmailChef(event.target.value)} />
+          <TextInput label="Chef d'etablissement" value={chef} onChange={(event) => setChef(event.target.value)} />
+          <TextInput label="Email du chef d'etablissement" type="email" value={emailChef} onChange={(event) => setEmailChef(event.target.value)} />
           <Button className="w-full" onClick={create} disabled={!nom.trim()}>
-            Créer et ouvrir le Kanban
+            Creer et ouvrir
           </Button>
         </div>
       </section>
@@ -233,12 +229,12 @@ function KanbanPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-[#D6E2EA] bg-white p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <button type="button" className="text-sm font-semibold text-[#2A6F97] hover:text-[#153A5B]" onClick={() => navigate("/fil-conducteur")}>
-            Retour aux établissements
+          <button type="button" className="text-sm font-semibold text-blue-700 hover:text-blue-900" onClick={() => navigate("/fil-conducteur")}>
+            ← Changer d'etablissement
           </button>
-          <h2 className="mt-1 text-xl font-bold">Kanban - {kanban.etablissement.nom}</h2>
+          <h2 className="mt-1 text-xl font-bold">{kanban.etablissement.nom}</h2>
           {kanban.etablissement.chef_etablissement && <p className="text-sm text-gray-600">{kanban.etablissement.chef_etablissement}</p>}
           {kanban.etablissement.email_chef_etablissement && <p className="text-sm text-gray-600">{kanban.etablissement.email_chef_etablissement}</p>}
         </div>
@@ -265,7 +261,7 @@ function KanbanPage() {
               const ficheId = Number(event.dataTransfer.getData("text/plain"));
               if (ficheId) void moveFiche(ficheId, colonne.etat.id);
             }}
-            className={`min-w-0 min-h-[520px] rounded-lg border p-2 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-[#2A6F97]" : ""}`}
+            className={`min-w-0 min-h-[520px] rounded-lg border p-2 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
           >
             <div className="mb-2 flex items-center justify-between gap-1">
               <h3 className="min-w-0 truncate text-xs font-bold" title={colonne.etat.nom}>
@@ -465,7 +461,7 @@ function StudentModal({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold">{fiche ? "Modifier la fiche" : "Nouvelle fiche"}</h2>
-            <p className="text-sm text-gray-600">Les modifications sont enregistrées dans le Kanban ERSH.fr.</p>
+            <p className="text-sm text-gray-600">Les modifications sont enregistrees dans Fil Conducteur.</p>
           </div>
           <Button variant="ghost" onClick={onClose}>
             Fermer
@@ -473,7 +469,7 @@ function StudentModal({
         </div>
         {error && <StatusMessage type="error">{error}</StatusMessage>}
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <TextInput label="Nom complet de l'élève" value={form.nom_eleve} onChange={(event) => setForm({ ...form, nom_eleve: event.target.value })} required />
+          <TextInput label="Nom complet de l'eleve" value={form.nom_eleve} onChange={(event) => setForm({ ...form, nom_eleve: event.target.value })} required />
           <TextInput
             label="Numero de dossier MDPH"
             value={form.numero_dossier_mdph || ""}
@@ -522,8 +518,8 @@ function StudentModal({
             </div>
           )}
         </div>
-        <div className="mt-5 rounded-lg border border-[#D6E2EA] bg-[#F7FAFC] p-3">
-          <div className="mb-2 text-sm font-semibold text-[#153A5B]">Créer un document depuis cette fiche</div>
+        <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="mb-2 text-sm font-semibold text-gray-800">Creer un document avec cette identite</div>
           <div className="grid gap-2 sm:grid-cols-3">
             <Button
               variant="secondary"
@@ -565,7 +561,7 @@ function StudentModal({
 
 function EssList({ items, loading, error }: { items: Ess[]; loading: boolean; error: string }) {
   return (
-    <section className="rounded-lg border border-[#D6E2EA] bg-[#F7FAFC] p-3">
+    <section className="rounded-lg border border-gray-200 bg-gray-50 p-3">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-gray-800">Suivi des ESS</h3>
         {items.length > 0 && <span className="text-xs font-medium text-gray-500">{items.length} ESS</span>}
@@ -577,7 +573,7 @@ function EssList({ items, loading, error }: { items: Ess[]; loading: boolean; er
       ) : items.length === 0 ? (
         <p className="text-sm text-gray-500">Aucune ESS enregistree.</p>
       ) : (
-        <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-[#D6E2EA] bg-white">
+        <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">
           {items.map((item) => (
             <li key={item.id} className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="font-medium text-gray-900">{formatEssLabel(item)}</div>
@@ -617,23 +613,23 @@ function SearchBar({ currentEtablissementId, onOpen }: { currentEtablissementId:
   return (
     <div className="relative flex min-w-[300px] flex-1 gap-2">
       <input
-        aria-label="Recherche élève"
+        aria-label="Recherche eleve"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Rechercher un élève..."
-        className="min-w-0 flex-1 rounded-lg border border-[#D6E2EA] bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-[#2A6F97] focus:ring-2 focus:ring-[#2A6F97]/15"
+        placeholder="Rechercher un eleve..."
+        className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       />
       <select
-        aria-label="Périmètre de recherche"
+        aria-label="Perimetre de recherche"
         value={scope}
         onChange={(event) => setScope(event.target.value as "current" | "global")}
-        className="rounded-lg border border-[#D6E2EA] bg-white px-2 py-2 text-sm"
+        className="rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm"
       >
         <option value="global">Global</option>
-        <option value="current">Établissement</option>
+        <option value="current">Courant</option>
       </select>
       {(results.length > 0 || error) && (
-        <div className="absolute left-0 right-0 top-12 z-20 rounded-lg border border-[#D6E2EA] bg-white p-2 shadow-xl">
+        <div className="absolute left-0 right-0 top-12 z-20 rounded-lg border border-gray-200 bg-white p-2 shadow-xl">
           {error ? (
             <p className="px-2 py-1 text-sm text-red-700">{error}</p>
           ) : (
@@ -646,7 +642,7 @@ function SearchBar({ currentEtablissementId, onOpen }: { currentEtablissementId:
                   setResults([]);
                   onOpen(result);
                 }}
-                className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-[#2A6F97]/10"
+                className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-blue-50"
               >
                 <span className="font-semibold">{result.fiche.nom_eleve}</span>
                 <span className="block text-gray-600">{result.etablissement.nom}</span>

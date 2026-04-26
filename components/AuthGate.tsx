@@ -34,12 +34,12 @@ function SignIn() {
   };
   return (
     <div className="min-h-screen grid place-items-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-lg border border-[#D6E2EA] bg-white p-6 shadow">
-        <h1 className="mb-2 text-lg font-semibold text-[#153A5B]">ERSH.fr</h1>
-        <p className="mb-4 text-sm text-gray-600">Connectez-vous pour accéder au Kanban et aux documents.</p>
+      <div className="p-6 bg-white rounded-2xl shadow border w-full max-w-sm">
+        <h1 className="text-lg font-semibold mb-2">Portail ERSH</h1>
+        <p className="text-sm text-gray-600 mb-4">Connectez-vous pour accéder à vos applications.</p>
         <button
           onClick={signIn}
-          className="w-full rounded-lg bg-[#2A6F97] px-4 py-2 font-semibold text-white hover:bg-[#235D80]"
+          className="w-full rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700"
         >
           Se connecter avec Google
         </button>

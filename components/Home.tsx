@@ -1,188 +1,140 @@
 import { Link } from "react-router-dom";
-import logoComplet from "../assets/logo-complet.png";
-import logoCarre from "../assets/logo-carre.png";
-
-const principles = [
-  {
-    title: "Accompagner",
-    text: "Retrouver rapidement un élève, son établissement, ses ESS et ses documents.",
-    color: "#2A6F97",
-  },
-  {
-    title: "Coordonner",
-    text: "Travailler depuis le Kanban partagé par établissement et état de dossier.",
-    color: "#6FBF73",
-  },
-  {
-    title: "Assurer le parcours",
-    text: "Suivre les échéances, les notifications et les étapes à sécuriser.",
-    color: "#FF7F7F",
-  },
-  {
-    title: "Valoriser les potentiels",
-    text: "Garder les formulaires utiles accessibles depuis la fiche élève.",
-    color: "#FFC857",
-  },
-];
-
-const quickActions = [
-  {
-    to: "/fil-conducteur",
-    title: "Ouvrir le Kanban",
-    desc: "Entrée recommandée : établissement, fiche élève, puis document.",
-    color: "#2A6F97",
-    primary: true,
-  },
-  {
-    to: "/fil-conducteur/import",
-    title: "Importer un CSV",
-    desc: "Créer ou mettre à jour des fiches élèves par établissement.",
-    color: "#4CC9C9",
-  },
-  {
-    to: "/fil-conducteur/historique",
-    title: "Consulter l'historique",
-    desc: "Vérifier les modifications et les actions enregistrées.",
-    color: "#9D8DF1",
-  },
-];
-
-const standaloneForms = [
-  { to: "/bordereau", title: "Bordereau MDPH" },
-  { to: "/emargement", title: "Feuille d'émargement" },
-  { to: "/reunion-ess", title: "Compte rendu ESS" },
-];
 
 function Home() {
   return (
-    <main className="min-h-screen bg-[#F7FAFC] px-4 py-8 text-[#153A5B]">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-sky-50 to-orange-50 px-4 py-12">
       <div className="mx-auto max-w-7xl">
-        <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <img src={logoComplet} alt="ERSH.fr" className="h-auto w-full max-w-xl" />
-            <h1 className="mt-8 max-w-3xl text-3xl font-bold leading-tight md:text-5xl">
-              Kanban de suivi des dossiers élèves
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-700">
-              ERSH.fr centralise le suivi par établissement : choisissez le Kanban, ouvrez la fiche élève, puis générez les documents depuis ce dossier.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/fil-conducteur"
-                className="inline-flex items-center justify-center rounded-lg bg-[#2A6F97] px-5 py-3 text-base font-bold text-white shadow-sm transition hover:bg-[#235D80]"
-              >
-                Ouvrir le Kanban
-              </Link>
-              <Link
-                to="/fil-conducteur/import"
-                className="inline-flex items-center justify-center rounded-lg border border-[#2A6F97]/25 bg-white px-5 py-3 text-base font-bold text-[#153A5B] transition hover:border-[#2A6F97] hover:bg-[#E6EDF2]"
-              >
-                Importer les fiches
-              </Link>
-            </div>
-          </div>
+        <div className="mb-16 text-center">
+          <h1 className="mb-4 bg-gradient-to-r from-emerald-500 via-sky-500 to-orange-500 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
+            Portail ERSH
+          </h1>
+          <p className="mx-auto max-w-2xl text-xl text-gray-600">
+            Accédez aux outils de suivi, de gestion et de génération de documents.
+          </p>
+        </div>
 
-          <div className="rounded-lg border border-[#D6E2EA] bg-white p-5 shadow-sm">
-            <div className="flex items-center gap-4 border-b border-[#E6EDF2] pb-4">
-              <img src={logoCarre} alt="" className="h-16 w-16 rounded-lg" />
-              <div>
-                <h2 className="text-xl font-bold">Parcours recommandé</h2>
-                <p className="text-sm text-slate-600">Le dossier élève devient le point d'entrée des actions.</p>
-              </div>
-            </div>
-            <ol className="mt-5 space-y-4">
-              <Step number="1" title="Établissement" text="Choisir l'établissement concerné." color="#2A6F97" />
-              <Step number="2" title="Élève" text="Ouvrir ou créer la fiche dans le Kanban." color="#6FBF73" />
-              <Step number="3" title="Document" text="Générer bordereau, émargement ou compte rendu depuis la fiche." color="#FF7F7F" />
-              <Step number="4" title="Suivi" text="Retrouver les ESS, notes et échéances dans le dossier." color="#FFC857" />
-            </ol>
-          </div>
-        </section>
+        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <FormTile
+            to="/fil-conducteur"
+            logo="/fil-conducteur-symbole-carre.svg"
+            title="Fil Conducteur"
+            desc="Suivi Kanban des dossiers"
+            explain="Pilotez les fiches élèves par établissement, état de dossier, alerte et recherche rapide."
+            color="from-emerald-400 via-sky-400 to-orange-400"
+            iconColor="bg-white text-slate-900 ring-1 ring-sky-100"
+            actionColor="text-sky-800"
+            titleHoverColor="group-hover:text-sky-800"
+            featured
+          />
+          <FormTile
+            to="/bordereau"
+            icon="📋"
+            title="Bordereau MDPH"
+            desc="Dépôt du dossier"
+            explain="Préparez le bordereau qui accompagne les pièces transmises à la MDPH."
+            color="from-blue-500 to-blue-700"
+            iconColor="bg-blue-600 text-white"
+            actionColor="text-blue-700"
+            titleHoverColor="group-hover:text-blue-700"
+          />
+          <FormTile
+            to="/emargement"
+            icon="✍️"
+            title="Feuille d’émargement"
+            desc="Présence à l’ESS annuelle"
+            explain="Générez la feuille de présence à faire signer lors de l’ESS annuelle."
+            color="from-cyan-500 to-cyan-700"
+            iconColor="bg-cyan-600 text-white"
+            actionColor="text-cyan-700"
+            titleHoverColor="group-hover:text-cyan-700"
+          />
+          <FormTile
+            to="/reunion-ess"
+            icon="🗂️"
+            title="Compte rendu ESS"
+            desc="ESS de suivi"
+            explain="Rédigez le compte rendu de l’ESS de suivi avec les notifications, les bilans et les points de situation."
+            color="from-emerald-500 to-emerald-700"
+            iconColor="bg-emerald-600 text-white"
+            actionColor="text-emerald-700"
+            titleHoverColor="group-hover:text-emerald-700"
+          />
+        </div>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-3">
-          {quickActions.map((action) => (
-            <ActionTile key={action.to} {...action} />
-          ))}
-        </section>
-
-        <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border border-[#D6E2EA] bg-white p-5">
-            <h2 className="text-xl font-bold">Repères ERSH.fr</h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              {principles.map((principle) => (
-                <div key={principle.title} className="flex gap-3">
-                  <div className="mt-1 h-4 w-4 shrink-0 rounded-full" style={{ backgroundColor: principle.color }} />
-                  <div>
-                    <h3 className="font-bold uppercase tracking-wide" style={{ color: principle.color }}>
-                      {principle.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">{principle.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="rounded-xl border-l-4 border-sky-500 bg-white p-8 shadow-lg">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Comment ça marche ?</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            <Step number="1" title="Choisissez" text="Ouvrez l’outil correspondant à votre besoin." />
+            <Step number="2" title="Complétez" text="Renseignez les champs nécessaires et ajoutez les informations utiles." />
+            <Step number="3" title="Finalisez" text="Suivez vos dossiers ou générez le document finalisé." />
           </div>
-
-          <div className="rounded-lg border border-[#D6E2EA] bg-white p-5">
-            <h2 className="text-xl font-bold">Formulaires hors dossier</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              À utiliser seulement lorsqu'aucune fiche élève n'existe encore dans le Kanban.
-            </p>
-            <div className="mt-4 space-y-2">
-              {standaloneForms.map((form) => (
-                <Link
-                  key={form.to}
-                  to={form.to}
-                  className="block rounded-lg border border-[#E6EDF2] px-4 py-3 text-sm font-bold text-[#153A5B] transition hover:border-[#2A6F97] hover:bg-[#F7FAFC]"
-                >
-                  {form.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        </div>
       </div>
     </main>
   );
 }
 
-function Step({ number, title, text, color }: { number: string; title: string; text: string; color: string }) {
+function Step({ number, title, text }: { number: string; title: string; text: string }) {
   return (
-    <li className="flex gap-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white" style={{ backgroundColor: color }}>
-        {number}
+    <div className="flex gap-4">
+      <div className="flex-shrink-0">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-600 font-bold text-white">
+          {number}
+        </div>
       </div>
       <div>
-        <h3 className="font-bold text-[#153A5B]">{title}</h3>
-        <p className="text-sm leading-6 text-slate-600">{text}</p>
+        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <p className="text-sm text-gray-600">{text}</p>
       </div>
-    </li>
+    </div>
   );
 }
 
-function ActionTile({
+function FormTile({
   to,
+  icon,
+  logo,
   title,
   desc,
+  explain,
   color,
-  primary = false,
+  iconColor,
+  actionColor,
+  titleHoverColor,
+  featured = false,
 }: {
   to: string;
+  icon?: string;
+  logo?: string;
   title: string;
   desc: string;
+  explain: string;
   color: string;
-  primary?: boolean;
+  iconColor: string;
+  actionColor: string;
+  titleHoverColor: string;
+  featured?: boolean;
 }) {
   return (
     <Link
       to={to}
-      className={`rounded-lg border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-        primary ? "border-[#2A6F97] bg-[#2A6F97] text-white" : "border-[#D6E2EA] bg-white text-[#153A5B]"
+      className={`group relative overflow-hidden rounded-xl border bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+        featured ? "border-sky-200 ring-1 ring-sky-100" : "border-gray-100"
       }`}
     >
-      <div className="mb-4 h-2 w-16 rounded-full" style={{ backgroundColor: primary ? "#FFC857" : color }} />
-      <h2 className="text-lg font-bold">{title}</h2>
-      <p className={`mt-2 text-sm leading-6 ${primary ? "text-white/90" : "text-slate-600"}`}>{desc}</p>
+      <div className={`absolute left-0 right-0 top-0 h-1 bg-gradient-to-r ${color}`} />
+
+      <div className="p-6">
+        <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-lg text-2xl ${iconColor}`}>
+          {logo ? <img src={logo} alt="" className="h-12 w-12 object-contain" /> : icon}
+        </div>
+        <h3 className={`mb-1 text-lg font-bold text-gray-900 transition ${titleHoverColor}`}>{title}</h3>
+        <p className="mb-3 text-sm font-medium text-gray-500">{desc}</p>
+        <p className="line-clamp-2 text-sm text-gray-600">{explain}</p>
+        <div className={`mt-4 flex items-center text-sm font-medium transition group-hover:translate-x-1 ${actionColor}`}>
+          Accéder -&gt;
+        </div>
+      </div>
     </Link>
   );
 }

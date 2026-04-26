@@ -20,9 +20,9 @@ export default function App() {
           <Route path="/reunion-ess" element={<ReunionEssForm />} />
         </Routes>
       </AuthGate>
-      <footer className="mx-auto max-w-7xl px-4 py-8 text-xs text-slate-500">
-        <div className="border-t border-[#D6E2EA] pt-4">
-          ERSH.fr - accompagnement, coordination et suivi des parcours.
+      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-gray-500">
+        <div className="border-t pt-4">
+          Besoin d'aide ? Contactez le support technique.
         </div>
       </footer>
     </div>
