@@ -5,6 +5,7 @@ import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
 import { getTodayDateInputValue } from "../dateLimits";
+import { saveFicheEss } from "../fil-conducteur/api";
 import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
@@ -62,6 +63,12 @@ function getRoutePrefill(state: unknown): Partial<typeof initialFormData> {
   };
 }
 
+function getRouteFicheId(state: unknown) {
+  const value = (state as { prefill?: Record<string, string> } | null)?.prefill?.fiche_id;
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 function normalizeParticipant(participant: Partial<Participant>): Participant {
   const email = participant.email || "";
   const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
@@ -84,11 +91,13 @@ function participantForApi(participant: Participant) {
 
 export default function EmargementForm() {
   const location = useLocation();
+  const ficheId = getRouteFicheId(location.state);
   const [formData, setFormData] = useState(() => ({
     ...initialFormData,
     ...getRoutePrefill(location.state),
   }));
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
+  const [essSaveError, setEssSaveError] = useState("");
   const today = getTodayDateInputValue();
 
   useEffect(() => {
@@ -197,6 +206,31 @@ export default function EmargementForm() {
       .filter((participant) => participant.nom || participant.fonction || participant.email),
   });
 
+  const submitWithEssTracking = async (onSubmit: (data: unknown) => void) => {
+    const payload = buildPayload();
+    setEssSaveError("");
+
+    if (ficheId) {
+      if (!payload.date_ess) {
+        setEssSaveError("La date de l'ESS est obligatoire pour l'enregistrer dans la fiche eleve.");
+        return;
+      }
+
+      try {
+        await saveFicheEss(ficheId, {
+          date_ess: payload.date_ess,
+          type_ess: "annuelle",
+          numero_suivi: null,
+        });
+      } catch (err) {
+        setEssSaveError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement de l'ESS.");
+        return;
+      }
+    }
+
+    onSubmit(payload);
+  };
+
   return (
     <PDFGenerator
       docType="feuillePresence"
@@ -211,7 +245,12 @@ export default function EmargementForm() {
             theme="cyan"
           />
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="w-full space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); void submitWithEssTracking(onSubmit); }} className="w-full space-y-6">
+            {essSaveError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                {essSaveError}
+              </div>
+            )}
             {/* Réunion */}
             <FormSection title="📅 Organisation">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -1,6 +1,8 @@
 import { auth } from "../../firebase";
 import type {
   Etablissement,
+  Ess,
+  EssPayload,
   EtablissementPayload,
   EtatDossier,
   EtatPayload,
@@ -108,6 +110,11 @@ export const filConducteurApi = {
   deleteFiche: (id: number) => request<void>(`/eleves/${id}`, { method: "DELETE" }),
   moveFiche: (id: number, etat_id: number) =>
     request<FicheEleve>(`/eleves/${id}/move`, { method: "POST", body: JSON.stringify({ etat_id }) }),
+  listEss: (ficheId: number) => request<Ess[]>(`/eleves/${ficheId}/ess`),
+  createEss: (ficheId: number, payload: EssPayload) =>
+    request<Ess>(`/eleves/${ficheId}/ess`, { method: "POST", body: JSON.stringify(payload) }),
+  updateEss: (id: number, payload: Partial<EssPayload>) =>
+    request<Ess>(`/ess/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   searchEleves: (query: string, etablissementId?: number) => {
     const params = new URLSearchParams({ q: query });
     if (etablissementId) params.set("etablissement_id", String(etablissementId));
@@ -135,6 +142,19 @@ export const filConducteurApi = {
     return request<Historique[]>(`/historiques${query ? `?${query}` : ""}`);
   },
 };
+
+export async function saveFicheEss(ficheId: number, payload: EssPayload) {
+  const items = await request<Ess[]>(`/eleves/${ficheId}/ess`);
+  const existing = items.find((item) => {
+    if (payload.type_ess === "annuelle") return item.type_ess === "annuelle";
+    return item.type_ess === "suivi" && item.numero_suivi === payload.numero_suivi;
+  });
+
+  if (existing) {
+    return request<Ess>(`/ess/${existing.id}`, { method: "PUT", body: JSON.stringify(payload) });
+  }
+  return request<Ess>(`/eleves/${ficheId}/ess`, { method: "POST", body: JSON.stringify(payload) });
+}
 
 async function normalizeCsvFile(file: File) {
   const text = await file.text();

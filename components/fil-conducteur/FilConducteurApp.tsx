@@ -4,6 +4,7 @@ import { filConducteurApi, isApiError } from "./api";
 import type {
   CouleurPastel,
   Etablissement,
+  Ess,
   EtatCategorie,
   EtatDossier,
   FicheEleve,
@@ -365,6 +366,41 @@ function StudentModal({
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [essItems, setEssItems] = useState<Ess[]>([]);
+  const [essLoading, setEssLoading] = useState(false);
+  const [essError, setEssError] = useState("");
+  const ficheEtat = fiche ? etats.find((etat) => etat.id === fiche.etat_id) : null;
+  const canDeleteFiche = Boolean(fiche && isClosedEtat(ficheEtat));
+
+  useEffect(() => {
+    let ignore = false;
+    if (!fiche) {
+      setEssItems([]);
+      setEssError("");
+      setEssLoading(false);
+      return () => {
+        ignore = true;
+      };
+    }
+
+    setEssLoading(true);
+    setEssError("");
+    void filConducteurApi
+      .listEss(fiche.id)
+      .then((items) => {
+        if (!ignore) setEssItems(sortEssByDateDesc(items));
+      })
+      .catch((err) => {
+        if (!ignore) setEssError(errorMessage(err));
+      })
+      .finally(() => {
+        if (!ignore) setEssLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [fiche?.id]);
 
   const formPrefill = {
     nom: form.nom_eleve,
@@ -399,7 +435,7 @@ function StudentModal({
 
   const openForm = async (path: string, prefill: Record<string, string>) => {
     if (!(await persistFiche())) return;
-    navigate(path, { state: { prefill } });
+    navigate(path, { state: { prefill: fiche ? { ...prefill, fiche_id: String(fiche.id) } : prefill } });
   };
 
   const save = async () => {
@@ -476,6 +512,11 @@ function StudentModal({
           <div className="sm:col-span-2">
             <TextareaInput label="Commentaire" value={form.commentaire || ""} onChange={(event) => setForm({ ...form, commentaire: event.target.value })} />
           </div>
+          {fiche && (
+            <div className="sm:col-span-2">
+              <EssList items={essItems} loading={essLoading} error={essError} />
+            </div>
+          )}
         </div>
         <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3">
           <div className="mb-2 text-sm font-semibold text-gray-800">Creer un document avec cette identite</div>
@@ -500,7 +541,7 @@ function StudentModal({
           </div>
         </div>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          {fiche && (
+          {canDeleteFiche && (
             <Button variant="danger" onClick={remove} disabled={saving}>
               Supprimer
             </Button>
@@ -515,6 +556,33 @@ function StudentModal({
         </div>
       </div>
     </div>
+  );
+}
+
+function EssList({ items, loading, error }: { items: Ess[]; loading: boolean; error: string }) {
+  return (
+    <section className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-gray-800">Suivi des ESS</h3>
+        {items.length > 0 && <span className="text-xs font-medium text-gray-500">{items.length} ESS</span>}
+      </div>
+      {loading ? (
+        <p className="text-sm text-gray-500">Chargement des ESS...</p>
+      ) : error ? (
+        <StatusMessage type="error">{error}</StatusMessage>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-gray-500">Aucune ESS enregistree.</p>
+      ) : (
+        <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">
+          {items.map((item) => (
+            <li key={item.id} className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="font-medium text-gray-900">{formatEssLabel(item)}</div>
+              <div className="text-sm text-gray-600">{formatDateOnly(item.date_ess)}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -1160,6 +1228,31 @@ function parseCsvPreview(text: string) {
     .split(/\r?\n/)
     .filter(Boolean)
     .map((line) => line.split(/;|,/).map((cell) => cell.trim().replace(/^"|"$/g, "")));
+}
+
+function isClosedEtat(etat?: EtatDossier | null) {
+  return etat?.nom.trim().toLocaleLowerCase("fr") === "clos";
+}
+
+function sortEssByDateDesc(items: Ess[]) {
+  return [...items].sort((a, b) => dateOnlyTime(b.date_ess) - dateOnlyTime(a.date_ess));
+}
+
+function dateOnlyTime(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return 0;
+  return new Date(year, month - 1, day).getTime();
+}
+
+function formatEssLabel(item: Ess) {
+  if (item.type_ess === "annuelle") return "ESS annuelle";
+  return item.numero_suivi ? `ESS de suivi ${item.numero_suivi}` : "ESS de suivi";
+}
+
+function formatDateOnly(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return value;
+  return new Intl.DateTimeFormat("fr-FR", { dateStyle: "short" }).format(new Date(year, month - 1, day));
 }
 
 function errorMessage(error: unknown) {

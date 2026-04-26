@@ -68,6 +68,19 @@ export interface ImportCsvResponse {
   erreurs: Array<{ ligne: number; message: string }>;
 }
 
+export interface Ess {
+  id: number;
+  user_id?: string;
+  fiche_eleve_id?: number;
+  date_ess: string;
+  type_ess: "annuelle" | "suivi";
+  numero_suivi?: number | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type EssPayload = Pick<Ess, "date_ess" | "type_ess" | "numero_suivi">;
+
 export interface Historique {
   id: number;
   user_id: string;

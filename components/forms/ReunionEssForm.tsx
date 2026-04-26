@@ -5,6 +5,7 @@ import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
 import { getTodayDateInputValue } from "../dateLimits";
+import { saveFicheEss } from "../fil-conducteur/api";
 import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
@@ -76,6 +77,12 @@ function getRoutePrefill(state: unknown): Partial<typeof initialFormData> {
   };
 }
 
+function getRouteFicheId(state: unknown) {
+  const value = (state as { prefill?: Record<string, string> } | null)?.prefill?.fiche_id;
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 function normalizeParticipant(participant: Partial<Participant>): Participant {
   const email = participant.email || "";
   const noEmail = participant.noEmail || email === NO_MAIL_VALUE;
@@ -124,11 +131,13 @@ function FormTextarea({
 
 export default function ReunionEssForm() {
   const location = useLocation();
+  const ficheId = getRouteFicheId(location.state);
   const [formData, setFormData] = useState(() => ({
     ...initialFormData,
     ...getRoutePrefill(location.state),
   }));
   const [defaultParticipant, setDefaultParticipant] = useState<Participant | null>(null);
+  const [essSaveError, setEssSaveError] = useState("");
   const today = getTodayDateInputValue();
 
   useEffect(() => {
@@ -269,6 +278,36 @@ export default function ReunionEssForm() {
     conclusion_reunion: cleanString(formData.conclusion_reunion),
   });
 
+  const submitWithEssTracking = async (onSubmit: (data: unknown) => void) => {
+    const payload = buildPayload();
+    setEssSaveError("");
+
+    if (ficheId) {
+      const numeroSuivi = Number(payload.numero_ess);
+      if (!payload.date_ess) {
+        setEssSaveError("La date de l'ESS de suivi est obligatoire pour l'enregistrer dans la fiche eleve.");
+        return;
+      }
+      if (!Number.isInteger(numeroSuivi) || numeroSuivi < 1) {
+        setEssSaveError("Le numero de l'ESS de suivi doit etre un entier superieur ou egal a 1.");
+        return;
+      }
+
+      try {
+        await saveFicheEss(ficheId, {
+          date_ess: payload.date_ess,
+          type_ess: "suivi",
+          numero_suivi: numeroSuivi,
+        });
+      } catch (err) {
+        setEssSaveError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement de l'ESS.");
+        return;
+      }
+    }
+
+    onSubmit(payload);
+  };
+
   return (
     <PDFGenerator
       docType="crEssSuivi"
@@ -292,10 +331,15 @@ export default function ReunionEssForm() {
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              onSubmit(buildPayload());
+              void submitWithEssTracking(onSubmit);
             }}
             className="w-full space-y-6"
           >
+            {essSaveError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                {essSaveError}
+              </div>
+            )}
             <FormSection title="📅 Organisation">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormInput
