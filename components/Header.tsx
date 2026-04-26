@@ -20,22 +20,25 @@ export default function Header() {
       <header className="app-header sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg border-b border-blue-800">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between gap-4">
           <Link to="/" className="font-bold text-white text-xl hover:text-blue-100 transition">
-            ERSH Portail
+            Fil Conducteur
           </Link>
           <nav className="flex flex-wrap items-center justify-end gap-1 text-white">
             {!isHome && (
-              <Link
-                to="/"
-                className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm"
-              >
-                Accueil
+              <Link to="/" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">
+                Tableau de bord
               </Link>
             )}
-            {!isHome && <div className="w-px self-stretch bg-blue-500" />}
-            <Link to="/bordereau" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Bordereau</Link>
-            <Link to="/emargement" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Emargement</Link>
-            <Link to="/reunion-ess" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Compte rendu ESS</Link>
-            <Link to="/fil-conducteur" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Fil Conducteur</Link>
+            <Link to="/fil-conducteur/import" className="px-3 py-2 text-white hover:bg-blue-500 rounded-lg transition text-sm">Import CSV</Link>
+            <details className="relative">
+              <summary className="cursor-pointer list-none rounded-lg px-3 py-2 text-sm text-white transition hover:bg-blue-500">
+                Formulaires
+              </summary>
+              <div className="absolute right-0 mt-2 w-56 rounded-lg border border-blue-200 bg-white p-2 text-blue-950 shadow-lg">
+                <Link to="/bordereau" className="block rounded px-3 py-2 text-sm hover:bg-blue-50">Bordereau MDPH</Link>
+                <Link to="/emargement" className="block rounded px-3 py-2 text-sm hover:bg-blue-50">Emargement</Link>
+                <Link to="/reunion-ess" className="block rounded px-3 py-2 text-sm hover:bg-blue-50">Compte rendu ESS</Link>
+              </div>
+            </details>
             {user && (
               <button
                 type="button"

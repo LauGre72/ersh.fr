@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import PDFGenerator from "../PDFGenerator";
 import { getTodayDateInputValue } from "../dateLimits";
+import { filConducteurApi } from "../fil-conducteur/api";
 import {
   FormCheckbox,
   FormHeader,
@@ -124,12 +125,20 @@ function getRoutePrefill(state: unknown): Partial<ReturnType<typeof createInitia
   };
 }
 
+function getRouteFicheId(state: unknown) {
+  const value = (state as { prefill?: Record<string, string> } | null)?.prefill?.fiche_id;
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 export default function BordereauForm() {
   const location = useLocation();
+  const ficheId = getRouteFicheId(location.state);
   const [formData, setFormData] = useState(() => ({
     ...createInitialFormData(),
     ...getRoutePrefill(location.state),
   }));
+  const [documentSaveError, setDocumentSaveError] = useState("");
   const today = getTodayDateInputValue();
 
   const updateField = (field: string, value: any) => {
@@ -193,6 +202,24 @@ export default function BordereauForm() {
     AUTRE: formData.HAS_AUTRE ? emptyToNull(formData.AUTRE) : null,
   });
 
+  const submitWithDocumentTracking = async (onSubmit: (data: unknown) => void) => {
+    const payload = buildPayload();
+    setDocumentSaveError("");
+    if (ficheId) {
+      try {
+        await filConducteurApi.createDocument(ficheId, {
+          type_document: "bordereau",
+          date_generation: new Date().toISOString(),
+          date_reference: payload.date_geva_sco || null,
+        });
+      } catch (err) {
+        setDocumentSaveError(err instanceof Error ? err.message : "Erreur lors de l'historisation du document.");
+        return;
+      }
+    }
+    onSubmit(payload);
+  };
+
   return (
     <PDFGenerator
       docType="bordereau"
@@ -206,7 +233,12 @@ export default function BordereauForm() {
             description="Complétez tous les champs pour générer votre bordereau"
           />
 
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(buildPayload()); }} className="w-full space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); void submitWithDocumentTracking(onSubmit); }} className="w-full space-y-6">
+            {documentSaveError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                {documentSaveError}
+              </div>
+            )}
             {/* Identité */}
             <FormSection title="👤 Identité de l'élève">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

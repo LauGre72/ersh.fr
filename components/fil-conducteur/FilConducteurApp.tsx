@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { filConducteurApi, isApiError } from "./api";
 import type {
   CouleurPastel,
+  DashboardATraiter,
+  EleveDocument,
   Etablissement,
+  EtablissementStats,
   Ess,
   EtatCategorie,
   EtatDossier,
@@ -15,6 +18,7 @@ import type {
   OrientationEleve,
   ParcoursEleve,
   SearchResult,
+  TimelineItem,
 } from "./types";
 import {
   alerteClass,
@@ -35,41 +39,253 @@ const categorieOptions: EtatCategorie[] = ["Visible", "Masqué"];
 
 export default function FilConducteurApp() {
   return (
-    <main className="fc-app min-h-screen bg-slate-50 px-4 py-6 text-gray-900">
-      <div className="mx-auto w-full max-w-none">
-        <div className="mb-5 flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/fil-conducteur-logo.svg" alt="Fil Conducteur" className="h-14 w-auto" />
-            <div>
-              <h1 className="sr-only">Fil Conducteur</h1>
-              <p className="text-sm text-gray-600">Suivi visuel des dossiers eleves par etablissement.</p>
-            </div>
-          </div>
-          <nav className="flex flex-wrap gap-2">
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur">
-              Etablissements
-            </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/import">
-              Import CSV
-            </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/historique">
-              Historique
-            </Link>
-            <Link className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-white" to="/fil-conducteur/configuration">
-              Configuration
-            </Link>
-          </nav>
-        </div>
-
-        <Routes>
-          <Route index element={<EtablissementSelector />} />
+    <main className="fc-app min-h-screen bg-slate-100 text-gray-900">
+      <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-[240px_minmax(0,1fr)]">
+        <FilConducteurSidebar />
+        <section className="min-w-0 px-4 py-5 lg:px-6">
+          <Routes>
+          <Route index element={<DashboardPage />} />
           <Route path="kanban/:etablissementId" element={<KanbanPage />} />
           <Route path="import" element={<CsvImportPage />} />
           <Route path="historique" element={<HistoriquePage />} />
           <Route path="configuration" element={<SettingsPage />} />
         </Routes>
+        </section>
       </div>
     </main>
+  );
+}
+
+function FilConducteurSidebar() {
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `block rounded-lg px-3 py-2 text-sm font-semibold transition ${
+      isActive ? "bg-blue-700 text-white" : "text-slate-700 hover:bg-white hover:text-blue-800"
+    }`;
+
+  return (
+    <aside className="border-b border-slate-200 bg-white px-4 py-5 lg:border-b-0 lg:border-r">
+      <div className="mb-5 flex items-center gap-3">
+        <img src="/fil-conducteur-logo.svg" alt="Fil Conducteur" className="h-12 w-auto" />
+        <div>
+          <div className="text-sm font-bold text-slate-950">Fil Conducteur</div>
+          <div className="text-xs text-slate-500">Dossiers eleves</div>
+        </div>
+      </div>
+      <nav className="grid gap-1">
+        <NavLink to="/" end className={linkClass}>Tableau de bord</NavLink>
+        <NavLink to="/fil-conducteur" end className={linkClass}>Etablissements</NavLink>
+        <NavLink to="/fil-conducteur/import" className={linkClass}>Import CSV</NavLink>
+        <NavLink to="/fil-conducteur/historique" className={linkClass}>Timeline</NavLink>
+        <NavLink to="/fil-conducteur/configuration" className={linkClass}>Configuration</NavLink>
+      </nav>
+      <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+        Les documents se creent depuis une fiche eleve pour conserver le suivi ESS.
+      </div>
+    </aside>
+  );
+}
+
+function DashboardPage() {
+  const navigate = useNavigate();
+  const [etablissements, setEtablissements] = useState<Etablissement[]>([]);
+  const [recent, setRecent] = useState<Etablissement[]>([]);
+  const [favorites, setFavorites] = useState<Etablissement[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardATraiter | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
+
+  const load = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [all, recentItems, favoriteItems, dashboardData] = await Promise.all([
+        filConducteurApi.listEtablissements(),
+        filConducteurApi.listRecentEtablissements().catch(() => []),
+        filConducteurApi.listFavoriteEtablissements().catch(() => []),
+        filConducteurApi.dashboardATraiter().catch(() => null),
+      ]);
+      setEtablissements(all);
+      setRecent(recentItems);
+      setFavorites(favoriteItems);
+      setDashboard(dashboardData);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setResults([]);
+      return;
+    }
+    let cancelled = false;
+    setSearching(true);
+    const timer = window.setTimeout(() => {
+      void filConducteurApi
+        .searchEleves(trimmed)
+        .then((items) => {
+          if (!cancelled) setResults(items);
+        })
+        .catch((err) => {
+          if (!cancelled) setError(errorMessage(err));
+        })
+        .finally(() => {
+          if (!cancelled) setSearching(false);
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
+  const openEtablissement = (id: number) => {
+    void filConducteurApi.markRecentEtablissement(id).catch(() => undefined);
+    navigate(`/fil-conducteur/kanban/${id}`);
+  };
+
+  const openResult = (result: SearchResult) => {
+    void filConducteurApi.markRecentEtablissement(result.etablissement.id).catch(() => undefined);
+    navigate(`/fil-conducteur/kanban/${result.etablissement.id}`, { state: { ficheId: result.fiche.id } });
+  };
+
+  const aTraiter = flattenDashboardItems(dashboard);
+
+  return (
+    <div className="space-y-5">
+      <section className="rounded-lg border border-slate-200 bg-white p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-950">Sur quel eleve travaillez-vous ?</h1>
+            <p className="mt-1 text-sm text-slate-600">Recherchez une fiche ou ouvrez un etablissement pour reprendre le suivi.</p>
+          </div>
+          <Button variant="secondary" onClick={() => void load()} disabled={loading}>Actualiser</Button>
+        </div>
+        <div className="mt-5">
+          <TextInput label="Recherche eleve globale" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom, dossier MDPH, etablissement..." />
+          {searching && <p className="mt-2 text-sm text-slate-500">Recherche...</p>}
+          {results.length > 0 && (
+            <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+              {results.slice(0, 8).map((result) => (
+                <button
+                  key={`${result.etablissement.id}-${result.fiche.id}`}
+                  type="button"
+                  onClick={() => openResult(result)}
+                  className="flex w-full items-center justify-between gap-3 border-b border-slate-100 bg-white px-3 py-2 text-left last:border-b-0 hover:bg-blue-50"
+                >
+                  <span>
+                    <span className="font-semibold text-slate-950">{result.fiche.nom_eleve}</span>
+                    <span className="ml-2 text-sm text-slate-500">{result.fiche.niveau_scolaire}</span>
+                  </span>
+                  <span className="text-sm text-slate-600">{result.etablissement.nom}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {error && <StatusMessage type="error">{error}</StatusMessage>}
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold">Etablissements</h2>
+            {loading && <span className="text-sm text-slate-500">Chargement...</span>}
+          </div>
+          <EtablissementQuickList
+            title="Favoris"
+            items={favorites}
+            empty="Aucun favori pour le moment."
+            onOpen={openEtablissement}
+          />
+          <div className="mt-5">
+            <EtablissementQuickList
+              title="Recents"
+              items={recent}
+              empty="Aucun etablissement recent."
+              onOpen={openEtablissement}
+            />
+          </div>
+          <div className="mt-5">
+            <EtablissementQuickList
+              title="Tous les etablissements"
+              items={etablissements}
+              empty="Aucun etablissement."
+              onOpen={openEtablissement}
+            />
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="text-lg font-bold">A traiter</h2>
+          <p className="mt-1 text-sm text-slate-600">Fiches avec alerte, notification proche ou dossier bloque.</p>
+          {aTraiter.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-500">Aucune priorite detectee.</p>
+          ) : (
+            <div className="mt-4 space-y-2">
+              {aTraiter.slice(0, 12).map((item) => (
+                <button
+                  key={`${item.reason}-${item.result.fiche.id}`}
+                  type="button"
+                  onClick={() => openResult(item.result)}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-left hover:border-blue-300 hover:bg-blue-50"
+                >
+                  <div className="text-xs font-bold uppercase text-blue-800">{item.reason}</div>
+                  <div className="mt-1 font-semibold text-slate-950">{item.result.fiche.nom_eleve}</div>
+                  <div className="text-sm text-slate-600">{item.result.etablissement.nom}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function EtablissementQuickList({
+  title,
+  items,
+  empty,
+  onOpen,
+}: {
+  title: string;
+  items: Etablissement[];
+  empty: string;
+  onOpen: (id: number) => void;
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-bold uppercase text-slate-500">{title}</h3>
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm text-slate-500">{empty}</p>
+      ) : (
+        <div className="mt-2 grid gap-2 md:grid-cols-2 2xl:grid-cols-3">
+          {items.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onOpen(item.id)}
+              className="rounded-lg border border-slate-200 bg-white p-3 text-left transition hover:border-blue-300 hover:shadow-sm"
+            >
+              <div className="font-semibold text-slate-950">{item.nom}</div>
+              {item.chef_etablissement && <div className="mt-1 text-sm text-slate-600">{item.chef_etablissement}</div>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -167,7 +383,11 @@ function KanbanPage() {
   const id = Number(etablissementId);
   const [kanban, setKanban] = useState<KanbanResponse | null>(null);
   const [etats, setEtats] = useState<EtatDossier[]>([]);
-  const [editing, setEditing] = useState<FicheEleve | "new" | null>(null);
+  const [editing, setEditing] = useState<"new" | null>(null);
+  const [selectedFiche, setSelectedFiche] = useState<FicheEleve | null>(null);
+  const [stats, setStats] = useState<EtablissementStats | null>(null);
+  const [viewMode, setViewMode] = useState<"kanban" | "liste">("kanban");
+  const [filters, setFilters] = useState({ niveau: "", parcours: "", orientation: "", alerte: "" });
   const [dropEtatId, setDropEtatId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -177,9 +397,14 @@ function KanbanPage() {
     setLoading(true);
     setError("");
     try {
-      const [kanbanData, etatsData] = await Promise.all([filConducteurApi.getKanban(id), filConducteurApi.listEtats()]);
+      const [kanbanData, etatsData, statsData] = await Promise.all([
+        filConducteurApi.getKanban(id),
+        filConducteurApi.listEtats(),
+        filConducteurApi.getEtablissementStats(id).catch(() => null),
+      ]);
       setKanban(sortKanban(kanbanData));
       setEtats(etatsData.sort((a, b) => a.ordre_affichage - b.ordre_affichage));
+      setStats(statsData);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -196,7 +421,7 @@ function KanbanPage() {
     if (!ficheId || !kanban) return;
     const fiche = kanban.colonnes.flatMap((colonne) => colonne.fiches).find((item) => item.id === ficheId);
     if (!fiche) return;
-    setEditing(fiche);
+    setSelectedFiche(fiche);
     navigate(location.pathname, { replace: true, state: null });
   }, [kanban, location.pathname, location.state, navigate]);
 
@@ -226,6 +451,9 @@ function KanbanPage() {
   if (loading) return <p className="text-sm text-gray-500">Chargement du Kanban...</p>;
   if (error && !kanban) return <StatusMessage type="error">{error}</StatusMessage>;
   if (!kanban) return null;
+  const filteredKanban = filterKanban(kanban, filters);
+  const fiches = filteredKanban.colonnes.flatMap((colonne) => colonne.fiches.map((fiche) => ({ fiche, etat: colonne.etat })));
+  const niveaux = Array.from(new Set(kanban.colonnes.flatMap((colonne) => colonne.fiches.map((fiche) => fiche.niveau_scolaire)).filter(Boolean))).sort((a, b) => a.localeCompare(b, "fr"));
 
   return (
     <div className="space-y-4">
@@ -243,48 +471,102 @@ function KanbanPage() {
           <Button onClick={() => setEditing("new")}>Nouvelle fiche</Button>
         </div>
       </div>
+      <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="grid gap-3 sm:grid-cols-4">
+          <SelectInput label="Niveau" value={filters.niveau} onChange={(event) => setFilters({ ...filters, niveau: event.target.value })}>
+            <option value="">Tous</option>
+            {niveaux.map((niveau) => <option key={niveau} value={niveau}>{niveau}</option>)}
+          </SelectInput>
+          <SelectInput label="Parcours" value={filters.parcours} onChange={(event) => setFilters({ ...filters, parcours: event.target.value })}>
+            <option value="">Tous</option>
+            {parcoursOptions.map((value) => <option key={value} value={value}>{value}</option>)}
+          </SelectInput>
+          <SelectInput label="Orientation" value={filters.orientation} onChange={(event) => setFilters({ ...filters, orientation: event.target.value })}>
+            <option value="">Toutes</option>
+            {orientationOptions.map((value) => <option key={value} value={value}>{value}</option>)}
+          </SelectInput>
+          <SelectInput label="Echeance" value={filters.alerte} onChange={(event) => setFilters({ ...filters, alerte: event.target.value })}>
+            <option value="">Toutes</option>
+            <option value="expiree">Expiree</option>
+            <option value="echeance_annee_scolaire">Proche</option>
+            <option value="aucune">Sans alerte</option>
+          </SelectInput>
+        </div>
+        <div className="flex gap-2">
+          <Button variant={viewMode === "kanban" ? "primary" : "secondary"} onClick={() => setViewMode("kanban")}>Kanban</Button>
+          <Button variant={viewMode === "liste" ? "primary" : "secondary"} onClick={() => setViewMode("liste")}>Liste</Button>
+        </div>
+      </div>
+
+      {stats && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Metric label="Fiches" value={Number(stats.total_fiches || fiches.length)} />
+          <Metric label="Expirees" value={Number(stats.alertes_expirees || 0)} />
+          <Metric label="Echeances" value={Number(stats.alertes_echeance || 0)} />
+        </div>
+      )}
 
       {error && <StatusMessage type="error">{error}</StatusMessage>}
 
-      <div className="grid w-full gap-2 pb-4" style={{ gridTemplateColumns: `repeat(${kanban.colonnes.length}, minmax(0, 1fr))` }}>
-        {kanban.colonnes.map((colonne) => (
-          <section
-            key={colonne.etat.id}
-            onDragOver={(event) => {
-              event.preventDefault();
-              setDropEtatId(colonne.etat.id);
+      <div className={`grid gap-4 ${selectedFiche ? "xl:grid-cols-[minmax(0,1fr)_420px]" : ""}`}>
+        {viewMode === "kanban" ? (
+          <div className="grid w-full gap-2 pb-4" style={{ gridTemplateColumns: `repeat(${filteredKanban.colonnes.length}, minmax(0, 1fr))` }}>
+            {filteredKanban.colonnes.map((colonne) => (
+              <section
+                key={colonne.etat.id}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setDropEtatId(colonne.etat.id);
+                }}
+                onDragLeave={() => setDropEtatId(null)}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  setDropEtatId(null);
+                  const ficheId = Number(event.dataTransfer.getData("text/plain"));
+                  if (ficheId) void moveFiche(ficheId, colonne.etat.id);
+                }}
+                className={`min-w-0 min-h-[520px] rounded-lg border p-2 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
+              >
+                <div className="mb-2 flex items-center justify-between gap-1">
+                  <h3 className="min-w-0 truncate text-xs font-bold" title={colonne.etat.nom}>
+                    {colonne.etat.nom}
+                  </h3>
+                  <span className="shrink-0 rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-bold">{colonne.fiches.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {colonne.fiches.map((fiche) => (
+                    <StudentCard key={fiche.id} fiche={fiche} selected={selectedFiche?.id === fiche.id} onOpen={() => setSelectedFiche(fiche)} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <StudentList items={fiches} onOpen={(fiche) => setSelectedFiche(fiche)} />
+        )}
+
+        {selectedFiche && (
+          <StudentWorkspacePanel
+            fiche={selectedFiche}
+            etablissement={kanban.etablissement}
+            etablissementId={id}
+            etats={etats}
+            onClose={() => setSelectedFiche(null)}
+            onSaved={() => {
+              setSelectedFiche(null);
+              void load();
             }}
-            onDragLeave={() => setDropEtatId(null)}
-            onDrop={(event) => {
-              event.preventDefault();
-              setDropEtatId(null);
-              const ficheId = Number(event.dataTransfer.getData("text/plain"));
-              if (ficheId) void moveFiche(ficheId, colonne.etat.id);
+            onDeleted={() => {
+              setSelectedFiche(null);
+              void load();
             }}
-            className={`min-w-0 min-h-[520px] rounded-lg border p-2 ${pastelClasses[colonne.etat.couleur]} ${dropEtatId === colonne.etat.id ? "ring-2 ring-blue-400" : ""}`}
-          >
-            <div className="mb-2 flex items-center justify-between gap-1">
-              <h3 className="min-w-0 truncate text-xs font-bold" title={colonne.etat.nom}>
-                {colonne.etat.nom}
-              </h3>
-              <span className="shrink-0 rounded-full bg-white/80 px-1.5 py-0.5 text-[10px] font-bold">{colonne.fiches.length}</span>
-            </div>
-            <div className="space-y-2">
-              {colonne.fiches.map((fiche) => (
-                <StudentCard
-                  key={fiche.id}
-                  fiche={fiche}
-                  onEdit={() => setEditing(fiche)}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
+          />
+        )}
       </div>
 
       {editing && (
         <StudentModal
-          fiche={editing === "new" ? null : editing}
+          fiche={null}
           etablissement={kanban.etablissement}
           etablissementId={id}
           etats={etats}
@@ -305,18 +587,20 @@ function KanbanPage() {
 
 function StudentCard({
   fiche,
-  onEdit,
+  selected = false,
+  onOpen,
 }: {
   fiche: FicheEleve;
-  onEdit: () => void;
+  selected?: boolean;
+  onOpen: () => void;
 }) {
   return (
     <article
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", String(fiche.id))}
-      onDoubleClick={onEdit}
-      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${parcoursClass(fiche.parcours)} ${alerteClass(fiche.alerte_notification)}`}
-      title="Double-cliquer pour modifier"
+      onClick={onOpen}
+      className={`cursor-pointer rounded-lg border p-2 shadow-sm transition hover:shadow-md ${parcoursClass(fiche.parcours)} ${alerteClass(fiche.alerte_notification)} ${selected ? "ring-2 ring-blue-600" : ""}`}
+      title="Ouvrir la fiche"
     >
       <div className="flex items-start justify-between gap-1.5">
         <div className="min-w-0">
@@ -330,6 +614,217 @@ function StudentCard({
         </span>
       </div>
     </article>
+  );
+}
+
+function StudentList({ items, onOpen }: { items: Array<{ fiche: FicheEleve; etat: EtatDossier }>; onOpen: (fiche: FicheEleve) => void }) {
+  return (
+    <div className="overflow-auto rounded-lg border border-slate-200 bg-white">
+      <table className="min-w-full divide-y divide-slate-200 text-sm">
+        <thead className="bg-slate-50 text-left text-xs font-bold uppercase text-slate-500">
+          <tr>
+            <th className="px-3 py-2">Eleve</th>
+            <th className="px-3 py-2">Etat</th>
+            <th className="px-3 py-2">Niveau</th>
+            <th className="px-3 py-2">Parcours</th>
+            <th className="px-3 py-2">Orientation</th>
+            <th className="px-3 py-2">Notification</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {items.map(({ fiche, etat }) => (
+            <tr key={fiche.id} className="cursor-pointer hover:bg-blue-50" onClick={() => onOpen(fiche)}>
+              <td className="px-3 py-2 font-semibold text-slate-950">{fiche.nom_eleve}</td>
+              <td className="px-3 py-2 text-slate-700">{etat.nom}</td>
+              <td className="px-3 py-2 text-slate-700">{fiche.niveau_scolaire}</td>
+              <td className="px-3 py-2 text-slate-700">{fiche.parcours}</td>
+              <td className="px-3 py-2 text-slate-700">{fiche.orientation}</td>
+              <td className="px-3 py-2 text-slate-700">{formatAlerte(fiche.alerte_notification)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function StudentWorkspacePanel({
+  fiche,
+  etablissement,
+  etablissementId,
+  etats,
+  onClose,
+  onSaved,
+  onDeleted,
+}: {
+  fiche: FicheEleve;
+  etablissement: Etablissement;
+  etablissementId: number;
+  etats: EtatDossier[];
+  onClose: () => void;
+  onSaved: () => void;
+  onDeleted: () => void;
+}) {
+  const navigate = useNavigate();
+  const [form, setForm] = useState<FichePayload>({
+    nom_eleve: fiche.nom_eleve,
+    numero_dossier_mdph: fiche.numero_dossier_mdph || "",
+    date_naissance: fiche.date_naissance || "",
+    niveau_scolaire: fiche.niveau_scolaire || "",
+    parcours: fiche.parcours,
+    orientation: fiche.orientation,
+    date_fin_notification: fiche.date_fin_notification || "",
+    commentaire: fiche.commentaire || "",
+    etat_id: fiche.etat_id,
+    etablissement_id: etablissementId,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [essItems, setEssItems] = useState<Ess[]>([]);
+  const [documents, setDocuments] = useState<EleveDocument[]>([]);
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+  const ficheEtat = etats.find((etat) => etat.id === fiche.etat_id) || null;
+  const canDeleteFiche = isClosedEtat(ficheEtat);
+  const closEtat = etats.find(isClosedEtat);
+
+  useEffect(() => {
+    setForm({
+      nom_eleve: fiche.nom_eleve,
+      numero_dossier_mdph: fiche.numero_dossier_mdph || "",
+      date_naissance: fiche.date_naissance || "",
+      niveau_scolaire: fiche.niveau_scolaire || "",
+      parcours: fiche.parcours,
+      orientation: fiche.orientation,
+      date_fin_notification: fiche.date_fin_notification || "",
+      commentaire: fiche.commentaire || "",
+      etat_id: fiche.etat_id,
+      etablissement_id: etablissementId,
+    });
+  }, [fiche, etablissementId]);
+
+  useEffect(() => {
+    let ignore = false;
+    void Promise.all([
+      filConducteurApi.listEss(fiche.id).catch(() => []),
+      filConducteurApi.listDocuments(fiche.id).catch(() => []),
+      filConducteurApi.getFicheTimeline(fiche.id).catch(() => []),
+    ]).then(([ess, docs, timelineItems]) => {
+      if (ignore) return;
+      setEssItems(sortEssByDateDesc(ess));
+      setDocuments(docs);
+      setTimeline(timelineItems);
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [fiche.id]);
+
+  const formPrefill = {
+    nom: form.nom_eleve,
+    date_nais: form.date_naissance || "",
+    dossier_num: form.numero_dossier_mdph || "",
+    niveau: form.niveau_scolaire,
+    etablissement: etablissement.nom,
+    chef_etab: etablissement.chef_etablissement || "",
+    fiche_id: String(fiche.id),
+  };
+
+  const save = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      await filConducteurApi.updateFiche(fiche.id, {
+        ...form,
+        numero_dossier_mdph: form.numero_dossier_mdph || null,
+        date_naissance: form.date_naissance || null,
+        date_fin_notification: form.date_fin_notification || null,
+        commentaire: form.commentaire || null,
+      });
+      onSaved();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openDocument = (path: string, prefill: Record<string, string>) => {
+    navigate(path, { state: { prefill } });
+  };
+
+  const closeFiche = async () => {
+    if (!closEtat) return;
+    setSaving(true);
+    setError("");
+    try {
+      await filConducteurApi.moveFiche(fiche.id, closEtat.id);
+      onSaved();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!window.confirm(`Supprimer la fiche de ${fiche.nom_eleve} ?`)) return;
+    setSaving(true);
+    try {
+      await filConducteurApi.deleteFiche(fiche.id);
+      onDeleted();
+    } catch (err) {
+      setError(errorMessage(err));
+      setSaving(false);
+    }
+  };
+
+  return (
+    <aside className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-slate-950">{fiche.nom_eleve}</h2>
+          <p className="text-sm text-slate-600">{etablissement.nom}</p>
+          {ficheEtat && <p className="mt-1 text-xs font-semibold uppercase text-blue-800">{ficheEtat.nom}</p>}
+        </div>
+        <Button variant="ghost" onClick={onClose}>Fermer</Button>
+      </div>
+
+      {error && <StatusMessage type="error">{error}</StatusMessage>}
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+        <TextInput label="Nom complet" value={form.nom_eleve} onChange={(event) => setForm({ ...form, nom_eleve: event.target.value })} />
+        <TextInput label="Niveau" value={form.niveau_scolaire} onChange={(event) => setForm({ ...form, niveau_scolaire: event.target.value })} />
+        <TextInput label="Dossier MDPH" value={form.numero_dossier_mdph || ""} onChange={(event) => setForm({ ...form, numero_dossier_mdph: event.target.value })} />
+        <TextInput label="Date de naissance" type="date" value={form.date_naissance || ""} onChange={(event) => setForm({ ...form, date_naissance: event.target.value })} />
+        <SelectInput label="Etat" value={form.etat_id} onChange={(event) => setForm({ ...form, etat_id: Number(event.target.value) })}>
+          {etats.map((etat) => <option key={etat.id} value={etat.id}>{etat.nom}</option>)}
+        </SelectInput>
+        <TextInput label="Fin notification" type="date" value={form.date_fin_notification || ""} onChange={(event) => setForm({ ...form, date_fin_notification: event.target.value })} />
+      </div>
+      <div className="mt-3">
+        <TextareaInput label="Notes" value={form.commentaire || ""} onChange={(event) => setForm({ ...form, commentaire: event.target.value })} />
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button onClick={() => void save()} disabled={saving || !form.nom_eleve.trim()}>Enregistrer</Button>
+        {closEtat && !canDeleteFiche && <Button variant="secondary" onClick={() => void closeFiche()} disabled={saving}>Cloturer</Button>}
+        {canDeleteFiche && <Button variant="danger" onClick={() => void remove()} disabled={saving}>Supprimer</Button>}
+      </div>
+
+      <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <h3 className="text-sm font-bold text-slate-800">Documents</h3>
+        <div className="mt-3 grid gap-2">
+          <Button variant="secondary" onClick={() => openDocument("/bordereau", { ...formPrefill, typedemande: form.parcours })}>Creer bordereau MDPH</Button>
+          <Button variant="secondary" onClick={() => openDocument("/emargement", formPrefill)}>Creer feuille d'emargement</Button>
+          <Button variant="secondary" onClick={() => openDocument("/reunion-ess", { ...formPrefill, type_geva_sco: form.parcours })}>Creer compte rendu ESS</Button>
+        </div>
+        <CompactDocumentList items={documents} />
+      </div>
+
+      <div className="mt-5">
+        <EssList items={essItems} loading={false} error="" />
+      </div>
+      <CompactTimeline items={timeline} />
+    </aside>
   );
 }
 
@@ -578,6 +1073,41 @@ function EssList({ items, loading, error }: { items: Ess[]; loading: boolean; er
             <li key={item.id} className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="font-medium text-gray-900">{formatEssLabel(item)}</div>
               <div className="text-sm text-gray-600">{formatDateOnly(item.date_ess)}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function CompactDocumentList({ items }: { items: EleveDocument[] }) {
+  if (items.length === 0) return <p className="mt-3 text-sm text-slate-500">Aucun document historise.</p>;
+  return (
+    <ul className="mt-3 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+      {items.slice(0, 5).map((item) => (
+        <li key={item.id} className="px-3 py-2 text-sm">
+          <div className="font-semibold text-slate-900">{formatDocumentType(item.type_document)}</div>
+          <div className="text-slate-500">{formatOptionalDate(item.date_reference || item.date_generation || item.created_at)}</div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CompactTimeline({ items }: { items: TimelineItem[] }) {
+  return (
+    <section className="mt-5">
+      <h3 className="text-sm font-bold text-slate-800">Timeline</h3>
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm text-slate-500">Aucun evenement a afficher.</p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {items.slice(0, 6).map((item, index) => (
+            <li key={String(item.id || index)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
+              <div className="font-semibold text-slate-900">{String(item.titre || item.type || "Evenement")}</div>
+              {item.description && <div className="mt-1 text-slate-600">{String(item.description)}</div>}
+              <div className="mt-1 text-xs text-slate-500">{formatOptionalDate(String(item.date || item.created_at || ""))}</div>
             </li>
           ))}
         </ul>
@@ -945,6 +1475,7 @@ function CsvImportPage() {
   const [etatDefautId, setEtatDefautId] = useState<number | undefined>();
   const [updateExisting, setUpdateExisting] = useState(true);
   const [report, setReport] = useState<ImportCsvResponse | null>(null);
+  const [previewReport, setPreviewReport] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -957,10 +1488,16 @@ function CsvImportPage() {
     setError("");
     if (!nextFile) {
       setPreview([]);
+      setPreviewReport(null);
       return;
     }
     const text = await nextFile.text();
     setPreview(parseCsvPreview(text).slice(0, 6));
+    try {
+      setPreviewReport(await filConducteurApi.previewImportCsv(nextFile));
+    } catch {
+      setPreviewReport(null);
+    }
   };
 
   const importFile = async () => {
@@ -981,7 +1518,7 @@ function CsvImportPage() {
   return (
     <section className="rounded-lg border border-gray-200 bg-white p-5">
       <h2 className="text-lg font-bold">Import CSV Airtable</h2>
-      <p className="mt-1 text-sm text-gray-600">Le fichier est envoye au endpoint `POST /eleves/import-csv` apres controle visuel des colonnes.</p>
+      <p className="mt-1 text-sm text-gray-600">Le fichier est d'abord previsualise par l'API, puis importe apres controle.</p>
       <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-950">
         <h3 className="font-bold">Format attendu du fichier CSV</h3>
         <p className="mt-2">
@@ -1043,6 +1580,26 @@ function CsvImportPage() {
           {file && missing.length > 0 && (
             <div className="mt-4">
               <StatusMessage type="error">Colonnes possiblement manquantes: {missing.join(", ")}.</StatusMessage>
+            </div>
+          )}
+          {previewReport && (
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <h3 className="font-bold">Previsualisation API</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-4">
+                {Object.entries(previewReport)
+                  .filter(([, value]) => typeof value === "number")
+                  .slice(0, 8)
+                  .map(([key, value]) => (
+                    <Metric key={key} label={key.replace(/_/g, " ")} value={Number(value)} />
+                  ))}
+              </div>
+              {Array.isArray(previewReport.erreurs) && previewReport.erreurs.length > 0 && (
+                <ul className="mt-4 space-y-1 text-sm text-red-700">
+                  {(previewReport.erreurs as Array<{ ligne?: number; message?: string }>).slice(0, 10).map((err, index) => (
+                    <li key={index}>Ligne {err.ligne || "-"}: {err.message || "Erreur"}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </div>
@@ -1206,6 +1763,36 @@ function sortKanban(kanban: KanbanResponse): KanbanResponse {
   };
 }
 
+function filterKanban(kanban: KanbanResponse, filters: { niveau: string; parcours: string; orientation: string; alerte: string }): KanbanResponse {
+  return {
+    ...kanban,
+    colonnes: kanban.colonnes.map((colonne) => ({
+      ...colonne,
+      fiches: colonne.fiches.filter((fiche) => {
+        if (filters.niveau && fiche.niveau_scolaire !== filters.niveau) return false;
+        if (filters.parcours && fiche.parcours !== filters.parcours) return false;
+        if (filters.orientation && fiche.orientation !== filters.orientation) return false;
+        if (filters.alerte && (fiche.alerte_notification || "aucune") !== filters.alerte) return false;
+        return true;
+      }),
+    })),
+  };
+}
+
+function flattenDashboardItems(dashboard: DashboardATraiter | null) {
+  if (!dashboard) return [];
+  const labels: Record<string, string> = {
+    notification_expiree: "Notification expiree",
+    notification_proche: "Notification proche",
+    ess_annuelle_manquante: "ESS annuelle manquante",
+    dossiers_bloques: "Dossier bloque",
+  };
+  return Object.entries(labels).flatMap(([key, reason]) => {
+    const value = dashboard[key];
+    return Array.isArray(value) ? value.map((result) => ({ reason, result: result as SearchResult })) : [];
+  });
+}
+
 function moveLocal(kanban: KanbanResponse, ficheId: number, etatId: number): KanbanResponse {
   let moved: FicheEleve | null = null;
   const colonnes = kanban.colonnes.map((colonne) => {
@@ -1247,6 +1834,28 @@ function dateOnlyTime(value: string) {
 function formatEssLabel(item: Ess) {
   if (item.type_ess === "annuelle") return "ESS annuelle";
   return item.numero_suivi ? `ESS de suivi ${item.numero_suivi}` : "ESS de suivi";
+}
+
+function formatAlerte(alerte?: string) {
+  if (alerte === "expiree") return "Expiree";
+  if (alerte === "echeance_annee_scolaire") return "Proche";
+  return "-";
+}
+
+function formatDocumentType(type: string) {
+  const labels: Record<string, string> = {
+    bordereau: "Bordereau MDPH",
+    feuillePresence: "Feuille d'emargement",
+    crEssSuivi: "Compte rendu ESS",
+  };
+  return labels[type] || type;
+}
+
+function formatOptionalDate(value?: string | null) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("fr-FR", { dateStyle: "short" }).format(date);
 }
 
 function formatDateOnly(value: string) {

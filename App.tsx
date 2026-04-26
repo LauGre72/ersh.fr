@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import AuthGate from "./components/AuthGate";
-import Home from "./components/Home";
 import BordereauForm from "./components/forms/BordereauForm";
 import EmargementForm from "./components/forms/EmargementForm";
 import ReunionEssForm from "./components/forms/ReunionEssForm";
@@ -13,7 +12,7 @@ export default function App() {
       <Header />
       <AuthGate>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<FilConducteurApp />} />
           <Route path="/fil-conducteur/*" element={<FilConducteurApp />} />          
           <Route path="/bordereau" element={<BordereauForm />} />
           <Route path="/emargement" element={<EmargementForm />} />

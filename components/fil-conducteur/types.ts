@@ -58,6 +58,22 @@ export interface SearchResult {
   etablissement: Etablissement;
 }
 
+export interface EtablissementStats {
+  total_fiches?: number;
+  alertes_expirees?: number;
+  alertes_echeance?: number;
+  fiches_par_etat?: Array<{ etat: string; total: number }>;
+  [key: string]: unknown;
+}
+
+export interface DashboardATraiter {
+  notification_expiree?: SearchResult[];
+  notification_proche?: SearchResult[];
+  ess_annuelle_manquante?: SearchResult[];
+  dossiers_bloques?: SearchResult[];
+  [key: string]: unknown;
+}
+
 export interface ImportCsvResponse {
   lignes_lues: number;
   fiches_creees: number;
@@ -80,6 +96,27 @@ export interface Ess {
 }
 
 export type EssPayload = Pick<Ess, "date_ess" | "type_ess" | "numero_suivi">;
+
+export interface EleveDocument {
+  id: number;
+  fiche_eleve_id?: number;
+  type_document: string;
+  date_generation?: string;
+  date_reference?: string | null;
+  job_id?: string | null;
+  filename?: string | null;
+  created_at?: string;
+}
+
+export interface TimelineItem {
+  id?: number;
+  type?: string;
+  titre?: string;
+  description?: string;
+  date?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
 
 export interface Historique {
   id: number;

@@ -1,9 +1,12 @@
 import { auth } from "../../firebase";
 import type {
   Etablissement,
+  DashboardATraiter,
+  EleveDocument,
   Ess,
   EssPayload,
   EtablissementPayload,
+  EtablissementStats,
   EtatDossier,
   EtatPayload,
   FicheEleve,
@@ -12,6 +15,7 @@ import type {
   ImportCsvResponse,
   KanbanResponse,
   SearchResult,
+  TimelineItem,
 } from "./types";
 
 const API_BASE = (import.meta.env.VITE_FIL_CONDUCTEUR_API_URL || "/fc").replace(/\/+$/, "");
@@ -80,8 +84,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const filConducteurApi = {
   me: () => request<{ user_id: string; email: string }>("/me"),
+  listRecentEtablissements: (limit = 10) => request<Etablissement[]>(`/me/recent-etablissements?limit=${limit}`),
+  markRecentEtablissement: (id: number) => request<void>(`/me/recent-etablissements/${id}`, { method: "POST" }),
+  listFavoriteEtablissements: () => request<Etablissement[]>("/me/favorite-etablissements"),
+  toggleFavoriteEtablissement: (id: number) => request<Etablissement>(`/me/favorite-etablissements/${id}`, { method: "POST" }),
 
   listEtablissements: () => request<Etablissement[]>("/etablissements"),
+  getEtablissement: (id: number) => request<Etablissement>(`/etablissements/${id}`),
+  getEtablissementStats: (id: number) => request<EtablissementStats>(`/etablissements/${id}/stats`),
   createEtablissement: (payload: EtablissementPayload) =>
     request<Etablissement>("/etablissements", { method: "POST", body: JSON.stringify(payload) }),
   updateEtablissement: (id: number, payload: Partial<EtablissementPayload>) =>
@@ -97,6 +107,8 @@ export const filConducteurApi = {
   deleteEtat: (id: number) => request<void>(`/etats/${id}`, { method: "DELETE" }),
 
   getKanban: (etablissementId: number) => request<KanbanResponse>(`/kanban/${etablissementId}`),
+  dashboardATraiter: (notificationDays = 60, blockedDays = 14) =>
+    request<DashboardATraiter>(`/dashboard/a-traiter?notification_days=${notificationDays}&blocked_days=${blockedDays}`),
   listFiches: (filters: { etablissementId?: number; etatId?: number } = {}) => {
     const params = new URLSearchParams();
     if (filters.etablissementId) params.set("etablissement_id", String(filters.etablissementId));
@@ -110,11 +122,18 @@ export const filConducteurApi = {
   deleteFiche: (id: number) => request<void>(`/eleves/${id}`, { method: "DELETE" }),
   moveFiche: (id: number, etat_id: number) =>
     request<FicheEleve>(`/eleves/${id}/move`, { method: "POST", body: JSON.stringify({ etat_id }) }),
+  getFiche: (id: number) => request<FicheEleve>(`/eleves/${id}`),
+  getFicheResume: (id: number) => request<Record<string, unknown>>(`/eleves/${id}/resume`),
+  getFicheDetails: (id: number) => request<Record<string, unknown>>(`/eleves/${id}/details`),
+  getFicheTimeline: (id: number) => request<TimelineItem[]>(`/eleves/${id}/timeline`),
   listEss: (ficheId: number) => request<Ess[]>(`/eleves/${ficheId}/ess`),
   createEss: (ficheId: number, payload: EssPayload) =>
     request<Ess>(`/eleves/${ficheId}/ess`, { method: "POST", body: JSON.stringify(payload) }),
   updateEss: (id: number, payload: Partial<EssPayload>) =>
     request<Ess>(`/ess/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  listDocuments: (ficheId: number) => request<EleveDocument[]>(`/eleves/${ficheId}/documents`),
+  createDocument: (ficheId: number, payload: Partial<EleveDocument>) =>
+    request<EleveDocument>(`/eleves/${ficheId}/documents`, { method: "POST", body: JSON.stringify(payload) }),
   searchEleves: (query: string, etablissementId?: number) => {
     const params = new URLSearchParams({ q: query });
     if (etablissementId) params.set("etablissement_id", String(etablissementId));
@@ -134,6 +153,11 @@ export const filConducteurApi = {
     body.set("parcours_defaut", parcoursDefaut);
     body.set("orientation_defaut", orientationDefaut);
     return request<ImportCsvResponse>("/eleves/import-csv", { method: "POST", body });
+  },
+  previewImportCsv: async (file: File) => {
+    const body = new FormData();
+    body.set("file", await normalizeCsvFile(file));
+    return request<Record<string, unknown>>("/eleves/import-csv/preview", { method: "POST", body });
   },
   listHistoriques: (ficheEleveId?: number) => {
     const params = new URLSearchParams();

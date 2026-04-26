@@ -5,7 +5,7 @@ import PDFGenerator from "../PDFGenerator";
 import { auth } from "../../firebase";
 import { getProfile } from "../api";
 import { getTodayDateInputValue } from "../dateLimits";
-import { saveFicheEss } from "../fil-conducteur/api";
+import { filConducteurApi, saveFicheEss } from "../fil-conducteur/api";
 import { getCurrentSchoolYear } from "./schoolYear";
 import {
   AddButton,
@@ -221,6 +221,11 @@ export default function EmargementForm() {
           date_ess: payload.date_ess,
           type_ess: "annuelle",
           numero_suivi: null,
+        });
+        await filConducteurApi.createDocument(ficheId, {
+          type_document: "feuillePresence",
+          date_generation: new Date().toISOString(),
+          date_reference: payload.date_ess,
         });
       } catch (err) {
         setEssSaveError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement de l'ESS.");
