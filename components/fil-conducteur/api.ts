@@ -113,11 +113,19 @@ export const filConducteurApi = {
     if (etablissementId) params.set("etablissement_id", String(etablissementId));
     return request<SearchResult[]>(`/eleves/search?${params.toString()}`);
   },
-  importCsv: (file: File, etatDefautId?: number, updateExisting = true) => {
+  importCsv: (
+    file: File,
+    etatDefautId?: number,
+    updateExisting = true,
+    parcoursDefaut = "Reexamen",
+    orientationDefaut = "Ordinaire",
+  ) => {
     const body = new FormData();
     body.set("file", file);
     if (etatDefautId) body.set("etat_defaut_id", String(etatDefautId));
     body.set("update_existing", String(updateExisting));
+    body.set("parcours_defaut", parcoursDefaut);
+    body.set("orientation_defaut", orientationDefaut);
     return request<ImportCsvResponse>("/eleves/import-csv", { method: "POST", body });
   },
   listHistoriques: (ficheEleveId?: number) => {

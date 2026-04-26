@@ -9,6 +9,7 @@ export interface Etablissement {
   user_id: string;
   nom: string;
   chef_etablissement?: string | null;
+  email_chef_etablissement?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -77,7 +78,7 @@ export interface Historique {
   created_at: string;
 }
 
-export type EtablissementPayload = Pick<Etablissement, "nom" | "chef_etablissement">;
+export type EtablissementPayload = Pick<Etablissement, "nom" | "chef_etablissement" | "email_chef_etablissement">;
 export type EtatPayload = Pick<EtatDossier, "nom" | "couleur" | "ordre_affichage" | "categorie">;
 export type FichePayload = Pick<
   FicheEleve,

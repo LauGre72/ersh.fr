@@ -77,6 +77,7 @@ function EtablissementSelector() {
   const [etablissements, setEtablissements] = useState<Etablissement[]>([]);
   const [nom, setNom] = useState("");
   const [chef, setChef] = useState("");
+  const [emailChef, setEmailChef] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -103,6 +104,7 @@ function EtablissementSelector() {
       const etablissement = await filConducteurApi.createEtablissement({
         nom: nom.trim(),
         chef_etablissement: chef.trim() || null,
+        email_chef_etablissement: emailChef.trim() || null,
       });
       navigate(`/fil-conducteur/kanban/${etablissement.id}`);
     } catch (err) {
@@ -135,6 +137,7 @@ function EtablissementSelector() {
               >
                 <div className="font-bold text-gray-950">{etablissement.nom}</div>
                 {etablissement.chef_etablissement && <div className="mt-1 text-sm text-gray-600">{etablissement.chef_etablissement}</div>}
+                {etablissement.email_chef_etablissement && <div className="mt-1 text-sm text-gray-600">{etablissement.email_chef_etablissement}</div>}
               </button>
             ))}
           </div>
@@ -146,6 +149,7 @@ function EtablissementSelector() {
         <div className="space-y-4">
           <TextInput label="Nom" value={nom} onChange={(event) => setNom(event.target.value)} />
           <TextInput label="Chef d'etablissement" value={chef} onChange={(event) => setChef(event.target.value)} />
+          <TextInput label="Email du chef d'etablissement" type="email" value={emailChef} onChange={(event) => setEmailChef(event.target.value)} />
           <Button className="w-full" onClick={create} disabled={!nom.trim()}>
             Creer et ouvrir
           </Button>
@@ -231,6 +235,7 @@ function KanbanPage() {
           </button>
           <h2 className="mt-1 text-xl font-bold">{kanban.etablissement.nom}</h2>
           {kanban.etablissement.chef_etablissement && <p className="text-sm text-gray-600">{kanban.etablissement.chef_etablissement}</p>}
+          {kanban.etablissement.email_chef_etablissement && <p className="text-sm text-gray-600">{kanban.etablissement.email_chef_etablissement}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           <SearchBar currentEtablissementId={id} onOpen={(result) => navigate(`/fil-conducteur/kanban/${result.etablissement.id}`, { state: { ficheId: result.fiche.id } })} />
@@ -618,7 +623,11 @@ function EtablissementsSettings() {
 
   const save = async (item: Etablissement) => {
     try {
-      await filConducteurApi.updateEtablissement(item.id, { nom: item.nom, chef_etablissement: item.chef_etablissement || null });
+      await filConducteurApi.updateEtablissement(item.id, {
+        nom: item.nom,
+        chef_etablissement: item.chef_etablissement || null,
+        email_chef_etablissement: item.email_chef_etablissement || null,
+      });
       setEditing(null);
       void load();
     } catch (err) {
@@ -660,6 +669,12 @@ function EtablissementsSettings() {
                   value={editing.chef_etablissement || ""}
                   onChange={(event) => setEditing({ ...editing, chef_etablissement: event.target.value })}
                 />
+                <TextInput
+                  label="Email du chef d'etablissement"
+                  type="email"
+                  value={editing.email_chef_etablissement || ""}
+                  onChange={(event) => setEditing({ ...editing, email_chef_etablissement: event.target.value })}
+                />
                 <div className="flex gap-2 sm:col-span-2">
                   <Button onClick={() => void save(editing)}>Enregistrer</Button>
                   <Button variant="secondary" onClick={() => setEditing(null)}>
@@ -672,6 +687,7 @@ function EtablissementsSettings() {
                 <div>
                   <div className="font-semibold">{item.nom}</div>
                   {item.chef_etablissement && <div className="text-sm text-gray-600">{item.chef_etablissement}</div>}
+                  {item.email_chef_etablissement && <div className="text-sm text-gray-600">{item.email_chef_etablissement}</div>}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="secondary" onClick={() => setEditing(item)}>
@@ -890,7 +906,7 @@ function CsvImportPage() {
   };
 
   const headers = preview[0] || [];
-  const missing = ["nom", "niveau", "parcours", "orientation", "etablissement"].filter(
+  const missing = ["nom", "niveau", "etablissement"].filter(
     (needle) => !headers.some((header) => header.toLowerCase().includes(needle)),
   );
 
@@ -909,8 +925,6 @@ function CsvImportPage() {
             <ul className="mt-1 list-disc space-y-1 pl-5">
               <li><code>nom</code> : nom complet de l'eleve</li>
               <li><code>niveau</code> : niveau scolaire</li>
-              <li><code>parcours</code> : <code>Premiere demande</code> ou <code>Reexamen</code></li>
-              <li><code>orientation</code> : <code>Ordinaire</code> ou <code>Dispositif</code></li>
               <li><code>etablissement</code> : nom de l'etablissement</li>
             </ul>
           </div>
@@ -922,6 +936,8 @@ function CsvImportPage() {
               <li><code>date_fin_notification</code> : date au format <code>AAAA-MM-JJ</code></li>
               <li><code>commentaire</code> : commentaire libre</li>
               <li><code>etat</code> : nom de l'etat du dossier, sinon l'etat par defaut est utilise</li>
+              <li><code>parcours</code> : <code>Premiere demande</code> ou <code>Reexamen</code>, sinon <code>Reexamen</code></li>
+              <li><code>orientation</code> : <code>Ordinaire</code> ou <code>Dispositif</code>, sinon <code>Ordinaire</code></li>
             </ul>
           </div>
         </div>

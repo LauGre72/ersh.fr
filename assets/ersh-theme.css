@@ -1,0 +1,14 @@
+:root {
+  --ersh-bleu-confiance: #2A6F97;
+  --ersh-vert-inclusion: #6FBF73;
+  --ersh-corail-engagement: #FF7F7F;
+  --ersh-jaune-potentiel: #FFC857;
+  --ersh-turquoise-clarte: #4CC9C9;
+  --ersh-violet-cooperation: #9D8DF1;
+  --ersh-gris-doux: #E6EDF2;
+  --ersh-bleu-texte: #153A5B;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, var(--ersh-bleu-confiance), var(--ersh-turquoise-clarte));
+}

@@ -51,6 +51,10 @@ components:
         chef_etablissement:
           type: string
           nullable: true
+        email_chef_etablissement:
+          type: string
+          format: email
+          nullable: true
         created_at:
           type: string
           format: date-time
@@ -68,6 +72,10 @@ components:
         chef_etablissement:
           type: string
           nullable: true
+        email_chef_etablissement:
+          type: string
+          format: email
+          nullable: true
 
     EtablissementUpdate:
       type: object
@@ -76,6 +84,10 @@ components:
           type: string
         chef_etablissement:
           type: string
+          nullable: true
+        email_chef_etablissement:
+          type: string
+          format: email
           nullable: true
 
     EtatCategorie:
@@ -763,6 +775,20 @@ paths:
                 update_existing:
                   type: boolean
                   default: true
+                parcours_defaut:
+                  type: string
+                  enum:
+                    - Premiere demande
+                    - Reexamen
+                  default: Reexamen
+                  description: Parcours a utiliser si le CSV ne contient pas de parcours.
+                orientation_defaut:
+                  type: string
+                  enum:
+                    - Ordinaire
+                    - Dispositif
+                  default: Ordinaire
+                  description: Orientation a utiliser si le CSV ne contient pas d'orientation.
       responses:
         "200":
           description: Rapport d’import
