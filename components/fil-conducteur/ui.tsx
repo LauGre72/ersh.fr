@@ -2,32 +2,32 @@ import type { ReactNode } from "react";
 import type { AlerteNotification, CouleurPastel, OrientationEleve, ParcoursEleve } from "./types";
 
 export const pastelClasses: Record<CouleurPastel, string> = {
-  rose: "border-rose-200 bg-rose-50 text-rose-900",
-  bleu: "border-sky-200 bg-sky-50 text-sky-900",
-  vert: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  jaune: "border-amber-200 bg-amber-50 text-amber-950",
+  rose: "border-[#FF7F7F]/35 bg-[#FF7F7F]/10 text-[#153A5B]",
+  bleu: "border-[#2A6F97]/30 bg-[#2A6F97]/10 text-[#153A5B]",
+  vert: "border-[#6FBF73]/35 bg-[#6FBF73]/10 text-[#153A5B]",
+  jaune: "border-[#FFC857]/45 bg-[#FFC857]/20 text-[#153A5B]",
   orange: "border-orange-200 bg-orange-50 text-orange-900",
-  violet: "border-violet-200 bg-violet-50 text-violet-900",
-  gris: "border-gray-200 bg-gray-50 text-gray-900",
-  menthe: "border-teal-200 bg-teal-50 text-teal-900",
-  lavande: "border-indigo-200 bg-indigo-50 text-indigo-900",
-  peche: "border-red-200 bg-red-50 text-red-900",
+  violet: "border-[#9D8DF1]/35 bg-[#9D8DF1]/15 text-[#153A5B]",
+  gris: "border-[#D6E2EA] bg-[#F7FAFC] text-[#153A5B]",
+  menthe: "border-[#4CC9C9]/35 bg-[#4CC9C9]/10 text-[#153A5B]",
+  lavande: "border-[#9D8DF1]/30 bg-[#9D8DF1]/10 text-[#153A5B]",
+  peche: "border-[#FF7F7F]/30 bg-[#FF7F7F]/10 text-[#153A5B]",
 };
 
 export function parcoursClass(parcours: ParcoursEleve) {
   return parcours === "Première demande"
-    ? "border-blue-300 bg-blue-200 text-blue-950"
-    : "border-emerald-300 bg-emerald-200 text-emerald-950";
+    ? "border-[#2A6F97]/35 bg-[#2A6F97]/15 text-[#153A5B]"
+    : "border-[#6FBF73]/45 bg-[#6FBF73]/20 text-[#153A5B]";
 }
 
 export function alerteClass(alerte?: AlerteNotification) {
-  if (alerte === "expiree") return "ring-2 ring-red-500";
-  if (alerte === "echeance_annee_scolaire") return "ring-2 ring-red-300";
+  if (alerte === "expiree") return "ring-2 ring-[#FF7F7F]";
+  if (alerte === "echeance_annee_scolaire") return "ring-2 ring-[#FFC857]";
   return "";
 }
 
 export function orientationIcon(orientation: OrientationEleve) {
-  return orientation === "Ordinaire" ? "🏫" : "⛵";
+  return orientation === "Ordinaire" ? "O" : "D";
 }
 
 export function Button({
@@ -39,10 +39,10 @@ export function Button({
   variant?: "primary" | "secondary" | "danger" | "ghost";
 }) {
   const variants = {
-    primary: "bg-blue-700 text-white hover:bg-blue-800",
-    secondary: "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50",
-    danger: "bg-red-600 text-white hover:bg-red-700",
-    ghost: "text-gray-700 hover:bg-gray-100",
+    primary: "bg-[#2A6F97] text-white hover:bg-[#235D80]",
+    secondary: "border border-[#D6E2EA] bg-white text-[#153A5B] hover:bg-[#F7FAFC]",
+    danger: "bg-[#FF7F7F] text-[#153A5B] hover:bg-[#F26F6F]",
+    ghost: "text-[#153A5B] hover:bg-[#E6EDF2]",
   };
 
   return (
@@ -62,10 +62,10 @@ export function TextInput({
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
-    <label className="block text-sm font-medium text-gray-700">
+    <label className="block text-sm font-medium text-[#153A5B]">
       <span>{label}</span>
       <input
-        className={`mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${className}`}
+        className={`mt-1 w-full rounded-lg border border-[#D6E2EA] bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-[#2A6F97] focus:ring-2 focus:ring-[#2A6F97]/15 ${className}`}
         {...props}
       />
     </label>
@@ -79,10 +79,10 @@ export function SelectInput({
   ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; children: ReactNode }) {
   return (
-    <label className="block text-sm font-medium text-gray-700">
+    <label className="block text-sm font-medium text-[#153A5B]">
       <span>{label}</span>
       <select
-        className={`mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${className}`}
+        className={`mt-1 w-full rounded-lg border border-[#D6E2EA] bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-[#2A6F97] focus:ring-2 focus:ring-[#2A6F97]/15 ${className}`}
         {...props}
       >
         {children}
@@ -97,10 +97,10 @@ export function TextareaInput({
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
   return (
-    <label className="block text-sm font-medium text-gray-700">
+    <label className="block text-sm font-medium text-[#153A5B]">
       <span>{label}</span>
       <textarea
-        className={`mt-1 min-h-24 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${className}`}
+        className={`mt-1 min-h-24 w-full rounded-lg border border-[#D6E2EA] bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-[#2A6F97] focus:ring-2 focus:ring-[#2A6F97]/15 ${className}`}
         {...props}
       />
     </label>
@@ -109,9 +109,9 @@ export function TextareaInput({
 
 export function StatusMessage({ type, children }: { type: "error" | "success" | "info"; children: ReactNode }) {
   const classes = {
-    error: "border-red-200 bg-red-50 text-red-800",
-    success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    info: "border-blue-200 bg-blue-50 text-blue-800",
+    error: "border-[#FF7F7F]/40 bg-[#FF7F7F]/10 text-red-900",
+    success: "border-[#6FBF73]/35 bg-[#6FBF73]/15 text-emerald-900",
+    info: "border-[#2A6F97]/20 bg-[#2A6F97]/10 text-[#153A5B]",
   };
   return <div className={`rounded-lg border px-4 py-3 text-sm ${classes[type]}`}>{children}</div>;
 }
