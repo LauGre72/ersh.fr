@@ -923,8 +923,8 @@ function CsvImportPage() {
           <div>
             <div className="font-semibold">Colonnes obligatoires</div>
             <ul className="mt-1 list-disc space-y-1 pl-5">
-              <li><code>nom</code> : nom complet de l'eleve</li>
-              <li><code>niveau</code> : niveau scolaire</li>
+              <li><code>nom_eleve</code> ou <code>nom</code> : nom complet de l'eleve</li>
+              <li><code>niveau_scolaire</code> ou <code>niveau</code> : niveau scolaire</li>
               <li><code>etablissement</code> : nom de l'etablissement</li>
             </ul>
           </div>
@@ -942,8 +942,8 @@ function CsvImportPage() {
           </div>
         </div>
         <div className="mt-3 overflow-auto rounded border border-blue-200 bg-white p-3 font-mono text-xs text-blue-950">
-          nom;niveau;parcours;orientation;etablissement;numero_dossier_mdph;date_naissance;date_fin_notification;commentaire<br />
-          Nora Dupont;6e;Premiere demande;Ordinaire;College Jean Monnet;72-2025-00123;2013-04-12;2026-08-31;Dossier complet
+          nom_eleve;niveau_scolaire;etablissement;etat<br />
+          Nora Dupont;6e;College Jean Monnet;Dossier complet
         </div>
       </div>
       {error && <div className="mt-4"><StatusMessage type="error">{error}</StatusMessage></div>}

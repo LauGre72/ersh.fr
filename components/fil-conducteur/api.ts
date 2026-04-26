@@ -113,7 +113,7 @@ export const filConducteurApi = {
     if (etablissementId) params.set("etablissement_id", String(etablissementId));
     return request<SearchResult[]>(`/eleves/search?${params.toString()}`);
   },
-  importCsv: (
+  importCsv: async (
     file: File,
     etatDefautId?: number,
     updateExisting = true,
@@ -121,7 +121,7 @@ export const filConducteurApi = {
     orientationDefaut = "Ordinaire",
   ) => {
     const body = new FormData();
-    body.set("file", file);
+    body.set("file", await normalizeCsvFile(file));
     if (etatDefautId) body.set("etat_defaut_id", String(etatDefautId));
     body.set("update_existing", String(updateExisting));
     body.set("parcours_defaut", parcoursDefaut);
@@ -135,3 +135,89 @@ export const filConducteurApi = {
     return request<Historique[]>(`/historiques${query ? `?${query}` : ""}`);
   },
 };
+
+async function normalizeCsvFile(file: File) {
+  const text = await file.text();
+  const rows = parseCsvRows(text, detectCsvDelimiter(text));
+  if (rows.length === 0) return file;
+
+  const normalizedRows = rows.map((row, rowIndex) =>
+    row.map((cell, cellIndex) => {
+      const value = cell.trim();
+      return rowIndex === 0 && cellIndex === 0 ? value.replace(/^\uFEFF/, "") : value;
+    }),
+  );
+  const normalizedText = normalizedRows.map((row) => row.map(escapeCsvCell).join(",")).join("\n");
+  return new File([normalizedText], file.name, { type: "text/csv" });
+}
+
+function detectCsvDelimiter(text: string) {
+  const firstLine = text.split(/\r?\n/).find((line) => line.trim()) || "";
+  const semicolons = countDelimiter(firstLine, ";");
+  const commas = countDelimiter(firstLine, ",");
+  return semicolons > commas ? ";" : ",";
+}
+
+function countDelimiter(line: string, delimiter: string) {
+  let count = 0;
+  let inQuotes = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+    if (char === '"') {
+      if (inQuotes && next === '"') index += 1;
+      else inQuotes = !inQuotes;
+      continue;
+    }
+    if (!inQuotes && char === delimiter) count += 1;
+  }
+  return count;
+}
+
+function parseCsvRows(text: string, delimiter: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (!inQuotes && char === delimiter) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if (!inQuotes && (char === "\n" || char === "\r")) {
+      row.push(cell);
+      if (row.some((value) => value.trim())) rows.push(row);
+      row = [];
+      cell = "";
+      if (char === "\r" && next === "\n") index += 1;
+      continue;
+    }
+
+    cell += char;
+  }
+
+  row.push(cell);
+  if (row.some((value) => value.trim())) rows.push(row);
+  return rows;
+}
+
+function escapeCsvCell(value: string) {
+  if (!/[",\n\r]/.test(value)) return value;
+  return `"${value.replace(/"/g, '""')}"`;
+}
